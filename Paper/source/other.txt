@@ -1,0 +1,23 @@
+Everything is one. This is a holographic-like principle.
+
+EEG and ECG data should contain consciousness signals.
+
+For consciousness detection, a PIN photodiode may have its dark current
+amplified and digitized. The BPW34 is a popular photodiode whose dark current
+has been studied.
+Bayhan and {\"O}zden \cite{Moreva} propose that tunneling enhanced
+recombination plays a significant role in the dark forward current.
+Since consciousness \cite{Xin} has been found to be able to modulate the
+rate of radioactive decay (a tunneling phenomenon),
+dark current is a good candidate for the measurement of consciousness signals.
+
+An interesting experiment would be to expose the photodiode to sunlight.
+The sun has a radiance fluctuation with a 1/f power spectrum.
+If the sun is conscious, this noise should contain consciousness signals.
+
+A photodiode is a good tunnel-current based sensor because its surface
+is free of aluminum. Aluminum is a reflector of "torsion waves"
+
+
+Certain Physical Manifestation and Effects of External
+Qi of Yan Xin Life Science Technology

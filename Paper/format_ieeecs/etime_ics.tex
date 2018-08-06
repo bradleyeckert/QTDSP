@@ -1,0 +1,35 @@
+% needs IEEEtran.cls
+%
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+%\documentclass[conference,compsoc]{IEEEtran}
+
+\input{../source/etime_preamble}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  Body of document follows...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\input{../source/etime_title}
+\IEEEtitleabstractindextext{%
+\input{../source/etime_abstract}
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+Tao, flicker noise, emergent time, consciousness.
+\end{IEEEkeywords}}
+
+\maketitle
+
+%\tableofcontents
+
+\input{../source/etime_intro}
+\input{../source/etime_demod}
+\input{../source/etime_mod}
+\input{../source/etime_test}
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,../source/etime}
+
+\end{document}
+

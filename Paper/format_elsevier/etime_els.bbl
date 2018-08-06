@@ -1,0 +1,50 @@
+\providecommand{\noopsort}[1]{}\providecommand{\singleletter}[1]{#1}%
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{Milotti}
+E.~Milotti, 1/f noise: a pedagogical review\href
+  {http://arxiv.org/abs/physics/0204033} {\path{arXiv:physics/0204033}}.
+
+\bibitem{DeWitt}
+B.~S. Dewitt, Quantum theory of gravity. i. the canonical theory, Physical
+  Review 160 (1967) 1113--1148, {DOI:10.1103/PhysRev.160.1113}.
+
+\bibitem{Page}
+D.~N. Page, W.~K. Wootters, Evolution without volution: Dynamics described by
+  stationary observables, Physical Review D 27~(12) (1983) 2885--2892.
+
+\bibitem{Moreva}
+e.~a. E.~Moreva, Time from quantum entanglement: an experimental illustration,
+  Physical Review A 89, 052122.
+
+\bibitem{Lobo}
+A.~C. Lobo, Time and consciousness in a quantum world\href
+  {http://arxiv.org/abs/1709.08093} {\path{arXiv:1709.08093}}.
+
+\bibitem{Chalmers}
+D.~J. Chalmers, Facing up to the problem of consciousness, Journal of
+  Consciousness Studies 2 (1995) 200--219.
+
+\bibitem{Achterberg}
+e.~a. Jeanne~Achterberg, Evidence for correlations between distant
+  intentionality and brain function in recipients: A functional magnetic
+  resonance imaging analysis, Journal of Complementary and Alternative Medicine
+  11~(6) (2005) 965--971.
+
+\bibitem{Mandelbrot}
+B.~Mandelbrot, The Fractal Geometry of Nature, W. H. Freeman and Company, 1982.
+
+\bibitem{Brunet}
+O.~Brunet, Geometric time and causal time in relativistic lagrangian
+  mechanics\href {http://arxiv.org/abs/1609.02040} {\path{arXiv:1609.02040}}.
+
+\bibitem{Bonmassar}
+G.~Bonmassar, E.~L. Schwartz, Space-variant fourier analysis: the exponential
+  chirp transform{DOI:10.1109/34.625108}.
+
+\end{thebibliography}
