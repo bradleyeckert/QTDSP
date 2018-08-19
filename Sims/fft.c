@@ -1,3 +1,5 @@
+// from https://www.math.wustl.edu/~victor/mfmm/fourier/fft.c
+
 /* Factored discrete Fourier transform, or FFT, and its inverse iFFT */
 
 #include <assert.h>
@@ -5,9 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-#define q	3		/* for 2^3 points */
+#define q	10
 #define N	(1<<q)		/* N-point FFT, iFFT */
+
+#define filename "chirp.csv"
 
 typedef float real;
 typedef struct{real Re; real Im;} complex;
@@ -15,22 +18,6 @@ typedef struct{real Re; real Im;} complex;
 #ifndef PI
 # define PI	3.14159265358979323846264338327950288
 #endif
-
-
-/* Print a vector of complexes as ordered pairs. */
-static void
-print_vector(
-	     const char *title,
-	     complex *x,
-	     int n)
-{
-  int i;
-  printf("%s (dim=%d):", title, n);
-  for(i=0; i<n; i++ ) printf(" %5.2f,%5.2f ", x[i].Re,x[i].Im);
-  putchar('\n');
-  return;
-}
-
 
 /*
    fft(v,N):
@@ -109,13 +96,36 @@ ifft( complex *v, int n, complex *tmp )
   }
   return;
 }
-
 
-int
-main(void)
+// -----------------------------------------------------------------------------
+
+/* Print a vector of complexes as ordered pairs. */
+// unused
+static void
+print_vector(
+	     const char *title,
+	     complex *x,
+	     int n)
 {
-  complex v[N], v1[N], scratch[N];
-  int k;
+  int i;
+  printf("%s (dim=%d):", title, n);
+  for(i=0; i<n; i++ ) printf(" %5.2f,%5.2f ", x[i].Re,x[i].Im);
+  putchar('\n');
+  return;
+}
+
+double k1 = 1.0 / N;        // frequency scale
+double k2 = 1.0 / N;        // asymptotic freq scale
+double k3 = 1.0 / N;        // amplitude loss scale
+
+int main(void) {
+  complex v[N], scratch[N]; // v is the test signal
+  int t;
+
+  // "chirp.csv"
+
+
+
 
   /* Fill v[] with a function of known FFT: */
   for(k=0; k<N; k++) {
@@ -131,13 +141,6 @@ main(void)
   print_vector(" FFT", v, N);
   ifft( v, N, scratch );
   print_vector("iFFT", v, N);
-
-  /* FFT, iFFT of v1[]: */
-  print_vector("Orig", v1, N);
-  fft( v1, N, scratch );
-  print_vector(" FFT", v1, N);
-  ifft( v1, N, scratch );
-  print_vector("iFFT", v1, N);
 
   exit(EXIT_SUCCESS);
 }
