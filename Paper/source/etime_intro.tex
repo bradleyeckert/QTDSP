@@ -59,10 +59,16 @@ As it turns out, this exponential relationship between $\tau$ and $t$
 is a key enabler of signal transformations.
 
 For it to be scale invariant,
-we use an exponential growth model for emergent time:
-\begin{equation} \label{eq:ez}
+we use an exponential growth model for emergent time.
+There are two models: One for flicker (1/f) noise and one for white noise.
+
+\begin{equation} \label{eq:pink}
 \tau \propto e^{\epsilon t}
 \end{equation}
+\begin{equation} \label{eq:white}
+\frac{1}{\tau} \propto (1-e^{\epsilon t})
+\end{equation}
+
 The mechanics of signal generation can be considered in the context of
 emergent time.
 This arrangement lends itself to information flow, utilized by nature,
@@ -81,8 +87,8 @@ that biological systems would use field resonances in the physical vacuum
 (the exact nature of the field needs not be understood)
 to transmit consciousness information efficiently.
 
-In other words, there is a theoretical basis for the notion that 
-"It's all vibrations". 
+In other words, there is a theoretical basis for the notion that
+"It's all vibrations".
 The vibrations occur in emergent time, so that summing the signal artifacts
 from a large number of them results in an apparent noise spectrum.
 
@@ -118,10 +124,32 @@ So, there is a plausible basis for 1/f noise being composed of exponential
 chirps.
 
 The 1/f spectrum suggests that a multiplicity of emergent time rates
-($\epsilon$ in Eq.~\ref{eq:ez}) exist.
+($\epsilon$ in Eq.~\ref{eq:pink}) exist.
 Nature evolves to fill the spectrum of emergent time, to utilize available
 bandwidth. One could call this spectrum ``The sound of the Tao''.
 Music in the $\tau$ domain would sound like pink noise in the $t$ domain.
+
+\subsection{Exponential White Noise}
+
+In the white noise model of emergent time, chirps start at 0 and asymptotically
+approach a final frequency as emergent time merges into causal time
+In other words the consciousness signal emerges from a domain of infinite time.
+The amplitude drops off with time at the same rate frequency increases, resulting
+in a flat spectrum from DC to the final frequency.
+Or the frequency that the chirp would arrive at if it were to continue indefinitely.
+
+\begin{equation}
+f = f_0 \cdot (1-e^{\epsilon t})
+\end{equation}
+\begin{equation}
+a = a_0 \cdot e^{\epsilon t}
+\end{equation}
+
+Since the spectra of all chirps are white, their distribution is up for grabs.
+However, an exponential distribution similar to that of the pink noise model would
+make the most sense from a bandwidth utilization standpoint.
+
+\subsection{Information in the Noise}
 
 Since exponential chirps are bounded in time, a single chirp has a finite
 existence. It corresponds to a discrete impulse in the causal time domain,
@@ -238,7 +266,7 @@ Signal processing is more convenient in terms of frequency,
 so that is the focus of this paper.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{\label{sec:level1}Mining Flicker Noise}
+\subsection{\label{sec:level1}Mining Noise}
 
 The basic data flow of signal conversion from one time domain to another
 $(\tau \leftrightarrow t)$ is shown in Fig.~\ref{fig:sled}.
