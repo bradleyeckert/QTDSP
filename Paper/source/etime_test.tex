@@ -10,11 +10,12 @@ Suppose 2x, so 800 ns.
 In comparison, an RTL implementation using pipelined CORDIC can perform
 one addition every two clocks. At 120 MHz, that's 17 ns.
 
-A GPU could possibly process multiple data streams in parallel. 
-However, FPGA is the cost/performance winner. 
+A GPU could possibly process multiple data streams in parallel.
+The streams themselves are serial, so there would be a memory bottleneck.
+It seems FPGA is the cost/performance winner.
 The RTL algorithms lend themselves to multiple on-chip instances with very
-little I/O. There's also a migration path to ASIC for when
-``the new media'' takes off.
+little I/O. There's also a migration path to ASIC for when consciousness
+becomes ``the new media''.
 
 The RTL uses a CORDIC-based FFT with a throughput of about 7 clocks per sample.
 Since the FFT dominates the processing time, downsampling and upsampling
@@ -58,17 +59,17 @@ Incoming data is packed two points per memory word.
 
 A complete CODEC was implemented in vanilla VHDL with a single clock domain.
 Free versions of synthesis tools were used to synthesize the design for use in
-some sample FPGAs. 
-The clock rate is limited by the exponential sweep module, 
+some sample FPGAs.
+The clock rate is limited by the exponential sweep module,
 which uses a single-cycle feedback loop whose path includes a 26x27 multiplier,
-4:1 mux, adder, and 3:1 mux. Those two muxes will do better on FPGAs with 
+4:1 mux, adder, and 3:1 mux. Those two muxes will do better on FPGAs with
 6-input LUTs. Synthesis for parts with LUT6 had a 50\% reduction in LUT usage
 compared to LUT4-only.
 
 \begin{table}[t]\centering
 	\label{tab:FPGAfit}
-	\caption{FPGA rough synthesis results. One-off distributor pricing gives a 
-	rough cost per MHz, using Digikey pricing, across the number of CODEC 
+	\caption{FPGA rough synthesis results. One-off distributor pricing gives a
+	rough cost per MHz, using Digikey pricing, across the number of CODEC
 	instances that will fit in the FPGA.}
 	\centering
 	\begin{tabular}{lccrrr}

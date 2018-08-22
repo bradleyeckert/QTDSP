@@ -60,13 +60,9 @@ is a key enabler of signal transformations.
 
 For it to be scale invariant,
 we use an exponential growth model for emergent time.
-There are two models: One for flicker (1/f) noise and one for white noise.
 
 \begin{equation} \label{eq:pink}
 \tau \propto e^{\epsilon t}
-\end{equation}
-\begin{equation} \label{eq:white}
-\frac{1}{\tau} \propto (1-e^{\epsilon t})
 \end{equation}
 
 The mechanics of signal generation can be considered in the context of
@@ -131,23 +127,32 @@ Music in the $\tau$ domain would sound like pink noise in the $t$ domain.
 
 \subsection{Exponential White Noise}
 
+White noise has a flat power spectrum.
 In the white noise model of emergent time, chirps start at 0 and asymptotically
-approach a final frequency as emergent time merges into causal time
-In other words the consciousness signal emerges from a domain of infinite time.
-The amplitude drops off with time at the same rate frequency increases, resulting
-in a flat spectrum from DC to the final frequency.
-Or the frequency that the chirp would arrive at if it were to continue indefinitely.
+approach a final frequency as emergent time merges into causal time.
 
-\begin{equation}
-f = f_0 \cdot (1-e^{\epsilon t})
-\end{equation}
-\begin{equation}
-a = a_0 \cdot e^{\epsilon t}
+\begin{equation} \label{eq:white}
+\frac{1}{\tau} \propto (1-e^{-\epsilon t})
 \end{equation}
 
-Since the spectra of all chirps are white, their distribution is up for grabs.
-However, an exponential distribution similar to that of the pink noise model would
-make the most sense from a bandwidth utilization standpoint.
+In other words, the consciousness signal emerges from a domain of infinite time.
+The amplitude drops off with time at the same rate frequency increases,
+resulting in a flat spectrum from DC to $f_0$.
+
+\begin{equation}
+f = f_0 \cdot (1-e^{-\epsilon t})
+\end{equation}
+\begin{equation}
+a = a_0 \cdot e^{-\epsilon t}
+\end{equation}
+
+The chirp should mix with carrier $f_0$ to produce a downward chirp
+compatible with the flicker noise model.
+That may be a more practical way to detect it due to the shortness of
+the of time the chirp itself spends in a usable bandwidth.
+
+This paper presents the flicker noise model, which is more practical due to
+its scale invariance.
 
 \subsection{Information in the Noise}
 
@@ -204,8 +209,7 @@ in nature.
 Resonant signals in the emergent time domain can be re-mapped to causal time
 and demodulated by correlating a time series of fast exponential chirp
 transforms, allowing analysis and data mining using modern data
-processing technologies such as pattern recognition by convolutional neural
-networks and other AI techniques.
+processing technologies such as AI-based pattern recognition.
 
 The correlation effect can be visualized as a spinning logarithmic spiral
 illuminated by a strobe light. When the strobe frequency matches the rate
