@@ -1,9 +1,9 @@
-\section{Demodulation}
+\section{QTDSP Demodulation}
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.95\linewidth]{../source/demod_e}
-	\caption[Emergent to Causal Time Demodulation]{Demodulation data flow}
+	\caption[Quantum to Relative Time Demodulation]{Demodulation data flow}
 	\label{fig:demod}
 \end{figure}
 
@@ -26,10 +26,11 @@
 Multiple demodulator instances can be placed in an FPGA or ASIC to demodulate a
 large number of $\omega$ values in parallel. This would be used in spectral
 analysis, for finding signals; and deep data mining, for analyzing weak signals.
-Due to the low I/O bandwidth,
-a low cost ASIC would be feasible for consumer applications.
+Due to the low I/O bandwidth, the algorithm lends itself to parallelism without
+the complexity of high-speed signaling or memory management.
+A low-cost ASIC would be feasible for consumer applications.
 
-The mathematics of signal conversion, besides FFT, is straight Algebra.
+The mathematics of signal conversion, besides FFT, is College Algebra.
 The algorithm can be coded by a typical programmer or engineer with some help
 from the following derivations.
 

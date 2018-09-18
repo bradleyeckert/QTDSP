@@ -1,4 +1,4 @@
-\section{Modulation}
+\section{QTDSP Modulation}
 
 Modulation is the reverse of demodulation.
 It inputs a stream of (magnitude, angle) vectors and outputs a stream of real
@@ -8,7 +8,7 @@ of demodulaton's upsample and downsample processes respectively.
 \begin{figure}
 	\centering
 	\includegraphics[width=0.95\linewidth]{../source/mod_e}
-	\caption[Causal to Emergent Time Demodulation]{Modulation data flow}
+	\caption[Relative to Quantum Time Demodulation]{Modulation data flow}
 	\label{fig:mod}
 \end{figure}
 
@@ -53,7 +53,7 @@ j index mirrored by using V[v-j], where v is the maximum j such as 0.469N.
 \subsection{IFFT}
 
 The IFFT ($U \rightarrow Y$) is an Inverse Fast Fourier Transform that
-translates N/2 complex frequency values to N/2 complex points in the causal
+translates N/2 complex frequency values to N/2 complex points in the relative
 time domain. These may be assumed to have Hermitian symmetry,
 so the imaginary part of $Y$ can be ignored.
 It's also possible to realize Y as N real points.
