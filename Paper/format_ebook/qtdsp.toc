@@ -1,0 +1,24 @@
+\contentsline {chapter}{Contents}{2}{section*.1}
+\contentsline {chapter}{\chapternumberline {1}Signal Processing Alchemy}{5}{chapter.1}
+\contentsline {section}{\numberline {1.1}Two-Dimensional Time}{5}{section.1.1}
+\contentsline {subsection}{Quantum Time and Consciousness}{8}{section*.3}
+\contentsline {section}{\numberline {1.2}Exponential Flicker Noise}{11}{section.1.2}
+\contentsline {subsection}{Exponential White Noise}{12}{section*.4}
+\contentsline {subsection}{Information in the Noise}{14}{section*.5}
+\contentsline {subsection}{Spiral Conceptual Model}{16}{section*.6}
+\contentsline {subsection}{Quantum Time DSP}{19}{section*.7}
+\contentsline {section}{\numberline {1.3}QT Demodulation}{23}{section.1.3}
+\contentsline {subsection}{Downsampling}{24}{section*.8}
+\contentsline {subsubsection}{Math}{24}{section*.9}
+\contentsline {subsubsection}{Interpolation}{28}{section*.10}
+\contentsline {subsection}{FFT}{31}{section*.11}
+\contentsline {subsection}{Upsampling}{32}{section*.12}
+\contentsline {subsection}{Correlation}{37}{section*.13}
+\contentsline {section}{\numberline {1.4}QT Modulation}{39}{section.1.4}
+\contentsline {subsection}{Downsampling}{40}{section*.14}
+\contentsline {subsection}{IFFT}{42}{section*.15}
+\contentsline {subsection}{Upsampling}{42}{section*.16}
+\contentsline {section}{\numberline {1.5}Implementation}{43}{section.1.5}
+\contentsline {subsection}{Instrumentation}{45}{section*.17}
+\contentsline {subsection}{FPGA utilization}{47}{section*.18}
+\contentsline {chapter}{Bibliography}{49}{section*.20}

@@ -1,0 +1,83 @@
+\providecommand{\noopsort}[1]{}\providecommand{\singleletter}[1]{#1}%
+\begin{thebibliography}{10}
+
+\bibitem{Bonmassar}
+G.~Bonmassar and E.~L. Schwartz.
+\newblock Space-variant fourier analysis: the exponential chirp transform.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  19:1080--1089, 1997.
+\newblock {DOI:10.1109/34.625108}.
+
+\bibitem{Brunet}
+O.~Brunet.
+\newblock Geometric time and causal time in relativistic lagrangian mechanics.
+\newblock 2016.
+
+\bibitem{Chalmers}
+D.~J. Chalmers.
+\newblock Facing up to the problem of consciousness.
+\newblock {\em Journal of Consciousness Studies}, 2:200--219, 1995.
+
+\bibitem{Craddock}
+T.~J.~A. Craddock.
+\newblock Anesthetic alterations of collective terahertz oscillations in
+  tubulin correlate with clinical potency: Implications for anesthetic action
+  and post-operative cognitive dysfunction.
+\newblock {\em Scientific Reports}, 7(1):9877, 2017.
+
+\bibitem{DeWitt}
+B.~S. Dewitt.
+\newblock Quantum theory of gravity. i. the canonical theory.
+\newblock {\em Physical Review}, 160:1113--1148, 1967.
+\newblock {DOI:10.1103/PhysRev.160.1113}.
+
+\bibitem{Moreva}
+e.~a. E.~Moreva.
+\newblock Time from quantum entanglement: an experimental illustration.
+\newblock {\em Physical Review A}, 89, 2014.
+\newblock 052122.
+
+\bibitem{Hameroff}
+S.~Hameroff.
+\newblock Consciousness in the universe: a review of the 'orch or' theory.
+\newblock {\em Physics of Life Reviews}, 11, 2013.
+
+\bibitem{Achterberg}
+e.~a. Jeanne~Achterberg.
+\newblock Evidence for correlations between distant intentionality and brain
+  function in recipients: A functional magnetic resonance imaging analysis.
+\newblock {\em Journal of Complementary and Alternative Medicine},
+  11(6):965--971, 2005.
+
+\bibitem{Jianfeng}
+J.~Li.
+\newblock A timeless and spaceless quantum theory of consciousness.
+\newblock {\em NeuroQuantology}, 11:431--442, 2013.
+
+\bibitem{Lobo}
+A.~C. Lobo.
+\newblock Time and consciousness in a quantum world.
+\newblock 2017.
+
+\bibitem{Mandelbrot}
+B.~Mandelbrot.
+\newblock {\em The Fractal Geometry of Nature}.
+\newblock W. H. Freeman and Company, 1982.
+
+\bibitem{Milotti}
+E.~Milotti.
+\newblock 1/f noise: a pedagogical review.
+\newblock 2002.
+
+\bibitem{Page}
+D.~N. Page and W.~K. Wootters.
+\newblock Evolution without volution: Dynamics described by stationary
+  observables.
+\newblock {\em Physical Review D}, 27(12):2885--2892, 1983.
+
+\bibitem{Schwartz}
+E.~L. Schwartz.
+\newblock Cortical anatomy, size invariance, and spatial frequency analysis.
+\newblock {\em Perception}, 10:455--469, 1981.
+
+\end{thebibliography}

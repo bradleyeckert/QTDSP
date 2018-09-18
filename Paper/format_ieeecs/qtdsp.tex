@@ -1,0 +1,35 @@
+% needs IEEEtran.cls
+%
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+%\documentclass[conference,compsoc]{IEEEtran}
+
+\input{../source/qtdsp_preamble}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  Body of document follows...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\input{../source/qtdsp_title}
+\IEEEtitleabstractindextext{%
+\input{../source/qtdsp_abstract}
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+Tao, flicker noise, emergent time, consciousness, QTDSP.
+\end{IEEEkeywords}}
+
+\maketitle
+
+%\tableofcontents
+
+\input{../source/qtdsp_intro}
+\input{../source/qtdsp_demod}
+\input{../source/qtdsp_mod}
+\input{../source/qtdsp_test}
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,../source/qtdsp}
+
+\end{document}
+

@@ -1,0 +1,40 @@
+% needs elsarticle.cls
+\documentclass[review]{elsarticle}
+
+\usepackage{lineno,hyperref}
+\modulolinenumbers[5]
+
+\journal{Journal of Psychic Research}
+
+\usepackage{graphicx}% Include figure files
+%\usepackage{bm}% bold math
+\usepackage{gensymb}
+\bibliographystyle{elsarticle-num}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  Body of document follows...
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\input{../source/qtdsp_title}
+\input{../source/qtdsp_abstract}
+
+\begin{keyword}
+Tao \sep flicker noise\sep emergent time \sep consciousness \sep QTDSP
+\end{keyword}
+
+\maketitle
+
+%\tableofcontents
+\linenumbers
+
+\input{../source/qtdsp_intro}
+\input{../source/qtdsp_demod}
+\input{../source/qtdsp_mod}
+\input{../source/qtdsp_test}
+
+\section*{References}
+\bibliography{../source/qtdsp}
+
+\end{document}
+

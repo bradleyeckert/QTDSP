@@ -1,0 +1,169 @@
+%merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+%Control: key (0)
+%Control: author (0) dotless jnrlst
+%Control: editor formatted (1) identically to author
+%Control: production of article title (0) allowed
+%Control: page (1) range
+%Control: year (0) verbatim
+%Control: production of eprint (0) enabled
+\providecommand{\noopsort}[1]{}\providecommand{\singleletter}[1]{#1}%
+\begin{thebibliography}{14}%
+\makeatletter
+\providecommand \@ifxundefined [1]{%
+ \@ifx{#1\undefined}
+}%
+\providecommand \@ifnum [1]{%
+ \ifnum #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \@ifx [1]{%
+ \ifx #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \natexlab [1]{#1}%
+\providecommand \enquote  [1]{``#1''}%
+\providecommand \bibnamefont  [1]{#1}%
+\providecommand \bibfnamefont [1]{#1}%
+\providecommand \citenamefont [1]{#1}%
+\providecommand \href@noop [0]{\@secondoftwo}%
+\providecommand \href [0]{\begingroup \@sanitize@url \@href}%
+\providecommand \@href[1]{\@@startlink{#1}\@@href}%
+\providecommand \@@href[1]{\endgroup#1\@@endlink}%
+\providecommand \@sanitize@url [0]{\catcode `\\12\catcode `\$12\catcode
+  `\&12\catcode `\#12\catcode `\^12\catcode `\_12\catcode `\%12\relax}%
+\providecommand \@@startlink[1]{}%
+\providecommand \@@endlink[0]{}%
+\providecommand \url  [0]{\begingroup\@sanitize@url \@url }%
+\providecommand \@url [1]{\endgroup\@href {#1}{\urlprefix }}%
+\providecommand \urlprefix  [0]{URL }%
+\providecommand \Eprint [0]{\href }%
+\providecommand \doibase [0]{http://dx.doi.org/}%
+\providecommand \selectlanguage [0]{\@gobble}%
+\providecommand \bibinfo  [0]{\@secondoftwo}%
+\providecommand \bibfield  [0]{\@secondoftwo}%
+\providecommand \translation [1]{[#1]}%
+\providecommand \BibitemOpen [0]{}%
+\providecommand \bibitemStop [0]{}%
+\providecommand \bibitemNoStop [0]{.\EOS\space}%
+\providecommand \EOS [0]{\spacefactor3000\relax}%
+\providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
+\let\auto@bib@innerbib\@empty
+%</preamble>
+\bibitem [{\citenamefont {Dewitt}(1967)}]{DeWitt}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.~S.}\ \bibnamefont
+  {Dewitt}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Quantum theory
+  of gravity. i. the canonical theory},}\ }\href@noop {} {\bibfield  {journal}
+  {\bibinfo  {journal} {Physical Review}\ }\textbf {\bibinfo {volume} {160}},\
+  \bibinfo {pages} {1113--1148} (\bibinfo {year} {1967})},\ \bibinfo {note}
+  {{DOI:10.1103/PhysRev.160.1113}}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Page}\ and\ \citenamefont {Wootters}(1983)}]{Page}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~N.}\ \bibnamefont
+  {Page}}\ and\ \bibinfo {author} {\bibfnamefont {W.~K.}\ \bibnamefont
+  {Wootters}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Evolution
+  without volution: Dynamics described by stationary observables},}\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
+  D}\ }\textbf {\bibinfo {volume} {27}},\ \bibinfo {pages} {2885--2892}
+  (\bibinfo {year} {1983})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {E.~Moreva}(2014)}]{Moreva}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {et~al.}\ \bibnamefont
+  {E.~Moreva}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Time from
+  quantum entanglement: an experimental illustration},}\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review A}\ }\textbf
+  {\bibinfo {volume} {89}} (\bibinfo {year} {2014})},\ \bibinfo {note}
+  {052122}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Lobo}(2017)}]{Lobo}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Augusto~Cesar}\
+  \bibnamefont {Lobo}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Time
+  and consciousness in a quantum world},}\ }\href@noop {} {\  (\bibinfo {year}
+  {2017})},\ \Eprint {http://arxiv.org/abs/1709.08093} {arXiv:1709.08093
+  [physics.hist-ph]} \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Li}(2013)}]{Jianfeng}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Jianfeng}\
+  \bibnamefont {Li}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {A
+  timeless and spaceless quantum theory of consciousness},}\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {NeuroQuantology}\ }\textbf
+  {\bibinfo {volume} {11}},\ \bibinfo {pages} {431--442} (\bibinfo {year}
+  {2013})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Brunet}(2016)}]{Brunet}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {O.}~\bibnamefont
+  {Brunet}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Geometric time
+  and causal time in relativistic lagrangian mechanics},}\ }\href@noop {} {\
+  (\bibinfo {year} {2016})},\ \Eprint {http://arxiv.org/abs/1609.02040}
+  {arXiv:1609.02040 [gr-qc]} \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Chalmers}(1995)}]{Chalmers}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~J.}\ \bibnamefont
+  {Chalmers}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Facing up to
+  the problem of consciousness},}\ }\href@noop {} {\bibfield  {journal}
+  {\bibinfo  {journal} {Journal of Consciousness Studies}\ }\textbf {\bibinfo
+  {volume} {2}},\ \bibinfo {pages} {200--219} (\bibinfo {year}
+  {1995})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Jeanne~Achterberg}(2005)}]{Achterberg}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {et~al.}\ \bibnamefont
+  {Jeanne~Achterberg}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {Evidence for correlations between distant intentionality and brain function
+  in recipients: A functional magnetic resonance imaging analysis},}\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Journal of
+  Complementary and Alternative Medicine}\ }\textbf {\bibinfo {volume} {11}},\
+  \bibinfo {pages} {965--971} (\bibinfo {year} {2005})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Mandelbrot}(1982)}]{Mandelbrot}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Benoit}\ \bibnamefont
+  {Mandelbrot}},\ }\href@noop {} {\emph {\bibinfo {title} {The Fractal Geometry
+  of Nature}}}\ (\bibinfo  {publisher} {W. H. Freeman and Company},\ \bibinfo
+  {year} {1982})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Milotti}(2002)}]{Milotti}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.}~\bibnamefont
+  {Milotti}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {1/f noise: a
+  pedagogical review},}\ }\href@noop {} {\  (\bibinfo {year} {2002})},\ \Eprint
+  {http://arxiv.org/abs/physics/0204033} {arXiv:physics/0204033
+  [physics.class-ph]} \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Craddock}(2017)}]{Craddock}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Travis J.~A}\
+  \bibnamefont {Craddock}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {Anesthetic alterations of collective terahertz oscillations in tubulin
+  correlate with clinical potency: Implications for anesthetic action and
+  post-operative cognitive dysfunction},}\ }\href {\doibase
+  10.1038/s41598-017-09992-7} {\bibfield  {journal} {\bibinfo  {journal}
+  {Scientific Reports}\ }\textbf {\bibinfo {volume} {7}},\ \bibinfo {pages}
+  {9877} (\bibinfo {year} {2017})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Hameroff}(2013)}]{Hameroff}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Stuart}\ \bibnamefont
+  {Hameroff}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Consciousness
+  in the universe: a review of the 'orch or' theory},}\ }\href {\doibase
+  https://doi.org/10.1016/j.plrev.2013.08.002} {\bibfield  {journal} {\bibinfo
+  {journal} {Physics of Life Reviews}\ }\textbf {\bibinfo {volume} {11}}
+  (\bibinfo {year} {2013}),\
+  https://doi.org/10.1016/j.plrev.2013.08.002}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Bonmassar}\ and\ \citenamefont
+  {Schwartz}(1997)}]{Bonmassar}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {G.}~\bibnamefont
+  {Bonmassar}}\ and\ \bibinfo {author} {\bibfnamefont {E.~L.}\ \bibnamefont
+  {Schwartz}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Space-variant
+  fourier analysis: the exponential chirp transform},}\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {IEEE Transactions on Pattern
+  Analysis and Machine Intelligence}\ }\textbf {\bibinfo {volume} {19}},\
+  \bibinfo {pages} {1080--1089} (\bibinfo {year} {1997})},\ \bibinfo {note}
+  {{DOI:10.1109/34.625108}}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Schwartz}(1981)}]{Schwartz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.~L.}\ \bibnamefont
+  {Schwartz}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Cortical
+  anatomy, size invariance, and spatial frequency analysis},}\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Perception}\ }\textbf {\bibinfo
+  {volume} {10}},\ \bibinfo {pages} {455--469} (\bibinfo {year}
+  {1981})}\BibitemShut {NoStop}%
+\end{thebibliography}%
