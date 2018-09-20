@@ -18,8 +18,8 @@ Figures are in Inkscape SVG format, exported as eps. See `/source`.
 
 ### Tools for Rebuilding the PDF
 
-You'll need Latex. I use TexStudio. It's a front end for TexWorks.
-You'll need to download both. 
+You'll need Latex. I use TexStudio. It's a front end for TexWorks,
+which is itself a front end for TeX. You'll need to download all three.
 Try to open `.tex` files in TexStudio. It seems better at resolving dependencies.
 
 Inkscape did a fine job of creating SVG files, which can be exported as `eps`
