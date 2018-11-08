@@ -8,7 +8,7 @@ A simple test using GCC on a Core i7 took 1.6 $\mu$s per addition.
 Table lookup (or other fast approximation) could speed that up:
 Suppose 2x, so 800 ns.
 In comparison, an RTL implementation using pipelined CORDIC can perform
-one addition every two clocks. At 120 MHz, that's 17 ns.
+one rotated addition every two clocks. At 100 MHz, that's 20 ns.
 
 A GPU could possibly process multiple data streams in parallel.
 The streams themselves are serial, so there would be a memory bottleneck.
@@ -67,6 +67,10 @@ which uses a single-cycle feedback loop whose path includes a 26x27 multiplier,
 6-input LUTs. Synthesis for parts with LUT6 had a 50\% reduction in LUT usage
 compared to LUT4-only.
 
+Quartus Prime Pro fit six cores into a 10CX105YU484I6G (20$\mu$m FPGA),
+with a power dissipation of about 5.8 watts at 100 MHz.
+A system with 6 or 8 cores could be cooled with a small fan heat sink combo.
+
 \begin{table}[t]\centering
 	\label{tab:FPGAfit}
 	\caption{FPGA rough synthesis results. One-off distributor pricing gives a
@@ -77,12 +81,12 @@ compared to LUT4-only.
 		\hline\hline
 		Device & Logic & DSPs & Clock & Cores & \$/MHz\\ [0.5ex]
 		\hline
-        Artix 7   & 8K LUT6 & 40   & 100 MHz & 12 & 0.16\\
-		Cyclone 10& 14K LE & 69 9x9 & 49 MHz &  4 & 0.25\\
-		LFE5      & 12K LE & 40     & 39 MHz &  1 & 0.30\\
-        PolarFire & 14K LUT4 & 37   & 51 MHz &  7 & 0.40\\
-		Cyclone 5 & 5K ALM & 18     & 72 MHz &  2 & 0.55\\
-		MAX10     & 13K LE & 69 9x9 & 51 MHz &  1 & 1.20\\
+        Artix 7     & 8K LUT6 & 40   & 100 MHz & 12 & 0.16\\
+		Cyclone 10GX& 38K ALM & 125  & 100 MHz &  6 & 0.21\\
+		LFE5        & 12K LE  & 40    & 39 MHz &  1 & 0.30\\
+        PolarFire   & 14K LUT4 & 37   & 51 MHz &  7 & 0.40\\
+		Cyclone 5   & 5K ALM & 18     & 72 MHz &  2 & 0.55\\
+		MAX10       & 13K LE & 69 9x9 & 51 MHz &  1 & 1.20\\
 		\hline
 	\end{tabular}
 \end{table}
