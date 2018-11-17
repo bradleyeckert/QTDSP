@@ -130,8 +130,11 @@ There are a good number of hypotheses for 1/f noise, to which we add one more:
 \begin{itemize}
 	\item The superposition of exponential chirps.
 \end{itemize}
-A single exponential chirp has a power spectrum,
-with ``warp factor'' $\omega$, of:
+An exponential swept-sine signal with constant amplitude has a power spectrum
+\cite{Novak} that is flat, but slope-dependent on ``warp factor'' $\omega$.
+So, a constant amplitude chirp is not useful.
+Dropping the amplitude with frequency results in an exponential chirp with 
+a power spectrum, dependent on $\omega$, of:
 \begin{equation}
 Power \propto |\omega| e^{-|\omega|f}
 \end{equation}
@@ -169,11 +172,11 @@ a = a_0 \cdot e^{-\epsilon t}
 
 $f_0$ would be millimeter wave (such as 60 GHz oxygen resonances) and higher.
 Terahertz (mostly in the 600 THz range) oscillations in tubulin \cite{Craddock}
-correlate with anesthetic potency, which infers that
-tubulin oscillations could be carriers of consciousness information.
+correlate with anesthetic potency, which opens the possibility that
+tubulin oscillations are carriers of consciousness information.
 
-The chirp should mix with carrier $f_0$ to produce a downward chirp
-compatible with the flicker noise model.
+The chirp would mix with carrier $f_0$ to produce a downward chirp with
+amplitude dropping with frequency, compatible with the flicker noise model.
 That may be a more practical way to detect it due to the shortness of the
 time the chirp itself spends in a bandwidth that lends itself to detection.
 

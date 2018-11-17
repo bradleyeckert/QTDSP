@@ -25,7 +25,7 @@
 \bibitem{DeWitt}
 B.~S. Dewitt, ``Quantum theory of gravity. i. the canonical theory,''
   \emph{Physical Review}, vol. 160, pp. 1113--1148, 1967,
-  {DOI:10.1103/PhysRev.160.1113}.
+  {doi:10.1103/PhysRev.160.1113}.
 
 \bibitem{Page}
 D.~N. Page and W.~K. Wootters, ``Evolution without volution: Dynamics described
@@ -33,8 +33,8 @@ D.~N. Page and W.~K. Wootters, ``Evolution without volution: Dynamics described
   2885--2892, 1983.
 
 \bibitem{Moreva}
-e.~a. E.~Moreva, ``Time from quantum entanglement: an experimental
-  illustration,'' \emph{Physical Review A}, vol.~89, 2014, 052122.
+E.~M. et~al., ``Time from quantum entanglement: an experimental illustration,''
+  \emph{Physical Review A}, vol.~89, 2014, 052122.
 
 \bibitem{Lobo}
 A.~C. Lobo, ``Time and consciousness in a quantum world,'' 2017.
@@ -63,6 +63,11 @@ B.~Mandelbrot, \emph{The Fractal Geometry of Nature}.\hskip 1em plus 0.5em
 
 \bibitem{Milotti}
 E.~Milotti, ``1/f noise: a pedagogical review,'' 2002.
+
+\bibitem{Novak}
+A.~N. et~al, ``Nonlinear system identification using exponential swept-sine
+  signal,'' \emph{IEEE Transactions on Instrumentation and Measurement},
+  vol.~59, no.~8, pp. 2220--2229, 2010.
 
 \bibitem{Craddock}
 \BIBentryALTinterwordspacing
