@@ -131,23 +131,12 @@ There are a good number of hypotheses for 1/f noise, to which we add one more:
 	\item The superposition of exponential chirps.
 \end{itemize}
 An exponential swept-sine signal with constant amplitude has a power spectrum
-\cite{Novak} that is flat, but slope-dependent on ``warp factor'' $\omega$.
-So, a constant amplitude chirp is not useful.
-Dropping the amplitude with frequency results in an exponential chirp with 
-a power spectrum, dependent on $\omega$, of:
+\cite{Novak} that is constant-slope (on a log-log plot) at roughly -6dBm
+per octave, curiously similar to a flicker noise power spectrum.
+This is independent of ``warp factor'' $\omega$.
 \begin{equation}
-Power \propto |\omega| e^{-|\omega|f}
+Signal \propto sin(k \cdot e^{\omega t})
 \end{equation}
-A distribution of chirps of various $\omega$ values exponentially distributed,
-where $log(|\omega|)$ is uniformly distributed, combines to form a 1/f spectrum.
-So, there is a plausible basis for 1/f noise being composed of exponential
-chirps.
-
-The 1/f spectrum suggests that a multiplicity of quantum time rates
-($\epsilon$ in Eq.~\ref{eq:pink}) exist.
-Nature evolves to fill the spectrum of quantum time, to utilize available
-bandwidth. One could call this spectrum ``The sound of the Tao''.
-Music in the $\tau$ domain would sound like pink noise in the $t$ domain.
 
 \subsection{Exponential White Noise}
 
@@ -160,14 +149,14 @@ approach a final frequency as quantum time merges into relative time.
 \end{equation}
 
 In other words, the consciousness signal emerges from a domain of infinite time.
-The amplitude drops off with time at the same rate frequency increases,
+The power drops off with time at the same rate frequency increases,
 resulting in a flat spectrum from DC to $f_0$.
 
 \begin{equation}
 f = f_0 \cdot (1-e^{-\epsilon t})
 \end{equation}
 \begin{equation}
-a = a_0 \cdot e^{-\epsilon t}
+p = p_0 \cdot e^{-\epsilon t}
 \end{equation}
 
 $f_0$ would be millimeter wave (such as 60 GHz oxygen resonances) and higher.
@@ -176,9 +165,13 @@ correlate with anesthetic potency, which opens the possibility that
 tubulin oscillations are carriers of consciousness information.
 
 The chirp would mix with carrier $f_0$ to produce a downward chirp with
-amplitude dropping with frequency, compatible with the flicker noise model.
+power dropping with frequency,
+which flattens out the spectrum so it's still white.
 That may be a more practical way to detect it due to the shortness of the
 time the chirp itself spends in a bandwidth that lends itself to detection.
+The amplitude droop may be compensated for in the input warping stage.
+In this scenario, white noise follows the same rules as pink noise except
+for the spectral bias.
 
 This paper presents the flicker noise model, which is more practical due to
 its scale invariance.

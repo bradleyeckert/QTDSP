@@ -25,7 +25,7 @@
 \bibitem{DeWitt}
 B.~S. Dewitt, ``Quantum theory of gravity. i. the canonical theory,''
   \emph{Physical Review}, vol. 160, pp. 1113--1148, 1967,
-  {doi:10.1103/PhysRev.160.1113}.
+  doi:10.1103/PhysRev.160.1113.
 
 \bibitem{Page}
 D.~N. Page and W.~K. Wootters, ``Evolution without volution: Dynamics described
@@ -67,7 +67,7 @@ E.~Milotti, ``1/f noise: a pedagogical review,'' 2002.
 \bibitem{Novak}
 A.~N. et~al, ``Nonlinear system identification using exponential swept-sine
   signal,'' \emph{IEEE Transactions on Instrumentation and Measurement},
-  vol.~59, no.~8, pp. 2220--2229, 2010.
+  vol.~59, no.~8, pp. 2220--2229, 2010, doi:10.1109/tim.2009.2031836.
 
 \bibitem{Craddock}
 \BIBentryALTinterwordspacing
