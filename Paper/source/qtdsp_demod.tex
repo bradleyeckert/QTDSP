@@ -47,7 +47,7 @@ Let R be a scaled version of $\omega$ for use in the exponential warp and
 $\alpha$ the X input sample rate in samples per second.
 Given a particular R and N, M and $\omega$ may be calculated.
 Let $\epsilon = (f_1/f_0)^{1/T}$. The frequency with respect to time is:
-\begin{equation}
+\begin{equation}  \label{eq:fvsf0}
 f = f_0 \cdot e^{\epsilon t}
 \end{equation}
 
@@ -234,11 +234,27 @@ support either modulation or demodulation.
 U is upsampled to form time-domain signal V.
 Let $\epsilon$ and j be the respective indices of U and V.
 For every index $\epsilon$ of U, the corresponding frequency can be normalized
-to Fs/2.
-Letting $\tau$ be the absolute time at $X_0$,
+to Fs/2. 
+
+Let $H_X$ be the integer number of new X samples per conversion.
+
+Let $H_V$ be the integer number of output samples per conversion.
+Since $H_V < H_X$ and the minimum $H_V$ is 1, $H_V$ is a main consideration in
+choosing $H_X$ and is the limiting factor for the lowest practical R.
+
+Substituting the FFT frequency range into Eq. \ref{eq:fvsf0}, 
 \begin{equation}
-f = \frac{\epsilon\cdot\frac{Fs}{2}}{\frac{N}{2}}
-= \frac{Fs}{2}\cdot e^{\omega(t - \tau)}
+H_V = \frac{N}{2} \cdot e^{|R| \cdot H_X / N}
+\end{equation}
+Since the exponent is very small and $H_V$ is rounded to integer anyway,
+\begin{equation}
+H_V \approx H_X \cdot \frac{|R|}{2}
+\end{equation}
+
+For small values of R, such as $|R| < 0.2$,
+you can set $H_V = 1$ to get the minimum $H_X$.
+\begin{equation}
+H_X \geq \frac{2}{|R|}
 \end{equation}
 
 It's much easier to work in terms of exponents than logs,
@@ -246,7 +262,7 @@ so the preferred re-mapping (another exponential time-warping) extracts
 $U[\epsilon]$ from a linear progression of $V[j]$.
 Warp indexing uses the relation:
 \begin{equation}
-\epsilon = \frac{N}{2}\cdot e^{\omega(t - \tau)}
+\epsilon = \frac{N}{2} \cdot e^{\omega(t - \tau)}
 \end{equation}
 
 Time t (scaled to match the output stream's sample rate) sweeps from $\tau$
@@ -258,37 +274,12 @@ Up-sampling $U[\epsilon]$ to $V[j]$ can't use the popular interpolation scheme
 partial contributions to $V[j]$ are extracted from one or two U points by
 interpolation.
 
-Let $\Delta$ be the time between conversion frames,
-$\alpha$ the input sample rate,
-$\beta$ the output sample rate,
-$\gamma$ the input oversampling factor,
-and P the number of output points in period $\Delta$.
-\begin{equation}
-P = \beta\Delta
-\end{equation}
-
-\begin{equation} \label{eq:eps_j}
-\epsilon(j) = \left(\frac{N}{2}-1\right)\cdot e^{Rj/P}
-\end{equation}
-
-The pitch of $\epsilon$ should be 1 (when j=0) for the lowest signal loss,
-but it can be lowered to reduce the computational load.
-For this, $(\frac{N}{2}-1) = \frac{N}{2} e^{R/P}$. So,
-\begin{equation} \label{eq:p}
-\frac{R}{P} = ln\left(1 - \frac{2}{N-2}\right)
-\end{equation}
-
-For large N, $P \approx -0.5 NR$. The sample rate relations are then:
-\begin{equation}
-\alpha \approx \frac{2\beta\gamma}{R}
-\end{equation}
-
-\begin{equation}
-\beta \approx \frac{\alpha R}{2\gamma}
-\end{equation}
+$j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
+The approximation factor k should be about 2. 
+It's tweaked to make both $H_X$ and $H_V$ integers.
 
 \begin{equation}  \label{eq:epsj}
-\epsilon(j) \approx \left(\frac{N}{2}-1\right)\cdot e^{-2j/N}
+\epsilon(j) = \frac{N}{2} \cdot e^{-kj/N}
 \end{equation}
 
 As a sanity check of Eq. \ref{eq:epsj}, $\epsilon(j)$ starts at (N/2-1) which
@@ -299,23 +290,10 @@ headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
-Let $H_X$ be the integer number of new X samples per conversion.
-For example, a conversion may have M = 1000 samples.
-An oversampling factor of 100 would give a $H_X$ of 10.
-Let $H_V$ be the number of output samples per conversion.
-Let k be a factor in Eq. \ref{eq:epsj} that's $\approx 2$.
-Set the frequency shift over $H_X$ samples equal to the $\epsilon(j)$ index.
-\begin{equation}
-N\cdot e^{-H_X\cdot R/N} = \left(\frac{N}{2}-1\right)\cdot e^{-k \cdot H_V/N}
-\end{equation}
-To make $H_V$ an integer value, set k=2 and calculate rational $H_V$.
-\begin{equation}
-H_V = \frac{H_X \cdot R + ln\left(\frac{1}{2} + \frac{1}{N}\right)}{k}
-\end{equation}
+To get the exact k value:
 
-Round $H_V$ to the nearest integer and recalculate k.
-\begin{equation}
-k = \frac{H_X \cdot R + ln\left(\frac{1}{2} + \frac{1}{N}\right)}{H_V}
+\begin{equation} 
+k = \frac{N \cdot e^{|R| \cdot H_X / N}} {H_V}
 \end{equation}
 
 The exponential decay of $\epsilon$, where $\epsilon_0 = \frac{N}{2}-1$, can be
