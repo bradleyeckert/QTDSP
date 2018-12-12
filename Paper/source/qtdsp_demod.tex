@@ -290,15 +290,14 @@ headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
-The exact value of $k$ is:
-\begin{equation} 
-k = \frac{N}{H_V} \left(e^{|R| \cdot H_X/N} - 1\right)
-\end{equation}
-
-Once $H_V$ is estimated to the nearest integer, $H_X$ and $k$ can be
+Once $H_V$ is estimated to the nearest integer, $H_X$ can be
 re-calculated from Eq. \ref{eq:hv} to give a $k$ nearest to 2.0:
 \begin{equation}  \label{eq:hx}
-H_X = \frac{N}{|R|} ln \left( \frac{k \cdot H_X}{N} - 1 \right)
+H_X \approx \frac{2 \cdot H_V}{|R|}
+\end{equation}
+
+\begin{equation} 
+k = \frac{N}{H_V} \left(e^{|R| \cdot H_X/N} - 1\right)
 \end{equation}
 
 The exponential decay of $\epsilon$, where $\epsilon_0 = \frac{N}{2}-1$, can be
