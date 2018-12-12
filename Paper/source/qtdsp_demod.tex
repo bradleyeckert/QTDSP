@@ -234,7 +234,7 @@ support either modulation or demodulation.
 U is upsampled to form time-domain signal V.
 Let $\epsilon$ and j be the respective indices of U and V.
 For every index $\epsilon$ of U, the corresponding frequency can be normalized
-to Fs/2. 
+to Fs/2.
 
 Let $H_X$ be the integer number of new X samples per conversion.
 
@@ -242,7 +242,7 @@ Let $H_V$ be the integer number of output samples per conversion.
 Since $H_V < H_X$ and the minimum $H_V$ is 1, $H_V$ is a main consideration in
 choosing $H_X$ and is the limiting factor for the lowest practical R.
 
-Substituting the FFT frequency range into Eq. \ref{eq:fvsf0}, 
+Substituting the FFT frequency range into Eq. \ref{eq:fvsf0},
 \begin{equation}  \label{eq:hv}
 H_V = \frac{N}{2} \left( e^{|R| \cdot H_X / N} - 1 \right)
 \end{equation}
@@ -275,7 +275,7 @@ partial contributions to $V[j]$ are extracted from one or two U points by
 interpolation.
 
 $j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
-The approximation factor k should be about 2. 
+The approximation factor k should be about 2.
 It's tweaked to make both $H_X$ and $H_V$ integers.
 
 \begin{equation}  \label{eq:eps_j}
