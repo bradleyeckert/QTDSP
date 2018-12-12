@@ -243,8 +243,8 @@ Since $H_V < H_X$ and the minimum $H_V$ is 1, $H_V$ is a main consideration in
 choosing $H_X$ and is the limiting factor for the lowest practical R.
 
 Substituting the FFT frequency range into Eq. \ref{eq:fvsf0}, 
-\begin{equation}
-H_V = \frac{N}{2} \cdot e^{|R| \cdot H_X / N}
+\begin{equation}  \label{eq:hv}
+H_V = \frac{N}{2} \left( e^{|R| \cdot H_X / N} - 1 \right)
 \end{equation}
 Since the exponent is very small and $H_V$ is rounded to integer anyway,
 \begin{equation}
@@ -258,8 +258,8 @@ H_X \geq \frac{2}{|R|}
 \end{equation}
 
 It's much easier to work in terms of exponents than logs,
-so the preferred re-mapping (another exponential time-warping) extracts
-$U[\epsilon]$ from a linear progression of $V[j]$.
+so the preferred re-mapping (another exponential time-warping operation)
+extracts $U[\epsilon]$ from a linear progression of $V[j]$.
 Warp indexing uses the relation:
 \begin{equation}
 \epsilon = \frac{N}{2} \cdot e^{\omega(t - \tau)}
@@ -278,11 +278,11 @@ $j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
 The approximation factor k should be about 2. 
 It's tweaked to make both $H_X$ and $H_V$ integers.
 
-\begin{equation}  \label{eq:epsj}
+\begin{equation}  \label{eq:eps_j}
 \epsilon(j) = \frac{N}{2} \cdot e^{-kj/N}
 \end{equation}
 
-As a sanity check of Eq. \ref{eq:epsj}, $\epsilon(j)$ starts at (N/2-1) which
+As a sanity check of Eq. \ref{eq:eps_j}, $\epsilon(j)$ starts at (N/2-1) which
 points to the highest frequency element of the FFT result.
 It decays toward 0 but will never get there.
 The number of elements in W memory is slightly less than N/2 to allow some I/O
@@ -290,18 +290,16 @@ headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
-Set the frequency shift over $H_X$ samples equal to the $\epsilon(j)$ index.
-\begin{equation}
-N\cdot e^{-H_X\cdot |R|/N} = \left(\frac{N}{2}-1\right)\cdot e^{-k \cdot H_V/N}
-\end{equation}
-
-Which gives the exact value of $k$:
+The exact value of $k$ is:
 \begin{equation} 
-k = \frac{H_X \cdot |R| + ln\left(\frac{1}{2} + \frac{1}{N}\right)}{H_V}
+k = \frac{N}{H_V} \left(e^{|R| \cdot H_X/N} - 1\right)
 \end{equation}
 
 Once $H_V$ is estimated to the nearest integer, $H_X$ and $k$ can be
-re-calculated to give a $k$ nearest to 2.0.
+re-calculated from Eq. \ref{eq:hv} to give a $k$ nearest to 2.0:
+\begin{equation}  \label{eq:hx}
+H_X = \frac{N}{|R|} ln \left( \frac{k \cdot H_X}{N} - 1 \right)
+\end{equation}
 
 The exponential decay of $\epsilon$, where $\epsilon_0 = \frac{N}{2}-1$, can be
 handled by repeated multiplication.
