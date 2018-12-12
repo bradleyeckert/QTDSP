@@ -309,9 +309,6 @@ Setting $e^{-k} = (1 + \zeta)^N$,
 \zeta = e^{k/N} - 1
 \end{equation}
 
-Since $\epsilon$ is always positive, the upchirp case of $R>0$ needs to have its
-j index mirrored by using V[v-j], where v is the maximum j such as (15/32)N.
-
 \begin{figure}
 	\centering
 	\includegraphics[width=0.95\linewidth]{../source/uint_e}
@@ -326,6 +323,11 @@ The height of $U_\epsilon$ is interpolated and multiplied by the pitch to get
 the area under the curve, to be added to V[j].
 The operation is similar to the "$\lambda < 1$" case of downsampling,
 so the same hardware can support downsampling and upsampling.
+
+Since $\epsilon$ is always positive, the upchirp case of $R>0$ needs to have its
+j index mirrored by using V[v-j], where v is the maximum j such as (15/32)N.
+The upsampler output is added to V memory as described below, indexed from the
+top or bottom of the active region of V. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Correlation}
@@ -348,8 +350,8 @@ pulse trains and/or modulation envelopes in the V stream.
 Fig.~\ref{fig:wbuf} shows the output correlator, another view of buffer V.
 The output stream flows from left to right,
 being initialized to 0 outside the accumulation region.
-After $U_\epsilon$ is added to V, the $V_0$ index moves $\beta\Delta$ points
-to the left, leaving $\beta\Delta$ newly minted output points.
+After $U_\epsilon$ is added to V, the $V_0$ index moves $H_V$ points
+to the left, leaving $H_V$ newly minted output points.
 
 Elements of V may be real (magnitudes only) or complex.
 Complex is used when high selectivity is required:
