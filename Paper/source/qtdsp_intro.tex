@@ -11,6 +11,7 @@ investigation, provides a real impetus for multi-dimensional time.
 Investigation of 2D time with an eye toward practical instrumentation has the
 potential of bearing the kind of fruit necessary to heal the schism between
 science and religion.
+Standing on the shoulders of giants provides a starting point.
 
 The Wheeler-DeWitt equation \cite{DeWitt} attempts to combine mathematically
 the ideas of quantum mechanics and general relativity.
@@ -34,9 +35,9 @@ timeless consciousness.
 
 There are two distinct types of time: emergent time, which emanates from the
 structure of space-time and its metrics, and a causal time, indicating the flow
-from the past to the future \cite{Brunet}. The time domains boil down to the
+from the past to the future \cite{Brunet}. The time domains relate the
 two models of Physics, QM and GR.
-In the interest of a nomenclature for the masses, we call one dimension of time
+In the interest of a lay-friendly nomenclature, we call one dimension of time
 the quantum time domain and the other the relative time domain.
 So, quantum time and relative time. Relative time is the one with the arrow.
 
@@ -49,7 +50,7 @@ The evidence suggests it is both.
 
 Our everyday experience is that ``clock time'' is the static reference frame,
 although it could just as well be that quantum time is the existential norm
-and the ``clock time'' universe is the special case.
+and the ``clock time'' universe is a special case.
 We take the view of quantum time observed from within the universe, with
 the observation being an act of quantum entanglement caused by consciousness.
 
@@ -61,8 +62,7 @@ Nature would have evolved to exploit the properties of quantum time.
 The physical vacuum, or classic Tao, a substrate for quantum interactions,
 is a natural mechanism for biological systems to have evolved to utilize.
 Consciousness is the interaction between the physical vacuum and biology which
-facilitates communication and data storage at any physical scale,
-from DNA to organism.
+facilitates communication at any physical scale, from DNA to organism.
 
 This provides an important signaling mechanism for consciousness in beings such
 as paramecia or slime molds, which exhibit conscious behavior but are too small
@@ -133,7 +133,7 @@ There are a good number of hypotheses for 1/f noise, to which we add one more:
 	\item The superposition of exponential chirps.
 \end{itemize}
 An exponential swept-sine signal with constant amplitude has a power spectrum
-\cite{Novak} that is constant-slope (on a log-log plot) at roughly -6dBm
+\cite{Novak} that is constant-slope (on a log-log plot) at roughly -6dB
 per octave, curiously similar to a flicker noise power spectrum.
 This is independent of ``warp factor'' $\omega$.
 \begin{equation}
@@ -151,7 +151,7 @@ approach a final frequency as quantum time merges into relative time.
 \end{equation}
 
 In other words, the consciousness signal emerges from a domain of infinite time.
-The power drops off with time at the same rate frequency increases,
+The power drops off at the same rate frequency increases,
 resulting in a flat spectrum from DC to $f_0$.
 
 \begin{equation}
@@ -170,14 +170,11 @@ The chirp would mix with carrier $f_0$ to produce a downward chirp
 (assuming the signal is moving forward in time)
 with power dropping with frequency,
 which flattens out the spectrum so it's still white.
-That would be a more practical way to detect it due to the shortness of the
+The resulting chirp signal is more practical due to the shortness of the
 time the chirp itself spends in a bandwidth that lends itself to detection.
-The amplitude droop may be compensated for in the input warping stage.
-In this scenario, white noise follows the same rules as pink noise except
-for the spectral bias.
 
-This paper presents the flicker noise model, which is more practical due to
-its scale invariance.
+The amplitude droop may be compensated for in the input warping stage.
+White noise follows the same rules as pink noise except for the spectral bias.
 
 \subsection{Information in the Noise}
 
@@ -212,8 +209,8 @@ on a computer display), useful for finding quantum-time signals.
 This would be analogous to waterfall-style spectral analysis, with frequency
 replaced by warp factor.
 
-To establish a notation and unit of measurement for the exponent of the chirp
-frequency, let the ``warp factor'' $\omega$ be in units of $e$, the
+To establish a notation and unit of measurement for quantum frequency,
+let the ``warp factor'' $\omega$ be in units of $e$, the
 mathematical constant derived by Leonhard Euler in the 1720s, per unit time.
 The pronunciation may be ``e's per second'' for e/s, for example.
 We propose ``len'' for the unit name of e/s, after Leonhard.
@@ -235,7 +232,7 @@ in nature.
 \end{figure}
 
 Resonant signals in the quantum time domain can be re-mapped to relative time
-and demodulated by correlating a time series of fast exponential chirp
+and demodulated by correlating a series of fast exponential chirp
 transforms, allowing analysis and data mining using modern data
 processing technologies such as AI-based pattern recognition.
 
@@ -340,8 +337,8 @@ upward from or downward to 1.0 and the resulting spectrum ranges from about
 N/5 to N/2.
 The ``warp factor'' is the growth rate in m.
 The input stream consists of complex numbers.
-The IFFT performs a complex-to-real IFFT to produce a warped time domain
-envelope. To un-warp the it, the upsampler interpolates it by 1:m
+The IFFT performs a complex-to-real IFFT to produce a time domain
+envelope. To warp the it, the upsampler interpolates it by 1:m
 where decimation factor m is exponentially swept upward to or downward from 1.0.
 The output stream consists of many accumulations of overlapped upsampler results.
 
