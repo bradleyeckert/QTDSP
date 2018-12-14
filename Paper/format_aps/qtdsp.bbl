@@ -7,7 +7,7 @@
 %Control: year (0) verbatim
 %Control: production of eprint (0) enabled
 \providecommand{\noopsort}[1]{}\providecommand{\singleletter}[1]{#1}%
-\begin{thebibliography}{14}%
+\begin{thebibliography}{17}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -51,6 +51,12 @@
 \providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
 \let\auto@bib@innerbib\@empty
 %</preamble>
+\bibitem [{\citenamefont {Kelly}(2009)}]{Kelly}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Edward~F.}\
+  \bibnamefont {Kelly}},\ }\href@noop {} {\emph {\bibinfo {title} {Irreducible
+  Mind: Toward a Psychology for the 21st Century}}}\ (\bibinfo  {publisher}
+  {Rowman and Littlefield},\ \bibinfo {year} {2009})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Dewitt}(1967)}]{DeWitt}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {B.~S.}\ \bibnamefont
@@ -58,22 +64,22 @@
   of gravity. i. the canonical theory},}\ }\href@noop {} {\bibfield  {journal}
   {\bibinfo  {journal} {Physical Review}\ }\textbf {\bibinfo {volume} {160}},\
   \bibinfo {pages} {1113--1148} (\bibinfo {year} {1967})},\ \bibinfo {note}
-  {{DOI:10.1103/PhysRev.160.1113}}\BibitemShut {NoStop}%
+  {doi:10.1103/PhysRev.160.1113}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Page}\ and\ \citenamefont {Wootters}(1983)}]{Page}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~N.}\ \bibnamefont
   {Page}}\ and\ \bibinfo {author} {\bibfnamefont {W.~K.}\ \bibnamefont
   {Wootters}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Evolution
-  without volution: Dynamics described by stationary observables},}\
+  without evolution: Dynamics described by stationary observables},}\
   }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review
   D}\ }\textbf {\bibinfo {volume} {27}},\ \bibinfo {pages} {2885--2892}
   (\bibinfo {year} {1983})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {E.~Moreva}(2014)}]{Moreva}%
+\bibitem [{\citenamefont {et~al.}(2014)}]{Moreva}%
   \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {et~al.}\ \bibnamefont
-  {E.~Moreva}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {Time from
-  quantum entanglement: an experimental illustration},}\ }\href@noop {}
-  {\bibfield  {journal} {\bibinfo  {journal} {Physical Review A}\ }\textbf
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.~Moreva}\
+  \bibnamefont {et~al.}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {Time from quantum entanglement: an experimental illustration},}\ }\href@noop
+  {} {\bibfield  {journal} {\bibinfo  {journal} {Physical Review A}\ }\textbf
   {\bibinfo {volume} {89}} (\bibinfo {year} {2014})},\ \bibinfo {note}
   {052122}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Lobo}(2017)}]{Lobo}%
@@ -121,6 +127,12 @@
   {Mandelbrot}},\ }\href@noop {} {\emph {\bibinfo {title} {The Fractal Geometry
   of Nature}}}\ (\bibinfo  {publisher} {W. H. Freeman and Company},\ \bibinfo
   {year} {1982})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Leibniz}(1686)}]{Leibniz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gottfried~Wilhelm}\
+  \bibnamefont {Leibniz}},\ }\href@noop {} {\emph {\bibinfo {title} {Discourse
+  on Metaphysics}}}\ (\bibinfo  {publisher} {Open Court Classics},\ \bibinfo
+  {year} {1686})\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Milotti}(2002)}]{Milotti}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {E.}~\bibnamefont
@@ -128,6 +140,15 @@
   pedagogical review},}\ }\href@noop {} {\  (\bibinfo {year} {2002})},\ \Eprint
   {http://arxiv.org/abs/physics/0204033} {arXiv:physics/0204033
   [physics.class-ph]} \BibitemShut {NoStop}%
+\bibitem [{\citenamefont {et~al}(2010)}]{Novak}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.~Novak}\
+  \bibnamefont {et~al}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {Nonlinear system identification using exponential swept-sine signal},}\
+  }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {IEEE Transactions
+  on Instrumentation and Measurement}\ }\textbf {\bibinfo {volume} {59}},\
+  \bibinfo {pages} {2220--2229} (\bibinfo {year} {2010})},\ \bibinfo {note}
+  {doi:10.1109/tim.2009.2031836}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Craddock}(2017)}]{Craddock}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Travis J.~A}\

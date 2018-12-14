@@ -13,12 +13,12 @@
 \contentsline {subsubsection}{Interpolation}{28}{section*.10}
 \contentsline {subsection}{FFT}{31}{section*.11}
 \contentsline {subsection}{Upsampling}{32}{section*.12}
-\contentsline {subsection}{Correlation}{37}{section*.13}
+\contentsline {subsection}{Correlation}{36}{section*.13}
 \contentsline {section}{\numberline {1.4}QT Modulation}{39}{section.1.4}
 \contentsline {subsection}{Downsampling}{40}{section*.14}
-\contentsline {subsection}{IFFT}{42}{section*.15}
-\contentsline {subsection}{Upsampling}{42}{section*.16}
+\contentsline {subsection}{IFFT}{41}{section*.15}
+\contentsline {subsection}{Upsampling}{41}{section*.16}
 \contentsline {section}{\numberline {1.5}Implementation}{43}{section.1.5}
-\contentsline {subsection}{Instrumentation}{45}{section*.17}
-\contentsline {subsection}{FPGA utilization}{47}{section*.18}
-\contentsline {chapter}{Bibliography}{49}{section*.20}
+\contentsline {subsection}{Instrumentation}{44}{section*.17}
+\contentsline {subsection}{FPGA utilization}{46}{section*.18}
+\contentsline {chapter}{Bibliography}{48}{section*.20}

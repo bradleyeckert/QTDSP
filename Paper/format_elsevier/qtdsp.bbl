@@ -6,16 +6,20 @@
 \expandafter\ifx\csname href\endcsname\relax
   \def\href#1#2{#2} \def\path#1{#1}\fi
 
+\bibitem{Kelly}
+E.~F. Kelly, Irreducible Mind: Toward a Psychology for the 21st Century, Rowman
+  and Littlefield, 2009.
+
 \bibitem{DeWitt}
 B.~S. Dewitt, Quantum theory of gravity. i. the canonical theory, Physical
-  Review 160 (1967) 1113--1148, {DOI:10.1103/PhysRev.160.1113}.
+  Review 160 (1967) 1113--1148, doi:10.1103/PhysRev.160.1113.
 
 \bibitem{Page}
-D.~N. Page, W.~K. Wootters, Evolution without volution: Dynamics described by
+D.~N. Page, W.~K. Wootters, Evolution without evolution: Dynamics described by
   stationary observables, Physical Review D 27~(12) (1983) 2885--2892.
 
 \bibitem{Moreva}
-e.~a. E.~Moreva, Time from quantum entanglement: an experimental illustration,
+E.~M. et~al., Time from quantum entanglement: an experimental illustration,
   Physical Review A 89, 052122.
 
 \bibitem{Lobo}
@@ -43,9 +47,17 @@ e.~a. Jeanne~Achterberg, Evidence for correlations between distant
 \bibitem{Mandelbrot}
 B.~Mandelbrot, The Fractal Geometry of Nature, W. H. Freeman and Company, 1982.
 
+\bibitem{Leibniz}
+G.~W. Leibniz, Discourse on Metaphysics, Open Court Classics, 1686.
+
 \bibitem{Milotti}
 E.~Milotti, 1/f noise: a pedagogical review\href
   {http://arxiv.org/abs/physics/0204033} {\path{arXiv:physics/0204033}}.
+
+\bibitem{Novak}
+A.~N. et~al, Nonlinear system identification using exponential swept-sine
+  signal, IEEE Transactions on Instrumentation and Measurement 59~(8) (2010)
+  2220--2229, doi:10.1109/tim.2009.2031836.
 
 \bibitem{Craddock}
 T.~J.~A. Craddock, \href{https://doi.org/10.1038/s41598-017-09992-7}{Anesthetic

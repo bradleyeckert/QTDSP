@@ -29,10 +29,17 @@ T.~J.~A. Craddock.
 B.~S. Dewitt.
 \newblock Quantum theory of gravity. i. the canonical theory.
 \newblock {\em Physical Review}, 160:1113--1148, 1967.
-\newblock {DOI:10.1103/PhysRev.160.1113}.
+\newblock doi:10.1103/PhysRev.160.1113.
+
+\bibitem{Novak}
+A.~N. et~al.
+\newblock Nonlinear system identification using exponential swept-sine signal.
+\newblock {\em IEEE Transactions on Instrumentation and Measurement},
+  59(8):2220--2229, 2010.
+\newblock doi:10.1109/tim.2009.2031836.
 
 \bibitem{Moreva}
-e.~a. E.~Moreva.
+E.~M. et~al.
 \newblock Time from quantum entanglement: an experimental illustration.
 \newblock {\em Physical Review A}, 89, 2014.
 \newblock 052122.
@@ -48,6 +55,16 @@ e.~a. Jeanne~Achterberg.
   function in recipients: A functional magnetic resonance imaging analysis.
 \newblock {\em Journal of Complementary and Alternative Medicine},
   11(6):965--971, 2005.
+
+\bibitem{Kelly}
+E.~F. Kelly.
+\newblock {\em Irreducible Mind: Toward a Psychology for the 21st Century}.
+\newblock Rowman and Littlefield, 2009.
+
+\bibitem{Leibniz}
+G.~W. Leibniz.
+\newblock {\em Discourse on Metaphysics}.
+\newblock Open Court Classics, 1686.
 
 \bibitem{Jianfeng}
 J.~Li.
@@ -71,7 +88,7 @@ E.~Milotti.
 
 \bibitem{Page}
 D.~N. Page and W.~K. Wootters.
-\newblock Evolution without volution: Dynamics described by stationary
+\newblock Evolution without evolution: Dynamics described by stationary
   observables.
 \newblock {\em Physical Review D}, 27(12):2885--2892, 1983.
 
