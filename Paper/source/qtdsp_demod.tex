@@ -238,23 +238,15 @@ to Fs/2.
 
 Let $H_X$ be the integer number of new X samples per conversion.
 
-Let $H_V$ be the integer number of output samples per conversion.
-Since $H_V < H_X$ and the minimum $H_V$ is 1, $H_V$ is a main consideration in
-choosing $H_X$ and is the limiting factor for the lowest practical R.
+Let $H_V$ be the real or Q-format number of output samples per conversion.
 
 Substituting the FFT frequency range into Eq. \ref{eq:fvsf0},
 \begin{equation}  \label{eq:hv}
 H_V = \frac{N}{2} \left( e^{|R| \cdot H_X / N} - 1 \right)
 \end{equation}
-Since the exponent is very small and $H_V$ is rounded to integer anyway,
+Since the exponent is very small,
 \begin{equation}
 H_V \approx H_X \cdot \frac{|R|}{2}
-\end{equation}
-
-For small values of R, such as $|R| < 0.2$,
-you can set $H_V = 1$ to get the minimum $H_X$.
-\begin{equation}
-H_X \geq \frac{2}{|R|}
 \end{equation}
 
 It's much easier to work in terms of exponents than logs,
@@ -262,7 +254,7 @@ so the preferred re-mapping (another exponential time-warping operation)
 extracts $U[\epsilon]$ from a linear progression of $V[j]$.
 Warp indexing uses the relation:
 \begin{equation}
-\epsilon = \frac{N}{2} \cdot e^{\omega(t - \tau)}
+\epsilon = \left(\frac{N}{2}-1\right) e^{\omega(t - \tau)}
 \end{equation}
 
 Time t (scaled to match the output stream's sample rate) sweeps from $\tau$
@@ -277,7 +269,7 @@ interpolation.
 $j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
 
 \begin{equation}  \label{eq:eps_j}
-\epsilon(j) = \frac{N}{2} \cdot e^{-kj/N}
+\epsilon(j) = \left(\frac{N}{2}-1\right) e^{-kj/N}
 \end{equation}
 
 As a sanity check of Eq. \ref{eq:eps_j}, $\epsilon(j)$ starts at (N/2-1) which
@@ -295,29 +287,14 @@ Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2$.
 \epsilon(1) = \frac{N}{2} - 1 = \frac{N}{2} \cdot e^{-k/N}
 \end{equation}
 
-This gives a $k$ of approximately $-2$.
-$k$ is tweaked to make both $H_X$ and $H_V$ integers.
-The frequency shift caused by $H_X$ is related to $\epsilon$.
+This gives a $k$ of approximately $-2$. The exact value is:
 
 \begin{equation}
-\frac{f}{f_0} = e^{R \cdot H_X/N} = \frac{\epsilon(H_V)}{\epsilon(0)}
+k = N \cdot ln \left( 1 - \frac{2}{N} \right)
 \end{equation}
 
-\begin{equation}
-e^{R \cdot H_X/N} = e^{k \cdot H_V/N}
-\end{equation}
-
-Once $H_V$ is estimated to the nearest integer, $H_X$ can be
-re-calculated from Eq. \ref{eq:hv} to give a $k$ nearest to 2.0:
-\begin{equation}  \label{eq:hx}
-H_X \approx \frac{2 \cdot H_V}{|R|}
-\end{equation}
-
-\begin{equation}
-k = |R| \cdot \frac{H_X}{H_V}
-\end{equation}
-
-The exponential decay of $\epsilon$ can be handled by repeated multiplication.
+The exponential decay of $\epsilon$ can be handled by repeated multiplication,
+one per $U[\epsilon]$ fetch.
 The exponential sweep needs a small correction factor to have a base of exactly
 $e$.
 Setting $e^{-k} = (1 + \zeta)^{N \cdot (1 - e^{-k})}$,
@@ -349,7 +326,7 @@ top or bottom of the active region of V.
 \subsection{Correlation}
 
 Warped U is added to output buffer V by the summation,
-staggered in time (by P samples) for each processing block.
+staggered in time (by $H_V$ samples) for each processing block.
 When the downsampler's R value matches the chirp rate of an incoming chirp,
 multiple peaks in the warped FFT output correlate in the output stream to
 produce a corresponding output pulse in the V stream.
@@ -368,6 +345,7 @@ The output stream flows from left to right,
 being initialized to 0 outside the accumulation region.
 After $U_\epsilon$ is added to V, the $V_0$ index moves $H_V$ points
 to the left, leaving $H_V$ newly minted output points.
+Dithering handles non-integer $H_V$.
 
 Elements of V may be real (magnitudes only) or complex.
 Complex is used when high selectivity is required:
