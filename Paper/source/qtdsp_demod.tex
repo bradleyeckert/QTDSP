@@ -320,9 +320,9 @@ k = |R| \cdot \frac{H_X}{H_V}
 The exponential decay of $\epsilon$ can be handled by repeated multiplication.
 The exponential sweep needs a small correction factor to have a base of exactly
 $e$.
-Setting $e^{-k} = (1 + \zeta)^N$,
+Setting $e^{-k} = (1 + \zeta)^{N \cdot (1 - e^{-k})}$,
 \begin{equation}
-\zeta = e^{k/N} - 1
+\zeta = e^{-k/N/(1-e^{-k})} - 1
 \end{equation}
 
 \begin{figure}
