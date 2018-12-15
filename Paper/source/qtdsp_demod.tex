@@ -275,8 +275,6 @@ partial contributions to $V[j]$ are extracted from one or two U points by
 interpolation.
 
 $j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
-The approximation factor k should be about 2.
-It's tweaked to make both $H_X$ and $H_V$ integers.
 
 \begin{equation}  \label{eq:eps_j}
 \epsilon(j) = \frac{N}{2} \cdot e^{-kj/N}
@@ -290,6 +288,25 @@ headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
+The desired difference between $\epsilon(0)$ and $\epsilon(1)$ in 
+Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2$.
+
+\begin{equation}
+\epsilon(1) = \frac{N}{2} - 1 = \frac{N}{2} \cdot e^{-k/N}
+\end{equation}
+
+This gives a $k$ of approximately $-2$.
+$k$ is tweaked to make both $H_X$ and $H_V$ integers.
+The frequency shift caused by $H_X$ is related to $\epsilon$.
+
+\begin{equation}
+\frac{f}{f_0} = e^{R \cdot H_X/N} = \frac{\epsilon(H_V)}{\epsilon(0)}
+\end{equation}
+
+\begin{equation}
+e^{R \cdot H_X/N} = e^{k \cdot H_V/N}
+\end{equation}
+
 Once $H_V$ is estimated to the nearest integer, $H_X$ can be
 re-calculated from Eq. \ref{eq:hv} to give a $k$ nearest to 2.0:
 \begin{equation}  \label{eq:hx}
@@ -297,11 +314,10 @@ H_X \approx \frac{2 \cdot H_V}{|R|}
 \end{equation}
 
 \begin{equation}
-k = \frac{N}{H_V} \left(e^{|R| \cdot H_X/N} - 1\right)
+k = |R| \cdot \frac{H_X}{H_V}
 \end{equation}
 
-The exponential decay of $\epsilon$, where $\epsilon_0 = \frac{N}{k}-1$, can be
-handled by repeated multiplication.
+The exponential decay of $\epsilon$ can be handled by repeated multiplication.
 The exponential sweep needs a small correction factor to have a base of exactly
 $e$.
 Setting $e^{-k} = (1 + \zeta)^N$,
