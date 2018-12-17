@@ -240,9 +240,8 @@ Let $H_X$ be the integer number of new X samples per conversion.
 
 Let $H_V$ be the real or Q-format number of output samples per conversion.
 
-Substituting the FFT frequency range into Eq. \ref{eq:fvsf0},
 \begin{equation}  \label{eq:hv}
-H_V = \frac{N}{2} \left( e^{|R| \cdot H_X / N} - 1 \right)
+H_V = H_X \cdot \frac{|R|}{2}
 \end{equation}
 
 It's much easier to work in terms of exponents than logs,
