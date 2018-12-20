@@ -267,6 +267,19 @@ $j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
 \epsilon(j) = \left(\frac{N}{2}-1\right) e^{-kj/N}
 \end{equation}
 
+The desired difference between $\epsilon(0)$ and $\epsilon(1)$ in
+Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2 - 1$.
+
+\begin{equation}
+\epsilon(1) = \frac{N}{2} - 1 = \left( \frac{N}{2} - 1 \right) e^{-k/N}
+\end{equation}
+
+This gives a $k$ of approximately $2$. The exact value is:
+
+\begin{equation}
+k = N \cdot ln \left( \frac{N-2}{N-4} \right)
+\end{equation}
+
 As a sanity check of Eq. \ref{eq:eps_j}, $\epsilon(j)$ starts at (N/2-1) which
 points to the highest frequency element of the FFT result.
 It decays toward 0 but will never get there.
@@ -275,26 +288,13 @@ headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
-The desired difference between $\epsilon(0)$ and $\epsilon(1)$ in 
-Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2$.
-
-\begin{equation}
-\epsilon(1) = \frac{N}{2} - 1 = \frac{N}{2} \cdot e^{-k/N}
-\end{equation}
-
-This gives a $k$ of approximately $-2$. The exact value is:
-
-\begin{equation}
-k = N \cdot ln \left( 1 - \frac{2}{N} \right)
-\end{equation}
-
 The exponential decay of $\epsilon$ can be handled by repeated multiplication,
-one per $U[\epsilon]$ fetch.
+one per $V[j]$ store.
 The exponential sweep needs a small correction factor to have a base of exactly
 $e$.
-Setting $e^{-k} = (1 + \zeta)^{N \cdot (1 - e^{-k})}$,
+Setting $e^{-k} = (1 + \zeta)^{N}$,
 \begin{equation}
-\zeta = e^{-k/N/(1-e^{-k})} - 1
+\zeta = e^{-k/N} - 1
 \end{equation}
 
 \begin{figure}
@@ -315,7 +315,7 @@ so the same hardware can support downsampling and upsampling.
 Since $\epsilon$ is always positive, the upchirp case of $R>0$ needs to have its
 j index mirrored by using V[v-j], where v is the maximum j such as (15/32)N.
 The upsampler output is added to V memory as described below, indexed from the
-top or bottom of the active region of V. 
+top or bottom of the active region of V.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Correlation}
