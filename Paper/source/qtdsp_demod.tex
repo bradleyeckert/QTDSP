@@ -236,14 +236,6 @@ Let $\epsilon$ and j be the respective indices of U and V.
 For every index $\epsilon$ of U, the corresponding frequency can be normalized
 to Fs/2.
 
-Let $H_X$ be the integer number of new X samples per conversion.
-
-Let $H_V$ be the real or Q-format number of output samples per conversion.
-
-\begin{equation}  \label{eq:hv}
-H_V = H_X \cdot \frac{|R|}{2}
-\end{equation}
-
 It's much easier to work in terms of exponents than logs,
 so the preferred re-mapping (another exponential time-warping operation)
 extracts $U[\epsilon]$ from a linear progression of $V[j]$.
@@ -295,6 +287,14 @@ $e$.
 Setting $e^{-k} = (1 + \zeta)^{N}$,
 \begin{equation}
 \zeta = e^{-k/N} - 1
+\end{equation}
+
+Let $H_X$ be the integer number of new X samples per conversion.
+
+Let $H_V$ be the real or Q-format number of output samples per conversion.
+
+\begin{equation}  \label{eq:hv}
+H_V = H_X \cdot \frac{|R|}{k}
 \end{equation}
 
 \begin{figure}
