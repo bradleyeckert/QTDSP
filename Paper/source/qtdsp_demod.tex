@@ -197,6 +197,25 @@ After a block of processing, $\alpha\Delta$ input samples are concatenated to
 $X$ and the index of $X_0$ is offset by $\alpha\Delta$,
 where $\Delta$ is the time interval of the blocks.
 
+\subsubsection{Testing}
+
+The downsampling process is tested and/or calibrated with the aid of the FFT.
+X memory is initialized with an exponential chirp of rate $R$ where
+the frequency sweeps from $f_0$ to %f_1$.
+Let $x$ be amount of time elapsed. For example, 10.5 represents 10.5 samples.
+
+\begin{equation}
+f_1/f_0 = e^{x \cdot R / N}
+\end{equation}
+
+A convenient test is a 2:1 sweep so, for example, you could look for the FFT
+result's peak to shift in index from 100 to 200 when $x$ is changed from $0$
+to $ln(2) \cdot N / R$.
+
+Choose $f_0$ such that the resulting peak lands on an exact integer index.
+If $f_1$ is a little off due to implementation details,
+tweak the initial pitch to center $f_1$ on the desired FFT result index.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{FFT}
 
@@ -263,7 +282,7 @@ The desired difference between $\epsilon(0)$ and $\epsilon(1)$ in
 Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2 - 1$.
 
 \begin{equation}
-\epsilon(1) = \frac{N}{2} - 1 = \left( \frac{N}{2} - 1 \right) e^{-k/N}
+\epsilon(1) = \frac{N}{2} - 2 = \left( \frac{N}{2} - 1 \right) e^{-k/N}
 \end{equation}
 
 This gives a $k$ of approximately $2$. The exact value is:
@@ -281,21 +300,32 @@ the lowest frequency is about $(1/e)$ of the highest frequency,
 leaving the lower $\approx37$\% of the spectrum unused.
 
 The exponential decay of $\epsilon$ can be handled by repeated multiplication,
-one per $V[j]$ store.
+one per $U[\epsilon]$ fetch.
 The exponential sweep needs a small correction factor to have a base of exactly
 $e$.
+%\frac{N}{2} \cdot (1 - e^{-k})
 Setting $e^{-k} = (1 + \zeta)^{N}$,
 \begin{equation}
-\zeta = e^{-k/N} - 1
+\zeta = e^{k/N} - 1
 \end{equation}
 
-Let $H_X$ be the integer number of new X samples per conversion.
+Let $H_X$ be the integer number of new X samples ($\gamma$) per conversion.
 
-Let $H_V$ be the real or Q-format number of output samples per conversion.
+Let $H_V$ be the integer number of output samples per conversion.
 
 \begin{equation}  \label{eq:hv}
-H_V = H_X \cdot \frac{|R|}{k}
+\gamma = H_V \cdot \frac{k}{|R|}
+%H_V = H_X \cdot \frac{|R|}{k}
 \end{equation}
+
+\begin{equation}
+H_X = round(\gamma)
+\end{equation}
+
+$k$ is tweaked to allow an integer value for $H_X$.
+For a desired $|R|$, pick an integer value for $H_V$ and
+calculate the closest integer $H_X$.
+Adjust $k$ to compensate for the difference between $H_X$ and $\gamma$.
 
 \begin{figure}
 	\centering
