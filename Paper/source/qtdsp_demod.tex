@@ -350,7 +350,7 @@ top or bottom of the active region of V.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Correlation}
 
-Warped U is added to output buffer V by the summation,
+Warped U is added to output buffer V by RMS summation,
 staggered in time (by $H_V$ samples) for each processing block.
 When the downsampler's R value matches the chirp rate of an incoming chirp,
 multiple peaks in the warped FFT output correlate in the output stream to
@@ -370,27 +370,9 @@ The output stream flows from left to right,
 being initialized to 0 outside the accumulation region.
 After $U_\epsilon$ is added to V, the $V_0$ index moves $H_V$ points
 to the left, leaving $H_V$ newly minted output points.
-Dithering handles non-integer $H_V$.
 
-Elements of V may be real (magnitudes only) or complex.
-Complex is used when high selectivity is required:
-Multiple rotating vectors will sum to zero, while vectors pointing in the same
-direction (chirps matching R) will correlate.
-Correlation through vector averaging allows the use of a much smaller FFT than
-scalar-only averaging.
-The rate of phase rotation is proportional to the FFT result frequency,
-so selectivity is higher at the upper end.
-Since the low end of the FFT result isn't used,
-lower selectivity there isn't a problem.
-
-Due to the requirement that phase rotation be stationary across many FFT results
-for signal detection, the exponential sweeps used in downsampling and upsampling
-should use sufficient precision for correct tracking.
-
-The correlator should be able to work with either vectors or real magnitudes
-(no phase data).
-This would be used in signal search, where low selectivity is desired.
-The data in V, where the accumulations occur, is in rectangular format.
-The data coming from the upsampler is in polar format.
-The correlation process may use a CORDIC to perform polar-to-rectangular
-conversion.
+Elements of V are accumulated squares of magnitudes.
+An attempt was made to accumulate vectors,
+with the idea that the phase rotations might sync up,
+but it didn't work in simulation.
+So, angle data from the FFT is discarded.
