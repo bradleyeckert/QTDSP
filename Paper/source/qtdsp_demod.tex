@@ -59,10 +59,18 @@ It has units of ``e's per sample''.
 As a scale factor, let $\omega = \frac{\alpha R}{N}$,
 in units of ``e's per second'' e/s.
 M is the number of input samples warping onto N points.
-\begin{equation}  \label{eq:M_N}
-%M = \sum_{n=0}^{N-1} y^n = \frac{y\cdot(y^{N-1} - 1)}{(y - 1)} + 1
-M = N \cdot\frac{-y \cdot ln\left( N(1-y) + 1 \right)}{|R|}
+To time-warp the input, let N be a sum of M segments whose size starts at 1 and
+get compressed exponentially. 
+The calculation of M starts with a geometric progression in Eq. \ref{eq:M_N0}.
+
+\begin{equation}  \label{eq:M_N0}
+N = \sum_{k=1}^{M} e^{-|R| \cdot (k-1)/N} = \frac{1 - e^{-|R| \cdot M/N}}{1 - e^{-|R|/N}}
 \end{equation}
+
+\begin{equation}  \label{eq:M_N}
+M = \frac{N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
+\end{equation}
+
 
 \begin{table}
 	\label{tab:MNR}
