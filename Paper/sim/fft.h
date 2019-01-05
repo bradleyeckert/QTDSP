@@ -17,7 +17,6 @@ struct complex* InitFFT(int points);
 void ByeFFT(void);
 void FFT(void);
 void FFTwindow(void);
-void FFTreorder(void);
 
 #endif
 

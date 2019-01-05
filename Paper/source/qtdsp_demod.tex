@@ -68,7 +68,7 @@ N = \sum_{k=1}^{M} e^{-|R| \cdot (k-1)/N} = \frac{1 - e^{-|R| \cdot M/N}}{1 - e^
 \end{equation}
 
 \begin{equation}  \label{eq:M_N}
-M = \frac{N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
+M = \frac{-N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
 \end{equation}
 
 
@@ -159,7 +159,7 @@ Since the alias of an exponential chirp is no longer a pure exponential
 chirp (it's a linear combination of factors), it will show up in the data stream
 as wideband noise rather than narrowband interference.
 A low pass filter might not be needed.
-The computing resourced for the filter aren't cheap.
+The computing resources for the filter aren't cheap.
 However, a filter would improve SNR.
 Such a filter must have a linear phase response.
 A neat trick to use with IIR filters is forward-backward filtering,

@@ -23,10 +23,11 @@ struct complex* InitFFT(int points)
     win = malloc(sizeof(double) * (size_t)N);
     if (win) {
         for (i=0; i<N; i++) {   // Hann window
-            win[i] = cos(2.0*PI*i/(N-1)) + 1.0;
+            win[i] = 1 - cos(2.0*PI*i/(N-1));
         }
     }
-	return malloc(sizeof(struct complex) * (size_t)N);
+	data = malloc(sizeof(struct complex) * (size_t)N);
+	return data;
 }
 
 void FFTwindow(void)            // apply window
@@ -110,5 +111,6 @@ void radix2(struct complex *data, int N)
 
 void FFT(void) {
     radix2(data, N);
+    FFTreorder();
 }
 
