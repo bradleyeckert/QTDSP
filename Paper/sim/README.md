@@ -4,8 +4,7 @@
 - Dump `X` to a 1D CSV file, `X.txt`.
 - Time-warp it onto `Y` to produce a constant frequency.
 - Dump `Y` to a 1D CSV file, `Y.txt`.
-- Apply a Hann window and bit-reversal of `Y`, leaving it in `U`.
-- Perform an in-place FFT (Im=0) on `U`.
+- Apply a Hann window and in-place FFT (Im=0) on `U`.
 - Dump `U` to a 2D CSV file, `U.txt`. Output is in rectangular format.
 - Time-warp the FFT result (magnitudes squared) to produce `W`.
 - Dump `W` to a 1D CSV file, `W.txt`.
@@ -14,7 +13,7 @@
 
 What's done so far:
 
-Functions for FFT, bit reversal, and Hann window.
-Main.c sets up a sine and does an FFT.
+Functions for FFT and Hann window.
+Main.c generates the chirp and U dump.
 
-Next: Output to files.
+Next: W output and accumulation in V.

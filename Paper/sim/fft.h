@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #define PI 3.14159265358979323846
 #define MAXPOW 24
