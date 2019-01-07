@@ -1,5 +1,5 @@
 /*******************************************************************************
-Proof of concept chirp detection by Brad Eckert.
+Proof of concept chirp detection by Brad Eckert. Revision 0.
 Based on the paper "Quantum Time Signals in Living Beings" by Brad Eckert.
 Equations and sections are cross-referenced to the paper whenever possible.
 This version of the software is intended as a reference, so speed-up hacks are
@@ -170,6 +170,7 @@ int main()
 {
     struct complex *Y;          // FFT working buffer of N points
     int i, p;
+	int Nless1 = N - 1;			// one less than an exact power of 2
 
     for (i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
@@ -237,7 +238,7 @@ int main()
 		// Correlate Ws in V using an offset
 		// This offset works with negative R. Not tested with positive R.
 		for (i=0; i<(N/2-H_V); i++) {
-			V[i + ((PASSES-1)-p)*H_V] += W[p][i];
+			V[Nless1 & (i - H_V*p)] += W[p][i];
 		}
 
 		offset += H_X;
