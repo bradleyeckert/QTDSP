@@ -1,16 +1,19 @@
 #include <stdio.h>
+#include <string.h>
 #include "fft.h"
 
 #define N          512          // FFT points
 #define MAXPOINTS 4096          // X size
 #define sigAmpl  10000          // amplitude of test chirp
 #define H_V0         1          // output step size
+#define VERBOSE
 
 double X[MAXPOINTS];            // X input buffer
 double R = -0.5;
 double frequency = 0.9;         // initial frequency for test chirp
-
 int pink = 0;                   // the chirp spectrum is white or pink
+
+double now();
 
 float maxscale(void) {          // maximum amplitude scale
     if (R<0.0) {
@@ -20,7 +23,7 @@ float maxscale(void) {          // maximum amplitude scale
     }
 }
 float signal(int idx) {
-	float fscale = (exp((float)idx * R / N) - 1.0) * 3.14159265 * N / R;
+	float fscale = (exp((float)idx * R / N) - 1.0) * PI * N / R;
 	float ascale = exp((float)idx * 0.5 * R / N) * maxscale();
 	if (pink) {
         ascale = 1.0;
@@ -123,6 +126,9 @@ void dumpReal (double *data, int length, char* filename)
 }
 
 double XW[N];                   // warped version of X input
+double mag2[N/2];
+double W[N/2];                  // warped version of FFT output
+double V[N];                    // Correlated passes
 
 int main()
 {
@@ -131,14 +137,16 @@ int main()
     float k;                    // upsampling constant, about 2
     int i;
 
-    Y = InitFFT(N);             // set up Y for in-place FFT
-    M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);
-    k = N * log(((float)N-2)/((float)N-4));
+    memset(V, 0, sizeof(V));    // clear V
 
     for (i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
     }
     dumpReal(X, 2*N, "X.txt");  // dump the test chirp
+    Y = InitFFT(N);             // set up Y for in-place FFT
+
+    M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);
+    k = N * log(((float)N-2)/((float)N-4));
 
     double lambda = exp(-R/N) - 1;
     float pitch = 1.0;
@@ -146,20 +154,58 @@ int main()
         pitch = R*M/N;          // upchirp starts sample pitch at e^RM/N
     }
 
-    float gamma = H_V0 * k / fabs(R);    // real H_X, offset in X samples
+    printf("N=%d, M=%g, R=%g, k=%g, lambda=%g\n",N,M,R,k,lambda);
 
-    printf("N=%d, M=%g, R=%g, k=%g, lambda=%g, H_X=%g\n",N,M,R,k,lambda,gamma);
+    int offset = 0;
 
-    compress(X, XW, N, pitch, lambda, -lambda/2, 0);
+    #ifdef VERBOSE
+    double mark = now();
+    #endif
+
+    compress(&X[offset], XW, N, pitch, lambda, -lambda/2, 0);
+
+    #ifdef VERBOSE
+    printf("Downsampled X to Y in %.3f usec\n", now() - mark);
     dumpReal(XW, N, "Y.txt");   // dump the time-warped input
+    mark = now();
+    #endif
 
     for (i=0; i<N; i++) {       // copy
         Y[i].r = XW[i];  Y[i].i = 0.0;
     }
     FFTwindow();                // Hann window
     FFT();
-    dumpComplex(Y, N, "U.txt"); // FFT result before upsampling
-// Note: You can pull U.txt into a spreadsheet to calculate and plot amplitudes
+    for (i=0; i<(N/2); i++) {
+        mag2[(N/2-1)-i] = Y[i].r * Y[i].r + Y[i].i * Y[i].i;
+    }
+
+    #ifdef VERBOSE
+    printf("Executed FFT in %.3f usec\n", now() - mark);
+    #endif
+
+    float gamma = H_V0 * k / fabs(R); // real H_X, offset in X samples
+    int H_X = round(gamma);
+    int H_V = H_V0;
+    float upsam_correct = gamma / H_X;
+    double zeta = exp(k/N) - 1;
+
+    #ifdef VERBOSE
+    printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, corr=%g\n",
+        H_X, H_V, gamma, zeta, upsam_correct);
+    mark = now();
+    #endif
+
+    memset(W, 0, sizeof(W));    // clear V
+    compress(mag2, W, N/2, 1, -zeta, 0, 1);
+
+    #ifdef VERBOSE
+    printf("Upsampled U to W in %.3f usec\n", now() - mark);
+    dumpReal(W, N/2, "W.txt");   // dump the time-warped output
+    #endif
+
+// For a down-chirp, the peak in W will move right as `offset` increases.
+// V is an accumulation of p W results with W shifted right by
+// (pmax - p)*H_V points.
 
     ByeFFT();
     return 0;

@@ -14,6 +14,6 @@
 What's done so far:
 
 Functions for FFT and Hann window.
-Main.c generates the chirp and U dump.
+Main.c generates the chirp and W dump.
 
-Next: W output and accumulation in V.
+Next: W accumulation in V.
