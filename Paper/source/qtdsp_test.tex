@@ -1,21 +1,10 @@
 \section{Implementation}
 
-The algorithms are implemented in RTL (VHDL) for use on an FPGA or ASIC.
-They may also be implemented in C, but certain functions are unwieldy on
-typical computer hardware. For example, polar-to-rectangular and
-rectangular-to-polar conversion is needed for upsampling complex numbers.
-A simple test using GCC on a Core i7 took 1.6 $\mu$s per addition.
-Table lookup (or other fast approximation) could speed that up:
-Suppose 2x, so 800 ns.
-In comparison, an RTL implementation using pipelined CORDIC can perform
-one rotated addition every two clocks. At 100 MHz, that's 20 ns.
-
-A GPU could possibly process multiple data streams in parallel.
-The streams themselves are serial, so there would be a memory bottleneck.
-It seems FPGA is the cost/performance winner.
-The RTL algorithms lend themselves to multiple on-chip instances with very
-little I/O. There's also a migration path to ASIC for when consciousness
-becomes ``the new media''.
+The algorithms were implemented in RTL (VHDL) for use in an FPGA or ASIC.
+The demodulator was also implemented in C. 
+It turns out that with a little effort, the C and VHDL versions are in the same
+order of magnitude of performance when comparing desktop CPU core to FPGA.
+The RTL is faster, but not way faster.
 
 The RTL uses a CORDIC-based FFT with a throughput of about 7 clocks per sample.
 Since the FFT dominates the processing time, downsampling and upsampling

@@ -11,9 +11,11 @@
 - Accumulate `W` in `V`. 
 - Increment `t0` and repeat.
 
-What's done so far:
+After this, dump V to a file.
+The individual W results are output to a CSV file so you can compare peak widths.
 
-Functions for FFT and Hann window.
-Main.c generates the chirp and W dump.
+## Compiling the CSV
 
-Next: W accumulation in V.
+That's the easy part. All source files are in the same folder. 
+Compile them as a console application using any C compiler.
+I used Code::Blocks.
