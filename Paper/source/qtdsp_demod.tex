@@ -384,23 +384,3 @@ An attempt was made to accumulate vectors,
 with the idea that the phase rotations might sync up,
 but it didn't work in simulation.
 So, angle data from the FFT is discarded.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Testing}
-
-The demodulation algorithm was tested by coding the algorithm in C (as a console
-application) and instrumenting it to display variables,
-save arrays to files, and benchmark the various stages.
-Double numbers (64-bit IEEE754 format) sacrifice speed for simplicity.
-On a fast Core-i7 PC, the algorithm correlates 20 frames in 40 msec.
-Each of these frames processes 64 new input points with a 1K FFT.
-Allowing 2ms per 64 points amounts to 32K SPS of input which, when $R=-0.5$,
-is 8K SPS of output.
-
-A decent speedup (x3 to x5) could be had with better coding. 
-This would bring the C version running on a single desktop PC core on par with
-a single FPGA-based core, although the latter itself can have its FFT improved
-to provide a 2:1 speed advantage over the desktop core.
-In other words, a desktop PC is fine for exploring applications of the algorithm.
-A many-core ASIC, on the other hand, would be a better option for serious data
-mining.
