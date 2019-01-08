@@ -19,12 +19,10 @@ mining.
 
 \subsection{EEG data}
 
-An ideal test for the algorithm is EEG data taken from public data sets
-from sites such as http://www.bbci.de/.
-The EEG data uses the General Data Format for biomedical signals (GDF), which
-can be parsed by the open source BioSig C/C++ library.
-http://kdd.ics.uci.edu/databases/eeg/eeg.html supplies data in an easier to
-parse format.
+An ideal test for the algorithm is EEG data taken from public data sets.
+EDF is the preferred format since it's documented well enough to be useful
+and fairly common. 
+An EDF parsing library (in C) is at https://gitlab.com/Teuniz/EDFlib.
 
 The demodulation algorithm looks at the signal bandwidth between about
 $F_S/5$ and $F_S/2$.
