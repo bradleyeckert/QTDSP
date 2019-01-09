@@ -6,15 +6,15 @@
 #include <stdint.h>
 
 #define PI 3.14159265358979323846
-#define MAXPOW 24
+#define MAXPOW       24
 
 struct complex
 {
-    double r;
-    double i;
+    float r;
+    float i;
 };
 
-struct complex* InitFFT(int points);
+struct complex* InitFFT(void);
 void ByeFFT(void);
 void FFT(void);
 void FFTwindow(void);

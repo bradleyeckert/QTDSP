@@ -3,37 +3,34 @@
 
 #include <stdio.h>
 #include "fft.h"
+#define N          1024         /* FFT points, change to int */
 
 int pow_2[MAXPOW];				// powers-of-2 table
-int N;							// points in the FFT
-struct complex *data;			// working buffer, N points
-double *win;                    // window function waveform
+struct complex data[N];			// working buffer, N points
+float *win;                     // window function waveform
 
 void ByeFFT(void) {				// destruct the working buffer
-	free(data);
 }
 
-struct complex* InitFFT(int points)
+struct complex* InitFFT(void)
 {
     int i;
-	N = points;
     pow_2[0] = 1;				// Set up power of two arrays
     for (i=1; i<MAXPOW; i++) {
         pow_2[i]=pow_2[i-1]*2; }
-    win = malloc(sizeof(double) * (size_t)N);
+    win = malloc(sizeof(float) * (size_t)N);
     if (win) {
         for (i=0; i<N; i++) {   // Hann window
             win[i] = 1 - cos(2.0*PI*i/(N-1));
         }
     }
-	data = malloc(sizeof(struct complex) * (size_t)N);
 	return data;
 }
 
 void FFTwindow(void)            // apply window
 {
     int i;
-    double w;
+    float w;
     for (i=0; i<N; i++) {
         w = win[i];
         data[i].r *= w;
@@ -45,7 +42,7 @@ void FFTreorder(void)			// bit-reverse the working buffer data
 {								// do this before or after the FFT
     int bits = 0;
     int i, j, k;
-    double tempr, tempi;
+    float tempr, tempi;
 
     for (i=0; i<MAXPOW; i++)
 	if (pow_2[i]==N) bits=i;
@@ -68,26 +65,27 @@ void FFTreorder(void)			// bit-reverse the working buffer data
     }
 }
 
-static void twiddle(struct complex *W, int N, double stuff)
+static void twiddle(struct complex *W, int size, float stuff)
 {
-    W->r=cos(stuff*2.0*PI/(double)N);
-    W->i=-sin(stuff*2.0*PI/(double)N);
+    W->r=cos(stuff*2.0*PI/(float)size);
+    W->i=-sin(stuff*2.0*PI/(float)size);
 }
 
 /** RADIX-2 FFT ALGORITHM */
-void radix2(struct complex *data, int N)
+void radix2(struct complex *data, int size)
 {
     int    n2, k1, N1, N2;
     struct complex W, bfly[2];
 
     N1=2;
-    N2=N/2;
+    N2=size/2;
 
     /** Do 2 Point DFT */
     for (n2=0; n2<N2; n2++)
     {
+
 	/** Don't hurt the butterfly */
-	twiddle(&W, N, (double)n2);
+	twiddle(&W, size, (float)n2);
 	bfly[0].r = (data[n2].r + data[N2 + n2].r);
 	bfly[0].i = (data[n2].i + data[N2 + n2].i);
 	bfly[1].r = (data[n2].r - data[N2 + n2].r) * W.r -
