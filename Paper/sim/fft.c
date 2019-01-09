@@ -18,24 +18,7 @@ struct complex* InitFFT(void)
     pow_2[0] = 1;				// Set up power of two arrays
     for (i=1; i<MAXPOW; i++) {
         pow_2[i]=pow_2[i-1]*2; }
-    win = malloc(sizeof(float) * (size_t)N);
-    if (win) {
-        for (i=0; i<N; i++) {   // Hann window
-            win[i] = 1 - cos(2.0*PI*i/(N-1));
-        }
-    }
 	return data;
-}
-
-void FFTwindow(void)            // apply window
-{
-    int i;
-    float w;
-    for (i=0; i<N; i++) {
-        w = win[i];
-        data[i].r *= w;
-        data[i].i *= w;
-    }
 }
 
 void FFTreorder(void)			// bit-reverse the working buffer data

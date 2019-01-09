@@ -126,7 +126,7 @@ int main()
 		for (i=0; i<N; i++) {   // copy
 			Y[i].r = XW[i];  Y[i].i = 0.0;
 		}
-		FFTwindow();            // Hann window
+		HannWindow(Y);
 		FFT();
 		for (i=0; i<(N/2); i++) {
 			mag2[(N/2-1)-i] = Y[i].r * Y[i].r + Y[i].i * Y[i].i;

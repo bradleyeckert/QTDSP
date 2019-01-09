@@ -17,7 +17,6 @@ struct complex
 struct complex* InitFFT(void);
 void ByeFFT(void);
 void FFT(void);
-void FFTwindow(void);
 
 #endif
 
