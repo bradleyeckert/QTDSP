@@ -1,7 +1,9 @@
 /* Tools for QTDSP, excluding FFT */
 
 #include <stdio.h>
+#include <stdint.h>
 #include "tools.h"
+#include "kiss_fft.h"
 
 /** Compress
 Interpolate LENGTH output samples from a sequence of input samples.
@@ -96,7 +98,8 @@ void CreateHann(int length) {
 void FreeHann(void) {
     free(win);
 }
-void HannWindow(struct complex *data)
+
+void HannWindow(kiss_fft_cpx *data)
 {
     int i;
     float w;
@@ -108,7 +111,7 @@ void HannWindow(struct complex *data)
 }
 
 
-void dumpComplex (struct complex *data, int length, char* filename)
+void dumpComplex (kiss_fft_cpx *data, int length, char* filename)
 {
     FILE *fp;  int i;
     fp = fopen(filename, "w+");

@@ -32,7 +32,8 @@ Revision History
 
 #include <stdio.h>
 #include <string.h>
-#include "fft.h"
+#include <stdint.h>
+#include "kiss_fft.h"
 #include "tools.h"
 
 #define N          1024         // FFT points
@@ -41,12 +42,13 @@ Revision History
 #define H_V0         16         // output step size
 #define VERBOSE               // you probably want PASSES=1 for this
 #define PASSES        1
+#define PI 3.1415926538
 
 // For some reason, the software hangs if PASSES>6.
 
-float X[MAXPOINTS];            // X input buffer
+float X[MAXPOINTS];             // X input buffer
 float R = -0.5;
-float frequency = 0.95;        // initial frequency for test chirp, near Fs/2(1.0)
+float frequency = 0.95;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
 
 float maxscale(void) {          // maximum amplitude scale
@@ -67,23 +69,29 @@ float signal(int idx) {
     return sig;
 }
 
-float XW[N];                   // warped version of X input
+float XW[N];                   	// warped version of X input
 float mag2[N/2];
-float W[PASSES][N/2];          // warped version of FFT output
-float V[N];                    // Correlated passes
+float W[PASSES][N/2];          	// warped version of FFT output
+float V[N];                    	// Correlated passes
 
 ///////////////////////////////////////////////////////////////////////////////
 int main()
 {
-    struct complex *Y;          // FFT working buffer of N points
     int i, p;
 	int Nless1 = N - 1;			// one less than an exact power of 2
+    kiss_fft_cpx * Y;
+    kiss_fft_cpx * U;
+    int nbytes = N * sizeof(kiss_fft_cpx);
+    Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
+    U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
 
     for (i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
     }
     dumpReal(X, 2*N, "X.txt");  // dump the test chirp
-    Y = InitFFT();              // set up Y for in-place FFT
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
+
     CreateHann(N);              // set up the FFT window
 
     // M is the number of X input samples to warp to Y. Usually N to 4N.
@@ -127,9 +135,9 @@ int main()
 			Y[i].r = XW[i];  Y[i].i = 0.0;
 		}
 		HannWindow(Y);
-		FFT();
+		kiss_fft(cfg, Y, U);
 		for (i=0; i<(N/2); i++) {
-			mag2[(N/2-1)-i] = Y[i].r * Y[i].r + Y[i].i * Y[i].i;
+			mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 		}
 		#ifdef VERBOSE
 		printf("Executed FFT in %.3f usec\n", now() - mark);
@@ -174,7 +182,9 @@ Dump the RMS W from all of the passes to a CSV file for plotting.
     }
     fclose(fp);
 
-    ByeFFT();
+    kiss_fft_free(cfg);
     FreeHann();
+    free(Y);
+    free(U);
     return 0;
 }

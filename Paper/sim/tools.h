@@ -3,7 +3,9 @@
 
 #include <math.h>
 #include <stdio.h>
-#include "fft.h"
+#include "kiss_fft.h"
+
+#define PI 3.1415926538
 
 void compress(
 	float* in,			        // input stream
@@ -14,13 +16,13 @@ void compress(
 	float Arate,		        // growth/decay rate of amplitude
 	int post);                  // step pitch upon output
 
-void dumpComplex (struct complex *data, int length, char* filename);
+void dumpComplex (kiss_fft_cpx *data, int length, char* filename);
 void dumpReal (float *data, int length, char* filename);
 double now();                   // current time in usec
 
 void CreateHann(int length);    // create a window vector
 void FreeHann(void);            // free it
-void HannWindow(struct complex *data); // apply the window
+void HannWindow(kiss_fft_cpx *data); // apply the window
 
 #endif
 
