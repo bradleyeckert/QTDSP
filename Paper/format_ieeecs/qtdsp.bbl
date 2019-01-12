@@ -101,4 +101,11 @@ G.~Bonmassar and E.~L. Schwartz, ``Space-variant fourier analysis: the
 E.~L. Schwartz, ``Cortical anatomy, size invariance, and spatial frequency
   analysis,'' \emph{Perception}, vol.~10, pp. 455--469, 1981.
 
+\bibitem{Devuyst}
+\BIBentryALTinterwordspacing
+S.~Devuyst, \emph{The DREAMS Sleep Spindles Database}, 2011 (accessed January
+  11, 2019). [Online]. Available:
+  \url{http://www.tcts.fpms.ac.be/~devuyst/Databases/DatabaseSpindles/}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}

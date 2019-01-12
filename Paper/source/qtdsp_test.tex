@@ -11,9 +11,15 @@ is 80K SPS of output.
 \subsection{EEG data}
 
 An ideal test for the algorithm is EEG data taken from public data sets.
-EDF is the preferred format since it's documented well enough to be useful
-and fairly common. 
-An EDF parsing library (in C) is at https://gitlab.com/Teuniz/EDFlib.
+The DREAMS Sleep Spindles Database at Facult\'e Polytechnique de Mons (Belgium)
+TCTS Lab \cite{Devuyst} provides EEG data in text format. 
+The ``excerpt2'' data set consists of 30 minutes of 200 SPS data as well as the
+stage of sleep for each 5-second interval.
+Sleep is useful to look at due to the presence of alpha, delta and theta waves. 
+The session has all stages of sleep from awake to REM to stage 4.
+If exponential chirp spectra are present and forming informational pulse trains,
+that's an indication that the brain is a receiver where consciousness is
+experienced. The origin of consciousness is in a timeless, eternal realm.
 
 The demodulation algorithm looks at the signal bandwidth between about
 $F_S/5$ and $F_S/2$.
@@ -25,8 +31,16 @@ and taking every Mth data point as output.
 A more sloppy method is to simply sum each set of M input points and ignore
 the aliasing effects since those will be smeared across the noise floor.
 
-A graphic display can have a waterfall representation of the waveform along
-with cue markers. Once processed, the graphic image can be panned or scrolled
-as appropriate within the app or output as a video file for playback.
-
+The demodulation app processes up to a minute or so of data starting at a 
+beginning time and saves it as a BMP (using colored amplitude) with time on the
+horizontal axis and R on the vertical.
+It's feasible to implement just a console application,
+avoiding GUI work altogether.
+The BMP is the scientific output, viewable in many media as well as on the web.
+For an R range of 0.25 to 0.75, there are between 3 and 8 input points per 
+output point.
+One minute of 200 Hz data produces a BMP that's 4500 pixels wide.
+A desktop PC has built-in tools for viewing gigapixel images,
+so size is mostly limited by your patience (time).
+A 16384 x 2048 image requires 100MB of RAM. Not much to ask of a modern PC.
 
