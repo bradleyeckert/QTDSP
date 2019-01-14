@@ -44,10 +44,8 @@ Revision History
 #define PASSES        1
 #define PI 3.1415926538
 
-// For some reason, the software hangs if PASSES>6.
-
 float X[MAXPOINTS];             // X input buffer
-float R = -0.5;
+float R = -0.5 - 0.019;
 float frequency = 0.95;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
 
@@ -104,7 +102,7 @@ int main()
 	float gamma = H_V0 * k / fabs(R);                           // eq. 17
 	int H_X = round(gamma);		// use the closest value
 	int H_V = H_V0;
-	float upsam_correct = gamma / H_X;
+	float upsam_correct = (gamma / H_X) - 1;
 	float zeta = exp(k/N) - 1;  // upsampling rate              // eq. 16
 
     float pitch = 1.0;                                          // eq. 10
@@ -140,15 +138,17 @@ int main()
 			mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 		}
 		#ifdef VERBOSE
-		printf("Executed FFT in %.3f usec\n", now() - mark);
+		printf("Executed N-pt FFT in %.3f usec\n", now() - mark);
+		dumpComplex(U,N/2,"U.txt"); // dump the FFT output
 		mark = now();
 		#endif
 
 		memset(W[p],0,sizeof(W[0]));  // clear V
-		compress(mag2, W[p], N/2 - H_V, 1, -zeta, 0, 1);
+		compress(mag2, W[p], N/2 - H_V, 1, -zeta*(1+2*upsam_correct), 0, 1);
 		#ifdef VERBOSE
 		printf("Upsampled U to W in %.3f usec\n", now() - mark);
 		dumpReal(W[p],N/2,"W.txt");// dump the time-warped output
+		mark = now();
 		#endif
 
 		// Correlate Ws in V using an offset
@@ -156,6 +156,10 @@ int main()
 		for (i=0; i<(N/2-H_V); i++) {
 			V[Nless1 & (i - H_V*p)] += W[p][i];
 		}
+		#ifdef VERBOSE
+		printf("Correlated W to V in %.3f usec\n", now() - mark);
+		mark = now();
+		#endif
 
 		offset += H_X;
     }

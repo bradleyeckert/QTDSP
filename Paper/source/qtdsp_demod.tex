@@ -71,7 +71,6 @@ N = \sum_{k=1}^{M} e^{-|R| \cdot (k-1)/N} = \frac{1 - e^{-|R| \cdot M/N}}{1 - e^
 M = \frac{-N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
 \end{equation}
 
-
 \begin{table}
 	\label{tab:MNR}
 	\caption{High values of M/N are undesirable because of excess processing
@@ -125,20 +124,18 @@ Setting $e^R = (1 + \Lambda)^N$,
 
 As a sanity check, a downward-chirping sine wave was generated using a phase
 angle proportional to $e^{n\cdot R/N} - 1$ with index $n$ starting from 0.
-$\Lambda$ was set to $e^{R/N} - 1$.
-A 512-point FFT (with Hann window) was performed on the de-chirped wave to
-produce the expected narrow peak.
+$\Lambda$ was set to $e^{R/N} - 1$, where $R=-0.5$ and $N=1024$.
+An FFT (with Hann window) was performed on the de-chirped wave to
+produce the expected narrow peak. 
+The warping process also generates a noise floor about 30 dBm below the peak
+as seen in Fig. \ref{fig:Uspec}. Lower N generates more noise.
 
-Verification of an exponential sweep built around a 27x26 multiplier used R=1.6
-and N=8192. For upward sweep starting at 1.0, $\Lambda$ was $26846167/2^{37}$
-according to Eq. \ref{eq:lambdaApprox}.
-The accumulated $\Lambda$ was tracked and compared to the expected value from
-Eq. \ref{eq:M_N}. The accumulated error after 8192 steps was less than 0.001
-of an X sample pitch, so more than an order of magnitude better than necessary.
-Rounding was the source of error.
-Adding 1 to the LSB of $\Lambda$ lowered it to below 0.00025.
-Downward sweep starting at $e^{1.6}$ had much less error.
-$\Lambda$ was $-26840924/2^{37}$ and error peaked at 50 PPM.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.99\linewidth]{../source/U.png}
+	\caption{Power spectrum of U, time-warped test chirp}
+	\label{fig:Uspec}
+\end{figure}
 
 \subsubsection{Interpolation}
 
