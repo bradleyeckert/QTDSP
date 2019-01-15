@@ -39,14 +39,14 @@ Revision History
 #define N          1024         // FFT points
 #define MAXPOINTS 16384         // X size
 #define sigAmpl   10000         // amplitude of test chirp
-#define H_V0         16         // output step size
-#define VERBOSE               // you probably want PASSES=1 for this
-#define PASSES        1
+#define H_V0          4         // output step size
+//#define VERBOSE               // you probably want PASSES=1 for this
+#define PASSES       32
 #define PI 3.1415926538
 
 float X[MAXPOINTS];             // X input buffer
-float R = -0.5 - 0.019;
-float frequency = 0.95;       	// initial frequency for test chirp, near Fs/2(1.0)
+float R = 0.515;
+float frequency = 0.4;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
 
 float maxscale(void) {          // maximum amplitude scale
@@ -59,10 +59,19 @@ float maxscale(void) {          // maximum amplitude scale
 float signal(int idx) {
 	float fscale = (exp((float)idx * R / N) - 1.0) * PI * N / R;
 	float ascale = exp((float)idx * 0.5 * R / N) * maxscale();
+	static float angle0 = 0;
 	if (pink) {
         ascale = 1.0;
 	}
 	float angle = frequency * fscale;
+	float delta = angle - angle0;
+	float z;
+	angle0 = angle;
+	if (delta > 3.0) {          // close to Fs/2
+        z = (PI - delta) / (PI-3);
+        if (z<0) {z=0;}         // taper off the amplitude
+        ascale *= z;
+	}
     float sig = sigAmpl * ascale * sin (angle);
     return sig;
 }
@@ -114,7 +123,7 @@ int main()
     printf("pitch=%g, lambda=%g\n",pitch,lambda);
     printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, Ucorr=%g\n",
 			H_X, H_V, gamma, zeta, upsam_correct);
-    double timezero = now();
+    double begintime = now();
     int offset = 0;
     memset(V, 0, sizeof(V));    // clear V
 
@@ -153,9 +162,14 @@ int main()
 		#endif
 
 		// Correlate Ws in V using an offset
-		// This offset works with negative R. Not tested with positive R.
-		for (i=0; i<(N/2-H_V); i++) {
-			V[Nless1 & (i - H_V*p)] += W[p][i];
+		if (R<0) {
+            for (i=0; i<(N/2-H_V); i++) {
+                V[Nless1 & (i - H_V*p)] += W[p][i];
+            }
+		} else {
+            for (i=0; i<(N/2-H_V); i++) {
+                V[Nless1 & (i + H_V*p)] += W[p][i];
+            }
 		}
 		#ifdef VERBOSE
 		printf("Correlated W to V in %.3f usec\n", now() - mark);
@@ -164,6 +178,7 @@ int main()
 
 		offset += H_X;
     }
+    double endtime = now();
 
 // dump the final output, which is square of magnitude. Take sqrt to get RMS.
     dumpReal(V,N,"V.txt");
@@ -172,7 +187,7 @@ int main()
 Dump the RMS W from all of the passes to a CSV file for plotting.
 *******************************************************************************/
 
-    printf("Finished %d passes in %g msec.\n", p, 1e-3*(now() - timezero));
+    printf("Finished %d passes in %.3g msec.\n", p, 1e-3*(endtime - begintime));
 
     FILE *fp;  int j;
     fp = fopen("AllW.csv", "w+");
