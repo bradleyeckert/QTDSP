@@ -82,9 +82,8 @@ M = \frac{-N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
 		\hline\hline
 		$M/N$ & $Max |R|$ & $y_{max}:y_{min}$ \\ [0.5ex]
 		\hline
-		2 & 1.256 & 3.51:1\\
-		4 & 2.337 & 10.35:1\\
-		8 & 4.229 & 68.66:1\\
+		2 & 0.78 & 4.6:1\\
+		4 & 0.96 & 46:1\\
 		\hline
 	\end{tabular}
 \end{table}
@@ -128,13 +127,26 @@ $\Lambda$ was set to $e^{R/N} - 1$, where $R=-0.5$ and $N=1024$.
 An FFT (with Hann window) was performed on the de-chirped wave to
 produce the expected narrow peak. 
 The warping process also generates a noise floor about 30 dBm below the peak
-as seen in Fig. \ref{fig:Uspec}. Lower N generates more noise.
+as seen in Fig. \ref{fig:UdnSpec}.
+Lower N generates more noise.
+In Fig. \ref{fig:UupSpec}, $F_0$ is 0.95 of $F_S/2$, so the warped chirp is
+mostly above $F_S/2$. It aliases to a non-exponential chirp that gets
+smeared across the noise floor.
+The $F_0=0.4F_S/2$ trace is upconverted to $0.8F_S/2$ at about
+20 dB above the noise floor.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.99\linewidth]{../source/U.png}
-	\caption{Power spectrum of U, time-warped test chirp}
-	\label{fig:Uspec}
+	\includegraphics[width=0.99\linewidth]{../source/Udn.png}
+	\caption{Power spectrum of U, time-warped downward test chirp}
+	\label{fig:UdnSpec}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.99\linewidth]{../source/Uup.png}
+	\caption{Power spectrum of U, time-warped upward test chirp}
+	\label{fig:UupSpec}
 \end{figure}
 
 \subsubsection{Interpolation}
@@ -201,25 +213,6 @@ Fig.~\ref{fig:xbuf} shows the memory layout of $X$.
 After a block of processing, $\alpha\Delta$ input samples are concatenated to
 $X$ and the index of $X_0$ is offset by $\alpha\Delta$,
 where $\Delta$ is the time interval of the blocks.
-
-\subsubsection{Testing}
-
-The downsampling process is tested and/or calibrated with the aid of the FFT.
-X memory is initialized with an exponential chirp of rate $R$ where
-the frequency sweeps from $f_0$ to %f_1$.
-Let $x$ be amount of time elapsed. For example, 10.5 represents 10.5 samples.
-
-\begin{equation}
-f_1/f_0 = e^{x \cdot R / N}
-\end{equation}
-
-A convenient test is a 2:1 sweep so, for example, you could look for the FFT
-result's peak to shift in index from 100 to 200 when $x$ is changed from $0$
-to $ln(2) \cdot N / R$.
-
-Choose $f_0$ such that the resulting peak lands on an exact integer index.
-If $f_1$ is a little off due to implementation details,
-tweak the initial pitch to center $f_1$ on the desired FFT result index.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{FFT}

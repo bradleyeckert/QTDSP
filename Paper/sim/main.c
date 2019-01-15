@@ -107,11 +107,12 @@ int main()
 
     float pitch = 1.0;                                          // eq. 10
     if (R>0) {
-        pitch = R*M/N;          // upchirp starts sample pitch at e^RM/N
+        pitch = exp(R*M/N);     // upchirp starts sample pitch at e^RM/N
     }
 
-    printf("N=%d, M=%g, R=%g, k=%g, lambda=%g\n",N,M,R,k,lambda);
-    printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, corr=%g\n",
+    printf("N=%d, M=%g, R=%g, k=%g\n",N,M,R,k);
+    printf("pitch=%g, lambda=%g\n",pitch,lambda);
+    printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, Ucorr=%g\n",
 			H_X, H_V, gamma, zeta, upsam_correct);
     double timezero = now();
     int offset = 0;
