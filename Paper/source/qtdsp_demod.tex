@@ -90,7 +90,8 @@ M = \frac{-N}{|R|} \cdot\ ln\left( 1 - N(1-e^{-|R|/N}) \right)
 
 An upper limit of 2 for M/N is reasonable from both a mathematical and
 hardware standpoint. For example, if M is constrained to 2N, N=1024, and
-$\alpha$ = 10000 samples/second, then $|\omega|$ ranges between 0 and 12.26 e/s.
+$\alpha$ = 10000 samples/second, then $|\omega|$ ranges between 0 and 12.26 e/s
+($0 < |R| < 0.78$).
 When fixed-sized memories are used, smaller N allows for larger M/N, larger R,
 and higher $\omega$ per input sample rate.
 
@@ -106,14 +107,14 @@ This causes a chirp of matching R to be re-sampled to the upper frequency
 (either $f_0$ or $f_1$ depending on the sign of R).
 Given output index i, input sample index $\delta(i)$ is the accumulated sum of
 $\lambda(i)$ when $\lambda$ starts at 1.0 and increases exponentially
-or starts at $e^{-R}$ and decreases exponentially.
+or starts at $e^{M*R/N}$ and decreases exponentially.
 The exponential sweep can be implemented with a multiplier.
 For each step:
 \begin{equation}  \label{eq:lambda}
 \lambda = \lambda + (\lambda\cdot\Lambda)
 \end{equation}
 
-The initial value of $\lambda$ is $e^{-R}$ when $R<0$; otherwise, it's 1.
+The initial value of $\lambda$ is $e^{M*R/N}$ when $R>0$; otherwise, it's 1.
 The ``repeated multiply'' approach to exponential sweep is nearly base $e$,
 but it needs a small correction factor to hit $e$.
 Setting $e^R = (1 + \Lambda)^N$,
@@ -156,27 +157,18 @@ doesn't have to be) for the convenience of the FFT. $\delta(i)$ sweeps
 non-linearly from 0 to M. For each X, its index $\delta$ is the running sum
 of $\lambda$. For each Y point, the downsampler averages one or more X points.
 
-There are two ways to do handle downsampling: Linear interpolation of the output
-of a variable frequency low pass filter, and summation of $\lambda$
-input samples.
-
-The most common downsampling method is the low pass filter whose output is
+The most common downsampling method is a low pass filter whose output is
 sampled less often than its input rate.
 This method attenuates alias frequencies before they make it to the output.
-Anti-aliasing is good to have, but not essential in this case.
-Since the alias of an exponential chirp is no longer a pure exponential
-chirp (it's a linear combination of factors), it will show up in the data stream
-as wideband noise rather than narrowband interference.
-A low pass filter might not be needed.
-The computing resources for the filter aren't cheap.
-However, a filter would improve SNR.
-Such a filter must have a linear phase response.
-A neat trick to use with IIR filters is forward-backward filtering,
-which zeros the phase shift.
+Alias peaks don't correlate, but they do produce noise artifacts.
+A biquad LPF is a good choice of filter because it uses coefficients that
+can be stored in a table or computed in hardware.
+The loss of endpoints due to the filter delay is not a problem.
 The endpoints of the filtered X are allowed some slop,
 as the Hann window will lop them off anyway.
 
-The non-filter approach is to simply sum $\lambda$ input samples of X.
+Fractional interpolation sums $\lambda$ input samples of X.
+This works without a filter so it's fast but noisy.
 Some fractional arithmetic is required to handle partial contributions.
 Fig.~\ref{fig:xint} illustrates a simple interpolation that adds two fractional
 endpoints to 0 or more midpoints for downsampling.

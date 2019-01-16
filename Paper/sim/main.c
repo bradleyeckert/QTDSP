@@ -40,12 +40,12 @@ Revision History
 #define MAXPOINTS 16384         // X size
 #define sigAmpl   10000         // amplitude of test chirp
 #define H_V0          4         // output step size
-//#define VERBOSE               // you probably want PASSES=1 for this
-#define PASSES       32
+#define VERBOSE               // you probably want PASSES=1 for this
+#define PASSES        1
 #define PI 3.1415926538
 
 float X[MAXPOINTS];             // X input buffer
-float R = 0.515;
+float R = 0.5;
 float frequency = 0.4;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
 
@@ -116,7 +116,7 @@ int main()
 
     float pitch = 1.0;                                          // eq. 10
     if (R>0) {
-        pitch = exp(R*M/N);     // upchirp starts sample pitch at e^RM/N
+        pitch = exp(M*R/N);
     }
 
     printf("N=%d, M=%g, R=%g, k=%g\n",N,M,R,k);
