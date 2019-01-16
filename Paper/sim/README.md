@@ -11,10 +11,9 @@
 - Accumulate `W` in `V`. 
 - Increment `t0` and repeat.
 
-After this, dump V to a file.
-The individual W results are output to a CSV file so you can compare peak widths.
+The individual W results are output to a CSV file so you can compare peak widths and time offsets.
 
-## Compiling the CSV
+## Compiling `sim.exe`
 
 That's the easy part. All source files are in the same folder. 
 Compile them as a console application using any C compiler.

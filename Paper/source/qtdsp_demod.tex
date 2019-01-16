@@ -107,14 +107,14 @@ This causes a chirp of matching R to be re-sampled to the upper frequency
 (either $f_0$ or $f_1$ depending on the sign of R).
 Given output index i, input sample index $\delta(i)$ is the accumulated sum of
 $\lambda(i)$ when $\lambda$ starts at 1.0 and increases exponentially
-or starts at $e^{M*R/N}$ and decreases exponentially.
+or starts at $e^{M \cdot R/N}$ and decreases exponentially.
 The exponential sweep can be implemented with a multiplier.
 For each step:
 \begin{equation}  \label{eq:lambda}
 \lambda = \lambda + (\lambda\cdot\Lambda)
 \end{equation}
 
-The initial value of $\lambda$ is $e^{M*R/N}$ when $R>0$; otherwise, it's 1.
+The initial value of $\lambda$ is $e^{M \cdot R/N}$ when $R>0$; otherwise, it's 1.
 The ``repeated multiply'' approach to exponential sweep is nearly base $e$,
 but it needs a small correction factor to hit $e$.
 Setting $e^R = (1 + \Lambda)^N$,
