@@ -52,15 +52,15 @@ void PlotPixel(float z, float rho, float theta) {
     ix = ix>>16;
     iy = iy>>16;
     if (fx&0x8000) {
-        if (fy&0x8000) {    // SE
-        } else {            // NE
+        if (fy&0x8000) {    // NW
+            SetXYpixel(z, ix,iy);
+        } else {            // SW
         }
     } else {
-        if (fy&0x8000) {    // SW
-        } else {            // NW
+        if (fy&0x8000) {    // NE
+        } else {            // SE
         }
     }
-    SetXYpixel(z,ix,iy);
 }
 
 void LoadImage(void) {
