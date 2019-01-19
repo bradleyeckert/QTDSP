@@ -141,12 +141,13 @@ void PlotPixel(float z, uint16_t rho, uint16_t theta) {
 A 7-color heat map is used to create 6 color gradients between floor and ceil.
 */
 
- float floorColor = 0;
- float ceilColor = 6000;
+// extern global variables for heatmap thresholds are initialized here
+float floorColor = 0;
+float ceilColor = 6000;
 
 // see http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
-// modified to paint 24-bit pixels in a BMP, use 7 colors, and compile as C.
-void getHeatMapColor(float z, uint8_t *bgr)
+// modified to paint 24-bit pixels in a BMP and compile as vanilla C.
+static void getHeatMapColor(float z, uint8_t *bgr)
 {
     static float color[NUM_COLORS][3] = {
 //        {  0,   0,   0}, // black
@@ -204,11 +205,6 @@ void SaveImage(char *filename) {
 		{
 		    int z = image[(IMG_H-i-1)*IMG_W+j];
 		    getHeatMapColor(z, &line[j*3]);
-/*		    if (z<0)   {z=0;}
-		    if (z>255) {z=255;}
-		    line[j*3+0] = z;
-		    line[j*3+1] = z;
-		    line[j*3+2] = z; */
 		}
         fwrite(line,3,IMG_W,f);
 	}

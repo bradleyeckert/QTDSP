@@ -33,7 +33,7 @@ Revision History
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "kiss_fft.h"
+#include "./FFT/kiss_fft.h"
 #include "tools.h"
 
 #define N          1024         // FFT points

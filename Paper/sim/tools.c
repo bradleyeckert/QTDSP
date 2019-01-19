@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "tools.h"
-#include "kiss_fft.h"
+#include "./FFT/kiss_fft.h"
 
 /** Compress
 Interpolate LENGTH output samples from a sequence of input samples.
@@ -110,6 +110,7 @@ void HannWindow(kiss_fft_cpx *data)
     }
 }
 
+/// Utilities
 
 void dumpComplex (kiss_fft_cpx *data, int length, char* filename)
 {
@@ -134,7 +135,7 @@ void dumpReal (float *data, int length, char* filename)
 #if defined(WIN32) || defined(__WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN32_)
 
 #include <windows.h>
-double now()
+double now() // current usec
 {
     LARGE_INTEGER t, f;
     QueryPerformanceCounter(&t);
@@ -147,7 +148,7 @@ double now()
 #include <sys/time.h>
 #include <sys/resource.h>
 
-double now()
+double now() // current usec
 {
     struct timeval t;
     struct timezone tzp;
