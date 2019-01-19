@@ -75,6 +75,10 @@ int main(int argc, char *argv[])
 					MinR = Number(argv[Arg++]); break;
 				case 'R':	// set new Rmax
 					MaxR = Number(argv[Arg++]); break;
+				case 'f':	// set floor of heatmap
+					floorColor = Number(argv[Arg++]); break;
+				case 'c':	// set ceiling of heatmap
+					ceilColor = Number(argv[Arg++]); break;
 				default: break;
 			}
 		}
