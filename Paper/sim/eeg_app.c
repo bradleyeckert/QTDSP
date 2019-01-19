@@ -32,6 +32,11 @@ Revision History
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
 
+float* X;                                       // X array
+int Xlength = 0;                                // points in X
+char header[128];
+int N = 1024;
+
 void LoadImage(void) {
 	// fill image with a test pattern
     for(int i=200; i<1000; i++) {
@@ -39,10 +44,6 @@ void LoadImage(void) {
         PlotPixel(200, i<<6, (float)j*16380.0/(float)i);
     }}
 }
-
-float* X;                                       // X array
-int Xlength = 0;                                // points in X
-char header[128];
 
 float Number(char* str) {	// convert string to floating point number
 	float d;
@@ -71,6 +72,21 @@ int main(int argc, char *argv[])
 					strcpy(infilename, argv[Arg++]); break;
 				case 'm':	// set new m
 					m = (int)Number(argv[Arg++]); break;
+					if (m<1 || m>100) {
+                        fprintf(stderr, "M range is 1 to 100\n");
+                        return 4;
+					}
+				case 'N':	// set new N
+					N = (int)Number(argv[Arg++]);
+					if ((N-1)&N) {
+                        fprintf(stderr, "N value must be a power of 2\n");
+                        return 4;
+					}
+					if (N>8192 || N<128) {
+                        fprintf(stderr, "N range is 128 to 8192\n");
+                        return 4;
+					}
+					break;
 				case 'r':	// set new Rmin
 					MinR = Number(argv[Arg++]); break;
 				case 'R':	// set new Rmax
@@ -83,6 +99,14 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+    if (fabs(MinR) > 0.78 || fabs(MaxR) > 0.78) {
+        fprintf(stderr, "Max |R| is 0.78\n");  return 4; }
+    if ((MinR*MaxR)<0) {
+        fprintf(stderr, "Min R and Min R must be of the same sign\n");
+        return 4;      }
+    if (fabs(MinR) > fabs(MaxR)) {  // if the R range is backward, fix it
+        float temp = MinR;  MinR = MaxR;  MaxR = temp;
+    }
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
