@@ -28,6 +28,9 @@ Revision History
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
+#include "tools.h"
+#include "biquad.h"
+#define MAXPOINTS 0x100000L
 
 void LoadImage(void) {
 	// fill image with a test pattern
@@ -37,18 +40,97 @@ void LoadImage(void) {
     }}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-int main()
+float* X;                                       // X array
+int Xlength = 0;                                // points in X
+char header[128];
+
+float Number(char* str) {	// convert string to floating point number
+	float d;
+	sscanf(str, "%f", &d);
+	return d;
+}
+
+/**
+**/
+int main(int argc, char *argv[])
 {
-    char *filename = "img.bmp";
-	printf("Initializing BMP\n"); fflush(stdout);
-	if (BMPalloc()) {
-        return 1;                       // memory error
+    char *outfilename = "img.bmp";
+    char *infilename = "excerpt2.txt";
+    int m = 3;                                  // decimation factor
+    float MaxR = 0.78;
+    float MinR = 0.20;
+
+/// Overwrite defaults using command line arguments
+	int Arg = 1;
+	while (argc>Arg) {		// parse single-character arguments
+		if (strlen(argv[Arg]) == 1) {
+			switch(argv[Arg++][0]) {
+				case 'b':	// set bmp filename
+					strcpy(outfilename, argv[Arg++]); break;
+				case 'i':	// set input filename
+					strcpy(infilename, argv[Arg++]); break;
+				case 'm':	// set new m
+					m = (int)Number(argv[Arg++]); break;
+				case 'r':	// set new Rmin
+					MinR = Number(argv[Arg++]); break;
+				case 'R':	// set new Rmax
+					MaxR = Number(argv[Arg++]); break;
+				default: break;
+			}
+		}
 	}
-	printf("Creating Image\n"); fflush(stdout);
+
+    double startTime = now();
+	X = malloc(sizeof(float) * MAXPOINTS);
+	if (BMPalloc() || (X==0)) { return 1; }     // memory error
+
+/// Input a text file consisting of a header line and one number per line
+	printf("Loading X from %s, ", infilename);
+    FILE *ifp;
+    ifp = fopen(infilename, "r");
+    if (ifp == NULL) {
+        fprintf(stderr, "Can't open input file %s\n", infilename);
+        return 2;
+    }
+    biquad LowPass;
+    BiQuad_new(LPF, 0, 0.45, m, 1.5, &LowPass); // set up decimation filter
+    BiQuad_clear(&LowPass);
+
+    fscanf(ifp, "%s", header);                  // 1st line is header string
+    int j = m;
+    while (Xlength<MAXPOINTS) {
+        float x, xf;
+        if (1!=fscanf(ifp, "%f", &x)) break;    // floating point numbers
+        xf = BiQuad(x, &LowPass);               // get filtered version
+        if (j==1) {
+            X[Xlength++] = xf;
+            j = m;
+        } else {
+            j--;
+        }
+    }
+    fclose(ifp);
+	printf("%d points of %s data\n", Xlength*m, header);
+	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
+        m, Xlength, MinR, MaxR);
+
+///
+	printf("Creating Image\n");
 	LoadImage();
-	printf("Saving BMP to %s\n", filename); fflush(stdout);
-	SaveImage(filename);
+	printf("Saving BMP to %s\n", outfilename); fflush(stdout);
+	SaveImage(outfilename);
+
+/// Output decimated X to "decimated.txt"
+	FILE *ofp;
+	ofp = fopen("decimated.txt", "w");
+    if (ofp != NULL) {
+        for(int i=0; i<Xlength; i++) {
+            fprintf(ofp, "%g\n", X[i]);
+        }
+    }
+
     BMPfree();
+    free(X);
+    printf("Total execution time %.3g sec.\n", 1e-6*(now() - startTime));
     return 0;
 }
