@@ -26,13 +26,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
-#define imageBytes (sizeof(float) * IMG_W * IMG_H)
-#define SCALE16 (1.0/65536.0)
 #define NUM_COLORS 5
+
+// extern global variables for heatmap thresholds are initialized here
+float floorColor = 0;
+float ceilColor = 6;
 
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing
 float *sintable;                        // 1st quadrant of sine
+int IMG_H = 400;
 
 static float sin16(int angle) {         // sine from 16-bit angle
     int ang = angle & 0xFFFF;
@@ -51,6 +54,7 @@ static float cos16(int angle) {         // cosine from 16-bit angle
 
 /// Initialize BMP
 int BMPalloc(void) {
+    int imageBytes = sizeof(float) * IMG_W * IMG_H;
 	image = malloc(imageBytes);         // numeric image
 	sintable = malloc(sizeof(float) * 0x4002);
 	if (!image) return 1;               // memory error
@@ -141,10 +145,6 @@ void PlotPixel(float z, uint16_t rho, uint16_t theta) {
 A 7-color heat map is used to create 6 color gradients between floor and ceil.
 */
 
-// extern global variables for heatmap thresholds are initialized here
-float floorColor = 0;
-float ceilColor = 6000;
-
 // see http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
 // modified to paint 24-bit pixels in a BMP and compile as vanilla C.
 static void getHeatMapColor(float z, uint8_t *bgr)
@@ -176,11 +176,12 @@ static void getHeatMapColor(float z, uint8_t *bgr)
     bgr[0] = (uint8_t)((color[idx2][2] - color[idx1][2])*span + color[idx1][2]);
 }
 
+/// Save the bitmap to a file. Gray out no-data region.
 void SaveImage(char *filename) {
 	FILE *f;
 	int filesize = 54 + 3*IMG_W*IMG_H;  // BMP boilerplate plus image
 	uint8_t bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-	uint8_t bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
+	uint8_t bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,24,0};
 
 	bmpfileheader[ 2] = (uint8_t)(filesize    );
 	bmpfileheader[ 3] = (uint8_t)(filesize>> 8);
@@ -204,10 +205,47 @@ void SaveImage(char *filename) {
 		for(int j=0; j<IMG_W; j++)
 		{
 		    int z = image[(IMG_H-i-1)*IMG_W+j];
-		    getHeatMapColor(z, &line[j*3]);
+		    if (z==0) {
+		        line[j*3]   = 0x80;
+		        line[j*3+1] = 0x80;
+		        line[j*3+2] = 0x80;
+		    } else {
+                getHeatMapColor(z, &line[j*3]);
+		    }
 		}
         fwrite(line,3,IMG_W,f);
 	}
 	fclose(f);
 	free(line);
+}
+
+/// Take logarithm of image
+void LogImage(void) {
+	for(int i=0; i<(IMG_W*IMG_H); i++) {
+        float z = image[i];
+        if(z) {
+            image[i] = log10(z);
+        }
+	}
+}
+
+/// Find statistics of nonzero image points
+void ImageStats(float* stats) {
+    int n=0;
+    float sum=0;        // average
+    stats[1] = 0;       // maximum
+    stats[2] = 1e12;    // minimum
+	for(int i=0; i<(IMG_W*IMG_H); i++) {
+        float z = image[i];
+        if(z) {
+            sum += z;  n++;
+            if (z>stats[1]) {
+                stats[1] = z;
+            }
+            if (z<stats[2]) {
+                stats[2] = z;
+            }
+        }
+	}
+	stats[0] = sum / (float)n;
 }

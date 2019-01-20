@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "tools.h"
-#include "./FFT/kiss_fft.h"
+#include "FFT/kiss_fft.h"
 
 /** Compress
 Interpolate LENGTH output samples from a sequence of input samples.

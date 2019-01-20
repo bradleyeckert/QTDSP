@@ -33,18 +33,18 @@ Revision History
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "./FFT/kiss_fft.h"
+#include "FFT/kiss_fft.h"
 #include "tools.h"
 
 #define N          1024         // FFT points
+#define NMAX       1024         // maximum FFT points
 #define MAXPOINTS 16384         // X size
 #define sigAmpl   10000         // amplitude of test chirp
 #define H_V0          4         // output step size
-#define VERBOSE               // you probably want PASSES=1 for this
-#define PASSES        1
+//#define VERBOSE               // you probably want PASSES=1 for this
+#define PASSES       25
 #define PI 3.1415926538
 
-float X[MAXPOINTS];             // X input buffer
 float R = 0.5;
 float frequency = 0.4;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
@@ -76,23 +76,26 @@ float signal(int idx) {
     return sig;
 }
 
-float XW[N];                   	// warped version of X input
-float mag2[N/2];
 float W[PASSES][N/2];          	// warped version of FFT output
-float V[N];                    	// Correlated passes
 
 ///////////////////////////////////////////////////////////////////////////////
 int main()
 {
-    int i, p;
-	int Nless1 = N - 1;			// one less than an exact power of 2
+	float * X;
+	float * XW;
     kiss_fft_cpx * Y;
     kiss_fft_cpx * U;
+	float * V;
+	float * mag2;
     int nbytes = N * sizeof(kiss_fft_cpx);
+    X=(float *)malloc(MAXPOINTS * sizeof(float));
     Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
     U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
+    V=(float *)malloc(NMAX * sizeof(float));
+    XW=(float *)malloc(NMAX * sizeof(float));
+    mag2=(float *)malloc(NMAX * sizeof(float)/2);
 
-    for (i=0; i<MAXPOINTS; i++) {
+    for (int i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
     }
     dumpReal(X, 2*N, "X.txt");  // dump the test chirp
@@ -100,6 +103,8 @@ int main()
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
 
     CreateHann(N);              // set up the FFT window
+
+// R and X are known, process X into V
 
     // M is the number of X input samples to warp to Y. Usually N to 4N.
     float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
@@ -125,9 +130,10 @@ int main()
 			H_X, H_V, gamma, zeta, upsam_correct);
     double begintime = now();
     int offset = 0;
-    memset(V, 0, sizeof(V));    // clear V
+    memset(V,0,N*sizeof(float));// clear V
 
-    for (p=0; p<PASSES; p++) {
+	int Nless1 = N - 1;			// one less than an exact power of 2
+    for (int p=0; p<PASSES; p++) {
 		#ifdef VERBOSE
 		double mark = now();
 		#endif
@@ -139,12 +145,12 @@ int main()
 		mark = now();
 		#endif
 
-		for (i=0; i<N; i++) {   // copy
+		for (int i=0; i<N; i++) {   // copy real to complex
 			Y[i].r = XW[i];  Y[i].i = 0.0;
 		}
 		HannWindow(Y);
 		kiss_fft(cfg, Y, U);
-		for (i=0; i<(N/2); i++) {
+		for (int i=0; i<(N/2); i++) {
 			mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 		}
 		#ifdef VERBOSE
@@ -163,11 +169,11 @@ int main()
 
 		// Correlate Ws in V using an offset
 		if (R<0) {
-            for (i=0; i<(N/2-H_V); i++) {
+            for (int i=0; i<(N/2-H_V); i++) {
                 V[Nless1 & (i - H_V*p)] += W[p][i];
             }
 		} else {
-            for (i=0; i<(N/2-H_V); i++) {
+            for (int i=0; i<(N/2-H_V); i++) {
                 V[Nless1 & (i + H_V*p)] += W[p][i];
             }
 		}
@@ -187,14 +193,14 @@ int main()
 Dump the RMS W from all of the passes to a CSV file for plotting.
 *******************************************************************************/
 
-    printf("Finished %d passes in %.3g msec.\n", p, 1e-3*(endtime - begintime));
+    printf("Finished %d passes in %.3g msec.\n", PASSES, 1e-3*(endtime - begintime));
 
-    FILE *fp;  int j;
+    FILE *fp;
     fp = fopen("AllW.csv", "w+");
-    for (i=0; i<N/2; i++) {
-        for (j=0; j<p; j++) {
+    for (int i=0; i<N/2; i++) {
+        for (int j=0; j<PASSES; j++) {
             fprintf(fp, "%g", sqrt(W[j][i]));
-            if (j<(p-1)) {
+            if (j<(PASSES-1)) {
                 fprintf(fp, ",");
             }
         }
@@ -204,7 +210,11 @@ Dump the RMS W from all of the passes to a CSV file for plotting.
 
     kiss_fft_free(cfg);
     FreeHann();
-    free(Y);
+    free(mag2);
+    free(XW);
+    free(V);
     free(U);
+    free(Y);
+    free(X);
     return 0;
 }

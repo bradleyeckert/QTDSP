@@ -32,10 +32,7 @@ Revision History
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
 
-float* X;                                       // X array
-int Xlength = 0;                                // points in X
 char header[128];
-int N = 1024;
 
 void LoadImage(void) {
 	// fill image with a test pattern
@@ -58,8 +55,18 @@ int main(int argc, char *argv[])
     char *outfilename = "img.bmp";
     char *infilename = "excerpt2.txt";
     int m = 3;                                  // decimation factor
+    int N = 1024;
     float MaxR = 0.78;
     float MinR = 0.20;
+    int Rsteps = 100;
+
+    float * X;
+    int Xlength = 0;                            // points in X
+    float * XW;
+    kiss_fft_cpx * Y;
+    kiss_fft_cpx * U;
+	float * V;
+	float * mag2;
 
 /// Overwrite defaults using command line arguments
 	int Arg = 1;
@@ -91,10 +98,18 @@ int main(int argc, char *argv[])
 					MinR = Number(argv[Arg++]); break;
 				case 'R':	// set new Rmax
 					MaxR = Number(argv[Arg++]); break;
+				case 's':	// set new R steps
+					Rsteps = (int)Number(argv[Arg++]); break;
+					if (Rsteps<1 || Rsteps>4096) {
+                        fprintf(stderr, "R can have 1 to 4096 steps\n");
+                        return 4;
+					}
 				case 'f':	// set floor of heatmap
 					floorColor = Number(argv[Arg++]); break;
 				case 'c':	// set ceiling of heatmap
 					ceilColor = Number(argv[Arg++]); break;
+                case 'h':   // set BMP height to multiple of 4
+                    IMG_H = (3 + (int)Number(argv[Arg++])) & 0xFFFC;
 				default: break;
 			}
 		}
@@ -142,13 +157,7 @@ int main(int argc, char *argv[])
 	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
         m, Xlength, MinR, MaxR);
 
-///
-	printf("Creating Image\n");
-	LoadImage();
-	printf("Saving BMP to %s\n", outfilename); fflush(stdout);
-	SaveImage(outfilename);
-
-/// Output decimated X to "decimated.txt"
+/// Output decimated X to "decimated.txt" so we have it
 	FILE *ofp;
 	ofp = fopen("decimated.txt", "w");
     if (ofp != NULL) {
@@ -157,7 +166,42 @@ int main(int argc, char *argv[])
         }
     }
 
+    int nbytes = N * sizeof(kiss_fft_cpx);
+    X=(float *)malloc(MAXPOINTS * sizeof(float));
+    Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
+    U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
+    V=(float *)malloc(N * sizeof(float));
+    XW=(float *)malloc(N * sizeof(float));
+    mag2=(float *)malloc(N * sizeof(float)/2);
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
+    CreateHann(N);              // set up the FFT window
+
+/// At this point, X has been input and arrays have been set up.
+	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
+
+/// Create Image
+	LoadImage();
+
+/// Convert image to BMP
+	LogImage();
+	float stats[3];
+    ImageStats(stats);
+
+	printf("Saving BMP to %s\n", outfilename);
+	printf("Average=%g, Max=%g, Heatmap Ceiling=%g, Floor=%g\n",
+        stats[0], stats[1], ceilColor, floorColor);
+	SaveImage(outfilename);
+
+/// Finished
     BMPfree();
+    kiss_fft_free(cfg);
+    FreeHann();
+    free(mag2);
+    free(XW);
+    free(V);
+    free(U);
+    free(Y);
     free(X);
     printf("Total execution time %.3g sec.\n", 1e-6*(now() - startTime));
     return 0;
