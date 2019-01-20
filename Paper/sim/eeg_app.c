@@ -56,9 +56,10 @@ int main(int argc, char *argv[])
     char *infilename = "excerpt2.txt";
     int m = 3;                                  // decimation factor
     int N = 1024;
+    int H_V0 = 4;
     float MaxR = 0.78;
     float MinR = 0.20;
-    int Rsteps = 100;
+    int Rsteps = 10;
 
     float * X;
     int Xlength = 0;                            // points in X
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 				case 'm':	// set new m
 					m = (int)Number(argv[Arg++]); break;
 					if (m<1 || m>100) {
-                        fprintf(stderr, "M range is 1 to 100\n");
+                        fprintf(stderr, "m range is 1 to 100\n");
                         return 4;
 					}
 				case 'N':	// set new N
@@ -101,7 +102,13 @@ int main(int argc, char *argv[])
 				case 's':	// set new R steps
 					Rsteps = (int)Number(argv[Arg++]); break;
 					if (Rsteps<1 || Rsteps>4096) {
-                        fprintf(stderr, "R can have 1 to 4096 steps\n");
+                        fprintf(stderr, "s: R must have 1 to 4096 steps\n");
+                        return 4;
+					}
+				case 'v':	// set new V step size
+					H_V0 = (int)Number(argv[Arg++]); break;
+					if (H_V0<1 || H_V0>100) {
+                        fprintf(stderr, "v: H_V range is 1 to 100\n");
                         return 4;
 					}
 				case 'f':	// set floor of heatmap
@@ -176,9 +183,42 @@ int main(int argc, char *argv[])
 
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
     CreateHann(N);              // set up the FFT window
+	int vmask = N - 1;			// one less than an exact power of 2
 
 /// At this point, X has been input and arrays have been set up.
 	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
+	for (int step=0; step<=Rsteps; step++) {
+        float R = MinR + (float)step*(MaxR-MinR)/Rsteps;
+		// M is the number of X input samples to warp to Y. Usually N to 4N.
+		float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
+		// rate constant for downsampling exponential sweep
+		float lambda = exp(-R/N) - 1;                               // eq. 9
+		// k is an upsampling constant, about 2
+		float k = N * log(((float)N-2)/((float)N-4));               // eq. 15
+		// real H_X, ideal offset in X samples
+		float gamma = H_V0 * k / fabs(R);                           // eq. 17
+		int H_X = round(gamma);		    // use the closest value
+		int H_V = H_V0;
+		float upsam_correct = (gamma / H_X) - 1;
+		float zeta = exp(k/N) - 1;      // upsampling rate          // eq. 16
+
+		float pitch = 1.0;                                          // eq. 10
+		if (R>0) {
+			pitch = exp(M*R/N);
+		}
+        int offset = 0;
+        memset(V,0,N*sizeof(float));    // clear V
+
+/// remove this printf stuff later...
+        printf("N=%d, M=%g, R=%g, k=%g, ",N,M,R,k);
+        printf("pitch=%g, lambda=%g, ",pitch,lambda);
+        printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, Ucorr=%g\n",
+			H_X, H_V, gamma, zeta, upsam_correct);
+/// compiler complains: offset and vmask not used (needed for run loop)
+
+        /// run until the arc is filled to 180 degrees.
+
+	}
 
 /// Create Image
 	LoadImage();

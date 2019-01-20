@@ -37,7 +37,6 @@ Revision History
 #include "tools.h"
 
 #define N          1024         // FFT points
-#define NMAX       1024         // maximum FFT points
 #define MAXPOINTS 16384         // X size
 #define sigAmpl   10000         // amplitude of test chirp
 #define H_V0          4         // output step size
@@ -91,9 +90,9 @@ int main()
     X=(float *)malloc(MAXPOINTS * sizeof(float));
     Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
     U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
-    V=(float *)malloc(NMAX * sizeof(float));
-    XW=(float *)malloc(NMAX * sizeof(float));
-    mag2=(float *)malloc(NMAX * sizeof(float)/2);
+    V=(float *)malloc(N * sizeof(float));
+    XW=(float *)malloc(N * sizeof(float));
+    mag2=(float *)malloc(N * sizeof(float)/2);
 
     for (int i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
@@ -132,7 +131,7 @@ int main()
     int offset = 0;
     memset(V,0,N*sizeof(float));// clear V
 
-	int Nless1 = N - 1;			// one less than an exact power of 2
+	int vmask = N - 1;			// one less than an exact power of 2
     for (int p=0; p<PASSES; p++) {
 		#ifdef VERBOSE
 		double mark = now();
@@ -170,11 +169,11 @@ int main()
 		// Correlate Ws in V using an offset
 		if (R<0) {
             for (int i=0; i<(N/2-H_V); i++) {
-                V[Nless1 & (i - H_V*p)] += W[p][i];
+                V[vmask & (i - H_V*p)] += W[p][i];
             }
 		} else {
             for (int i=0; i<(N/2-H_V); i++) {
-                V[Nless1 & (i + H_V*p)] += W[p][i];
+                V[vmask & (i + H_V*p)] += W[p][i];
             }
 		}
 		#ifdef VERBOSE
