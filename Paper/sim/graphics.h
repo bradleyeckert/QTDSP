@@ -11,8 +11,8 @@ int BMPalloc(void);     // call before using
 void BMPfree(void);     // call after finished
 
 void PlotPixel(float z, uint16_t rho, uint16_t theta);
+void XYpixel(float z, int x, int y);
 void SaveImage(char *filename);
-void LogImage(void);
 void ImageStats(float* stats);
 
 extern float floorColor;

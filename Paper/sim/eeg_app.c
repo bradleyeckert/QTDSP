@@ -31,10 +31,11 @@ Revision History
 #include "tools.h"
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
+//#define RADIAL
 
 char header[128];
 
-void LoadImage(void) {
+void TestPattern(void) {
 	// fill image with a test pattern
     for(int i=200; i<1000; i++) {
     for(int j=0; j<(2*i); j++) {
@@ -42,7 +43,7 @@ void LoadImage(void) {
     }}
 }
 
-float Number(char* str) {	// convert string to floating point number
+float Number(char* str) {	    // convert string to floating point number
 	float d;
 	sscanf(str, "%f", &d);
 	return d;
@@ -50,24 +51,29 @@ float Number(char* str) {	// convert string to floating point number
 
 /**
 **/
+    char outfilename[256] = "img.bmp";
+    char infilename[256] = "excerpt2.txt";
+
 int main(int argc, char *argv[])
 {
-    char *outfilename = "img.bmp";
-    char *infilename = "excerpt2.txt";
-    int m = 3;                                  // decimation factor
+    int m = 3;                  // decimation factor
     int N = 1024;
-    int H_V0 = 4;
-    float MaxR = 0.78;
-    float MinR = 0.20;
-    int Rsteps = 10;
+    int H_X0 = 16;
+    float MaxR = -0.78;
+    float MinR = -0.20;
+    int Rsteps = 800;
+    int offset = 0;             // offset of starting point in file
+    char autoCeil = 1;
+    char autoFloor = 1;
 
-    float * X;
-    int Xlength = 0;                            // points in X
-    float * XW;
-    kiss_fft_cpx * Y;
-    kiss_fft_cpx * U;
-	float * V;
-	float * mag2;
+	float * X;                  // raw input
+	float * XW;                 // warped input
+    kiss_fft_cpx * Y;           // FFT input (copy of XW)
+    kiss_fft_cpx * U;           // FFT result
+	float * mag2;               // magnitude^2 of FFT result
+	float * W;                  // warped mag^2
+	float * V;                  // correlation buffer
+	float * Vout;               // output
 
 /// Overwrite defaults using command line arguments
 	int Arg = 1;
@@ -82,6 +88,12 @@ int main(int argc, char *argv[])
 					m = (int)Number(argv[Arg++]); break;
 					if (m<1 || m>100) {
                         fprintf(stderr, "m range is 1 to 100\n");
+                        return 4;
+					}
+				case 'o':	// set new offset
+					offset = (int)Number(argv[Arg++]); break;
+					if (offset<0) {
+                        fprintf(stderr, "o: Offset can't be negative\n");
                         return 4;
 					}
 				case 'N':	// set new N
@@ -105,16 +117,18 @@ int main(int argc, char *argv[])
                         fprintf(stderr, "s: R must have 1 to 4096 steps\n");
                         return 4;
 					}
-				case 'v':	// set new V step size
-					H_V0 = (int)Number(argv[Arg++]); break;
-					if (H_V0<1 || H_V0>100) {
-                        fprintf(stderr, "v: H_V range is 1 to 100\n");
+				case 'x':	// set new X step size
+					H_X0 = (int)Number(argv[Arg++]); break;
+					if (H_X0<4 || H_X0>100) {
+                        fprintf(stderr, "v: H_X range is 4 to 100\n");
                         return 4;
 					}
 				case 'f':	// set floor of heatmap
-					floorColor = Number(argv[Arg++]); break;
+					floorColor = Number(argv[Arg++]);
+                    autoFloor = 0;	break;
 				case 'c':	// set ceiling of heatmap
-					ceilColor = Number(argv[Arg++]); break;
+					ceilColor = Number(argv[Arg++]);
+                    autoCeil = 0;	break;
                 case 'h':   // set BMP height to multiple of 4
                     IMG_H = (3 + (int)Number(argv[Arg++])) & 0xFFFC;
 				default: break;
@@ -129,6 +143,9 @@ int main(int argc, char *argv[])
     if (fabs(MinR) > fabs(MaxR)) {  // if the R range is backward, fix it
         float temp = MinR;  MinR = MaxR;  MaxR = temp;
     }
+    #ifndef RADIAL
+        Rsteps = IMG_H-1; // override number of steps if rectangular format
+    #endif // RADIAL
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
@@ -148,15 +165,20 @@ int main(int argc, char *argv[])
 
     fscanf(ifp, "%s", header);                  // 1st line is header string
     int j = m;
+    uint32_t Xlength = 0;
     while (Xlength<MAXPOINTS) {
         float x, xf;
         if (1!=fscanf(ifp, "%f", &x)) break;    // floating point numbers
         xf = BiQuad(x, &LowPass);               // get filtered version
-        if (j==1) {
-            X[Xlength++] = xf;
-            j = m;
+        if (offset) {
+            offset--;                           // skip 0 or more input points
         } else {
-            j--;
+            if (j==1) {
+                X[Xlength++] = xf;              // store decimated input
+                j = m;
+            } else {
+                j--;
+            }
         }
     }
     fclose(ifp);
@@ -164,28 +186,38 @@ int main(int argc, char *argv[])
 	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
         m, Xlength, MinR, MaxR);
 
-/// Output decimated X to "decimated.txt" so we have it
+/// Output decimated X to "decimated.txt" for sanity checking
 	FILE *ofp;
 	ofp = fopen("decimated.txt", "w");
     if (ofp != NULL) {
-        for(int i=0; i<Xlength; i++) {
+        for(uint32_t i=0; i<Xlength; i++) {
             fprintf(ofp, "%g\n", X[i]);
         }
     }
 
     int nbytes = N * sizeof(kiss_fft_cpx);
-    X=(float *)malloc(MAXPOINTS * sizeof(float));
+    XW=(float *)malloc(N * sizeof(float));
     Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
     U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
-    V=(float *)malloc(N * sizeof(float));
-    XW=(float *)malloc(N * sizeof(float));
     mag2=(float *)malloc(N * sizeof(float)/2);
+    W=(float *)malloc(N/2 * sizeof(float));
+    V=(float *)malloc(N/2 * sizeof(float));
+    Vout=(float *)malloc(MAXPOINTS * sizeof(float));
 
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
-    CreateHann(N);              // set up the FFT window
-	int vmask = N - 1;			// one less than an exact power of 2
+    CreateHann(N);                              // set up the FFT window
+	int vmask = (N/2) - 1;			// one less than an exact power of 2
+
+    // k is an upsampling constant, about 2
+    float k = N * log(((float)N-2)/((float)N-4));                   // eq. 15
+    float zeta = exp(k/N) - 1;                  // upsampling rate  // eq. 16
+    int H_X = H_X0;
 
 /// At this point, X has been input and arrays have been set up.
+/// Perform a sweep of R values
+
+    printf("N=%d, H_X=%d, k=%f, zeta=%f\n", N, H_X0, k, zeta);
+
 	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
 	for (int step=0; step<=Rsteps; step++) {
         float R = MinR + (float)step*(MaxR-MinR)/Rsteps;
@@ -193,43 +225,93 @@ int main(int argc, char *argv[])
 		float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
 		// rate constant for downsampling exponential sweep
 		float lambda = exp(-R/N) - 1;                               // eq. 9
-		// k is an upsampling constant, about 2
-		float k = N * log(((float)N-2)/((float)N-4));               // eq. 15
-		// real H_X, ideal offset in X samples
-		float gamma = H_V0 * k / fabs(R);                           // eq. 17
-		int H_X = round(gamma);		    // use the closest value
-		int H_V = H_V0;
-		float upsam_correct = (gamma / H_X) - 1;
-		float zeta = exp(k/N) - 1;      // upsampling rate          // eq. 16
+		// real H_V, ideal offset in V samples
+		float H_V = H_X0 * fabs(R) / k;
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
 			pitch = exp(M*R/N);
 		}
-        int offset = 0;
-        memset(V,0,N*sizeof(float));    // clear V
 
-/// remove this printf stuff later...
-        printf("N=%d, M=%g, R=%g, k=%g, ",N,M,R,k);
-        printf("pitch=%g, lambda=%g, ",pitch,lambda);
-        printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, Ucorr=%g\n",
-			H_X, H_V, gamma, zeta, upsam_correct);
-/// compiler complains: offset and vmask not used (needed for run loop)
+        for (int i=0; i<(N/2); i++) {           // clear V, use 1.0 so log is 0
+            V[i] = 1;
+        }
 
-        /// run until the arc is filled to 180 degrees.
+// The number of Vout points painted to the arc should be limited to twice the
+// arc length in pixels. When R=0.8, the limit is IMG_H*pi.
 
+        #ifdef RADIAL
+        int MaxVpoints = (int)(R * IMG_H * 2.0 * PI / 0.8);
+        #else
+        int MaxVpoints = 2*IMG_H;
+        #endif // RADIAL
+
+        uint32_t xoffset = 0;
+        float voffset = 0;
+        uint32_t VoutSize = 0;                  // points in the output
+        int deadtime = N/2;                     // dead points in the output stream
+
+    printf("M=%.2f, R=%.4f, pitch=%.4f, lambda=%.6f, H_V=%.4f\n",M,R,pitch,lambda,H_V);
+
+        while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
+			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 0);
+			for (int i=0; i<N; i++) {           // copy real to complex
+				Y[i].r = XW[i];  Y[i].i = 0.0;
+			}
+			HannWindow(Y);
+			kiss_fft(cfg, Y, U);
+			for (int i=0; i<(N/2); i++) {
+				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
+			}
+			memset(W,0,N/2*sizeof(float));      // clear W
+			compress(mag2, W, N/2 - (int)H_V, 1, -zeta, 0, 1);
+			// Correlate Ws in V using an offset
+			int Rsign = 0;
+			if (R<0) { Rsign = -1; }
+			int Widxlast = N/2 - (int)H_V - 1;
+			for (int i=0; i<=Widxlast; i++) {   // correlate
+				if (Rsign) {                    // R < 0
+					V[vmask & ((int)voffset + i)] += W[Widxlast - i];
+				} else {                        // R > 0
+					V[vmask & ((int)voffset + i)] += W[i];
+				}
+			}
+			for (int i=-(int)H_V; i<0; i++) {   // output H_V finished points
+                float dB = 10 * log10( V[vmask & ((int)voffset + i)] );
+                /* clear after use */  V[vmask & ((int)voffset + i)] = 1;
+                if (deadtime) {
+                    deadtime--;
+                } else {
+                    Vout[VoutSize++] = dB;
+                }
+			}
+			xoffset += H_X;
+			voffset += H_V;
+        }
+        printf(".");
+        #ifdef RADIAL
+        int radius = (int)(R * 65536.0 / 0.8);  // scale radius to 16-bit
+        float anglescale = 32768.0 / MaxVpoints;
+        for (int i=0; i<=MaxVpoints; i++) {     // angle sweep
+            PlotPixel(Vout[i], radius, anglescale*(float)i);
+        }
+        #else
+        for (int i=0; i<=MaxVpoints; i++) {     // X sweep
+            XYpixel(Vout[i], i, step);          // rectangular format
+        }
+        #endif
 	}
-
-/// Create Image
-	LoadImage();
+    printf("\n");
+//	TestPattern();
 
 /// Convert image to BMP
-	LogImage();
 	float stats[3];
     ImageStats(stats);
+    if (autoCeil)  {ceilColor  = stats[1] - 4;}
+    if (autoFloor) {floorColor = stats[0] - 4;}
 
 	printf("Saving BMP to %s\n", outfilename);
-	printf("Average=%g, Max=%g, Heatmap Ceiling=%g, Floor=%g\n",
+	printf("Average=%g, Max=%g; Heatmap: Ceiling=%g, Floor=%g\n",
         stats[0], stats[1], ceilColor, floorColor);
 	SaveImage(outfilename);
 
@@ -237,11 +319,13 @@ int main(int argc, char *argv[])
     BMPfree();
     kiss_fft_free(cfg);
     FreeHann();
-    free(mag2);
-    free(XW);
+    free(Vout);
     free(V);
+    free(W);
+    free(mag2);
     free(U);
     free(Y);
+    free(XW);
     free(X);
     printf("Total execution time %.3g sec.\n", 1e-6*(now() - startTime));
     return 0;

@@ -40,6 +40,7 @@ Revision History
 #define MAXPOINTS 16384         // X size
 #define sigAmpl   10000         // amplitude of test chirp
 #define H_V0          4         // output step size
+#define H_X0         16         // input step size
 //#define VERBOSE               // you probably want PASSES=1 for this
 #define PASSES       25
 #define PI 3.1415926538
@@ -80,19 +81,23 @@ float W[PASSES][N/2];          	// warped version of FFT output
 ///////////////////////////////////////////////////////////////////////////////
 int main()
 {
-	float * X;
-	float * XW;
-    kiss_fft_cpx * Y;
-    kiss_fft_cpx * U;
-	float * V;
-	float * mag2;
+	float * X;                  // raw input
+	float * XW;                 // warped input
+    kiss_fft_cpx * Y;           // FFT input (copy of XW)
+    kiss_fft_cpx * U;           // FFT result
+	float * mag2;               // magnitude^2 of FFT result
+	float * V;                  // correlation buffer
+	float * Vout;               // output
+	int VoutSize = 0;           // points in the output
+
     int nbytes = N * sizeof(kiss_fft_cpx);
     X=(float *)malloc(MAXPOINTS * sizeof(float));
+    XW=(float *)malloc(N * sizeof(float));
     Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
     U=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
-    V=(float *)malloc(N * sizeof(float));
-    XW=(float *)malloc(N * sizeof(float));
     mag2=(float *)malloc(N * sizeof(float)/2);
+    V=(float *)malloc(N/2 * sizeof(float));
+    Vout=(float *)malloc(MAXPOINTS * sizeof(float));
 
     for (int i=0; i<MAXPOINTS; i++) {
         X[i] = signal(i);       // set up a test chirp
@@ -112,10 +117,8 @@ int main()
     // k is an upsampling constant, about 2
     float k = N * log(((float)N-2)/((float)N-4));               // eq. 15
 	// real H_X, ideal offset in X samples
-	float gamma = H_V0 * k / fabs(R);                           // eq. 17
-	int H_X = round(gamma);		// use the closest value
-	int H_V = H_V0;
-	float upsam_correct = (gamma / H_X) - 1;
+	float H_V = H_X0 * fabs(R) / k;                             // eq. 17
+	int H_X = H_X0;
 	float zeta = exp(k/N) - 1;  // upsampling rate              // eq. 16
 
     float pitch = 1.0;                                          // eq. 10
@@ -125,13 +128,19 @@ int main()
 
     printf("N=%d, M=%g, R=%g, k=%g\n",N,M,R,k);
     printf("pitch=%g, lambda=%g\n",pitch,lambda);
-    printf("H_X=%d, H_V=%d, gamma=%g, zeta=%g, Ucorr=%g\n",
-			H_X, H_V, gamma, zeta, upsam_correct);
+    printf("H_X=%d, H_V=%f, zeta=%g\n",
+			H_X, H_V, zeta);
     double begintime = now();
     int offset = 0;
-    memset(V,0,N*sizeof(float));// clear V
 
-	int vmask = N - 1;			// one less than an exact power of 2
+    for (int i=0; i<(N/2); i++) {           // clear V, use 1.0 so log is 0
+        V[i] = 1;
+    }
+
+	int vmask = N/2 - 1;	                // one less than an exact power of 2
+	int deadtime = N/2;
+    float voffset = 0;
+
     for (int p=0; p<PASSES; p++) {
 		#ifdef VERBOSE
 		double mark = now();
@@ -140,11 +149,11 @@ int main()
 		compress(&X[offset], XW, N, pitch, lambda, -lambda/2, 0);
 		#ifdef VERBOSE
 		printf("Downsampled X to Y in %.3f usec\n", now() - mark);
-		dumpReal(XW,N,"Y.txt"); // dump the time-warped input
+		dumpReal(XW,N,"Y.txt");             // dump the time-warped input
 		mark = now();
 		#endif
 
-		for (int i=0; i<N; i++) {   // copy real to complex
+		for (int i=0; i<N; i++) {           // copy real to complex
 			Y[i].r = XW[i];  Y[i].i = 0.0;
 		}
 		HannWindow(Y);
@@ -154,12 +163,12 @@ int main()
 		}
 		#ifdef VERBOSE
 		printf("Executed N-pt FFT in %.3f usec\n", now() - mark);
-		dumpComplex(U,N/2,"U.txt"); // dump the FFT output
+		dumpComplex(U,N/2,"U.txt");         // dump the FFT output
 		mark = now();
 		#endif
 
-		memset(W[p],0,sizeof(W[0]));  // clear V
-		compress(mag2, W[p], N/2 - H_V, 1, -zeta*(1+2*upsam_correct), 0, 1);
+		memset(W[p],0,sizeof(W[0]));        // clear W
+		compress(mag2, W[p], N/2 - H_V, 1, -zeta, 0, 1);
 		#ifdef VERBOSE
 		printf("Upsampled U to W in %.3f usec\n", now() - mark);
 		dumpReal(W[p],N/2,"W.txt");// dump the time-warped output
@@ -167,26 +176,47 @@ int main()
 		#endif
 
 		// Correlate Ws in V using an offset
-		if (R<0) {
-            for (int i=0; i<(N/2-H_V); i++) {
-                V[vmask & (i - H_V*p)] += W[p][i];
+		int Rsign = 0;
+		if (R<0) { Rsign = -1; }
+		int Widxlast = N/2 - H_V - 1;
+        for (int i=0; i<=Widxlast; i++) {   // correlate
+            if (Rsign) {                    // R < 0
+                V[vmask & ((int)voffset + i)] += W[p][Widxlast - i];
+            } else {                        // R > 0
+                V[vmask & ((int)voffset + i)] += W[p][i];
             }
-		} else {
-            for (int i=0; i<(N/2-H_V); i++) {
-                V[vmask & (i + H_V*p)] += W[p][i];
+        }
+        for (int i=-H_V; i<0; i++) {        // output H_V finished points
+            float dB = 10*log10( V[vmask & ((int)voffset + i)] );
+//            V[vmask & ((int)voffset + i)] = 1;
+            if (deadtime) {
+                if (dB) {deadtime=0;}
+            } else {
+                Vout[VoutSize++] = dB;
             }
-		}
+        }
+
 		#ifdef VERBOSE
 		printf("Correlated W to V in %.3f usec\n", now() - mark);
 		mark = now();
 		#endif
 
 		offset += H_X;
+		voffset += H_V;
     }
+    for (int i=0; i<(N/2-(int)H_V); i++) {  // flush partial correlations
+        float dB = 10*log10( V[vmask & ((int)H_V*PASSES + i)] );
+        if (deadtime) {
+            if (dB) {deadtime=0;}
+        } else {
+            Vout[VoutSize++] = dB;
+        }
+    }
+
     double endtime = now();
 
-// dump the final output, which is square of magnitude. Take sqrt to get RMS.
-    dumpReal(V,N,"V.txt");
+    dumpReal(V,N/2,"V.txt");                // correlated mag^2s
+    dumpReal(Vout,VoutSize,"Vout.txt");     // output buffer in dB
 
 /*******************************************************************************
 Dump the RMS W from all of the passes to a CSV file for plotting.
@@ -209,11 +239,12 @@ Dump the RMS W from all of the passes to a CSV file for plotting.
 
     kiss_fft_free(cfg);
     FreeHann();
-    free(mag2);
-    free(XW);
+    free(Vout);
     free(V);
+    free(mag2);
     free(U);
     free(Y);
+    free(XW);
     free(X);
     return 0;
 }

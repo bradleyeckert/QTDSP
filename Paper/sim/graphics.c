@@ -29,13 +29,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define NUM_COLORS 5
 
 // extern global variables for heatmap thresholds are initialized here
-float floorColor = 0;
-float ceilColor = 6;
+float floorColor = 90;
+float ceilColor = 110;
+int IMG_H = 256;
 
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing
 float *sintable;                        // 1st quadrant of sine
-int IMG_H = 400;
 
 static float sin16(int angle) {         // sine from 16-bit angle
     int ang = angle & 0xFFFF;
@@ -79,6 +79,10 @@ void BMPfree(void) {
 static void SetXYpixel(uint16_t fx, uint16_t fy, float z, int x, int y) {
     if ((x<0) || (y<0)) return;
     image[ y*IMG_W + x ] += z * weight[fx>>11][fy>>11];
+}
+
+void XYpixel(float z, int x, int y) {
+    image[ (y%IMG_H)*IMG_W + (x%IMG_W) ] = z;
 }
 
 // x and y coordinates are 2^16 * pixel position
@@ -217,16 +221,6 @@ void SaveImage(char *filename) {
 	}
 	fclose(f);
 	free(line);
-}
-
-/// Take logarithm of image
-void LogImage(void) {
-	for(int i=0; i<(IMG_W*IMG_H); i++) {
-        float z = image[i];
-        if(z) {
-            image[i] = log10(z);
-        }
-	}
 }
 
 /// Find statistics of nonzero image points
