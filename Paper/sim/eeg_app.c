@@ -43,7 +43,7 @@ void TestPattern(void) {
     }}
 }
 
-float Number(char* str) {	    // convert string to floating point number
+float Number(char* str) {	// convert string to floating point number
 	float d;
 	sscanf(str, "%f", &d);
 	return d;
@@ -51,29 +51,29 @@ float Number(char* str) {	    // convert string to floating point number
 
 /**
 **/
-    char outfilename[256] = "img.bmp";
-    char infilename[256] = "excerpt2.txt";
+char outfilename[256] = "img.bmp";
+char infilename[256] = "excerpt2.txt";
 
 int main(int argc, char *argv[])
 {
-    int m = 3;                  // decimation factor
+    int m = 3;              // decimation factor
     int N = 1024;
     int H_X0 = 16;
     float MaxR = -0.78;
     float MinR = -0.20;
     int Rsteps = 800;
-    int offset = 0;             // offset of starting point in file
+    int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
     char autoFloor = 1;
 
-	float * X;                  // raw input
-	float * XW;                 // warped input
-    kiss_fft_cpx * Y;           // FFT input (copy of XW)
-    kiss_fft_cpx * U;           // FFT result
-	float * mag2;               // magnitude^2 of FFT result
-	float * W;                  // warped mag^2
-	float * V;                  // correlation buffer
-	float * Vout;               // output
+	float * X;              // raw input
+	float * XW;             // warped input
+    kiss_fft_cpx * Y;       // FFT input (copy of XW)
+    kiss_fft_cpx * U;       // FFT result
+	float * mag2;           // magnitude^2 of FFT result
+	float * W;              // warped mag^2
+	float * V;              // correlation buffer
+	float * Vout;           // output
 
 /// Overwrite defaults using command line arguments
 	int Arg = 1;
@@ -220,13 +220,13 @@ int main(int argc, char *argv[])
 
 	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
 	for (int step=0; step<=Rsteps; step++) {
-        float R = MinR + (float)step*(MaxR-MinR)/Rsteps;
+        float R = MinR + (float)step * (MaxR-MinR) / (float)Rsteps;
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
 		float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
 		// rate constant for downsampling exponential sweep
 		float lambda = exp(-R/N) - 1;                               // eq. 9
 		// real H_V, ideal offset in V samples
-		float H_V = H_X0 * fabs(R) / k;
+		float H_V = (float)H_X0 * fabs(R) / k;
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
@@ -256,14 +256,14 @@ int main(int argc, char *argv[])
         while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
 			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
-				Y[i].r = XW[i];  Y[i].i = 0.0;
+				Y[i].r = XW[i];  Y[i].i = 0;
 			}
 			HannWindow(Y);
 			kiss_fft(cfg, Y, U);
 			for (int i=0; i<(N/2); i++) {
 				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
-			memset(W,0,N/2*sizeof(float));      // clear W
+			memset(W, 0, (N/2)*sizeof(float));  // clear W
 			compress(mag2, W, N/2 - (int)H_V, 1, -zeta, 0, 1);
 			// Correlate Ws in V using an offset
 			int Rsign = 0;
