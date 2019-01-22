@@ -26,12 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
-#define NUM_COLORS 5
+#define NUM_COLORS 20
 
 // extern global variables for heatmap thresholds are initialized here
 float floorColor = 90;
 float ceilColor = 110;
-int IMG_H = 256;
+int IMG_H = 400;
 
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing
@@ -153,14 +153,27 @@ A 7-color heat map is used to create 6 color gradients between floor and ceil.
 // modified to paint 24-bit pixels in a BMP and compile as vanilla C.
 static void getHeatMapColor(float z, uint8_t *bgr)
 {
-    static float color[NUM_COLORS][3] = {
-//        {  0,   0,   0}, // black
-        {  0,   0, 255}, // blue
-        {  0, 255, 255}, // cyan
-        {  0, 255,   0}, // green
-        {255, 255,   0}, // yellow
-        {255,   0,   0}, // red
-//        {255, 255, 255}  // white
+    static float color[NUM_COLORS][3] = { // viridis RGB color palette
+	{0x44, 0x01, 0x54},
+	{0x48, 0x15, 0x67},
+	{0x48, 0x26, 0x77},
+	{0x45, 0x37, 0x81},
+	{0x40, 0x47, 0x88},
+	{0x39, 0x56, 0x8C},
+	{0x33, 0x63, 0x8D},
+	{0x2D, 0x70, 0x8E},
+	{0x28, 0x7D, 0x8E},
+	{0x23, 0x8A, 0x8D},
+	{0x1F, 0x96, 0x8B},
+	{0x20, 0xA3, 0x87},
+	{0x29, 0xAF, 0x7F},
+	{0x3C, 0xBB, 0x75},
+	{0x55, 0xC6, 0x67},
+	{0x73, 0xD0, 0x55},
+	{0x95, 0xD8, 0x40},
+	{0xB8, 0xDE, 0x29},
+	{0xDC, 0xE3, 0x19},
+	{0xFD, 0xE7, 0x25}
     };
     float value = (z - floorColor) / (ceilColor - floorColor); // scale to 0-1
     int idx1;        // |-- Our desired color will be between these two indexes in "color".

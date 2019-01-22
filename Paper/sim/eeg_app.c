@@ -59,12 +59,13 @@ int main(int argc, char *argv[])
     int m = 3;              // decimation factor
     int N = 1024;
     int H_X0 = 16;
-    float MaxR = -0.78;
-    float MinR = -0.20;
+    float MaxR = -0.20;
+    float MinR = -0.78;
     int Rsteps = 800;
     int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
     char autoFloor = 1;
+    char verbose = 0;
 
 	float * X;              // raw input
 	float * XW;             // warped input
@@ -130,7 +131,8 @@ int main(int argc, char *argv[])
 					ceilColor = Number(argv[Arg++]);
                     autoCeil = 0;	break;
                 case 'h':   // set BMP height to multiple of 4
-                    IMG_H = (3 + (int)Number(argv[Arg++])) & 0xFFFC;
+                    IMG_H = (3 + (int)Number(argv[Arg++])) & 0xFFFC;  break;
+                case 'v':   verbose = 1;  break;
 				default: break;
 			}
 		}
@@ -249,9 +251,12 @@ int main(int argc, char *argv[])
         uint32_t xoffset = 0;
         float voffset = 0;
         uint32_t VoutSize = 0;                  // points in the output
-        int deadtime = N/2;                     // dead points in the output stream
 
-    printf("M=%.2f, R=%.4f, pitch=%.4f, lambda=%.6f, H_V=%.4f\n",M,R,pitch,lambda,H_V);
+        if (verbose) {
+            printf("M=%.2f, R=%.4f, pitch=%.4f, lambda=%.6f, H_V=%.4f\n",M,R,pitch,lambda,H_V);
+        } else {
+            printf(".");
+        }
 
         while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
 			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 0);
@@ -264,40 +269,43 @@ int main(int argc, char *argv[])
 				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
-			compress(mag2, W, N/2 - (int)H_V, 1, -zeta, 0, 1);
+			float nextVoffset = voffset + H_V;
+			int vWidth = (int)nextVoffset - (int)voffset;
+			int Widxlast = N/2 - vWidth;
+			compress(mag2, W, Widxlast, 1, -zeta, 0, 1);
 			// Correlate Ws in V using an offset
 			int Rsign = 0;
 			if (R<0) { Rsign = -1; }
-			int Widxlast = N/2 - (int)H_V - 1;
-			for (int i=0; i<=Widxlast; i++) {   // correlate
+			for (int i=0; i<Widxlast; i++) {    // correlate
 				if (Rsign) {                    // R < 0
-					V[vmask & ((int)voffset + i)] += W[Widxlast - i];
+					V[vmask & ((int)voffset + i)] += W[(Widxlast-1) - i];
 				} else {                        // R > 0
 					V[vmask & ((int)voffset + i)] += W[i];
 				}
 			}
-			for (int i=-(int)H_V; i<0; i++) {   // output H_V finished points
+        // Note: The first N/2 output points are weaker than the rest
+			for (int i=-vWidth; i<0; i++) {     // output finished points
                 float dB = 10 * log10( V[vmask & ((int)voffset + i)] );
                 /* clear after use */  V[vmask & ((int)voffset + i)] = 1;
-                if (deadtime) {
-                    deadtime--;
-                } else {
-                    Vout[VoutSize++] = dB;
-                }
+                Vout[VoutSize++] = dB;
 			}
 			xoffset += H_X;
-			voffset += H_V;
+			voffset = nextVoffset;
         }
-        printf(".");
+        int MinVpoints = (H_V*(N/2))/H_X;
         #ifdef RADIAL
         int radius = (int)(R * 65536.0 / 0.8);  // scale radius to 16-bit
         float anglescale = 32768.0 / MaxVpoints;
-        for (int i=0; i<=MaxVpoints; i++) {     // angle sweep
-            PlotPixel(Vout[i], radius, anglescale*(float)i);
+        if (MinVpoints < MaxVpoints) {
+            for (int i=MinVpoints; i<=MaxVpoints; i++) {
+                PlotPixel(Vout[i], radius, anglescale*(float)i);
+            }
         }
         #else
-        for (int i=0; i<=MaxVpoints; i++) {     // X sweep
+        if (MinVpoints < MaxVpoints) {
+        for (int i=MinVpoints; i<MaxVpoints; i++) {     // X sweep
             XYpixel(Vout[i], i, step);          // rectangular format
+        }
         }
         #endif
 	}
