@@ -52,7 +52,7 @@ float Number(char* str) {	// convert string to floating point number
 /**
 **/
 char outfilename[256] = "img.bmp";
-char infilename[256] = "excerpt2.txt";
+char infilename[256] = "eeg.txt";
 
 int main(int argc, char *argv[])
 {
