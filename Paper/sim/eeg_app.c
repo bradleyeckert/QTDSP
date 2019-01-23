@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     float MaxR = -0.20;
     float MinR = -0.78;
     int Rsteps = 800;
+    int samplerate = 250;
     int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
     char autoFloor = 1;
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
         float temp = MinR;  MinR = MaxR;  MaxR = temp;
     }
     #ifndef RADIAL
-        Rsteps = IMG_H-1; // override number of steps if rectangular format
+        Rsteps = IMG_H; // override number of steps if rectangular format
     #endif // RADIAL
 
     double startTime = now();
@@ -165,7 +166,8 @@ int main(int argc, char *argv[])
     BiQuad_new(LPF, 0, 0.45, m, 1.5, &LowPass); // set up decimation filter
     BiQuad_clear(&LowPass);
 
-    fscanf(ifp, "%s", header);                  // 1st line is header string
+    fscanf(ifp, "%d", &samplerate);             // 1st line is sample rate
+    fscanf(ifp, "%s", header);                  // and header string
     int j = m;
     uint32_t Xlength = 0;
     while (Xlength<MAXPOINTS) {
@@ -184,7 +186,7 @@ int main(int argc, char *argv[])
         }
     }
     fclose(ifp);
-	printf("%d points of %s data\n", Xlength*m, header);
+	printf("%d points of %s data, Fs=%dHz\n", Xlength*m, header, samplerate);
 	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
         m, Xlength, MinR, MaxR);
 
@@ -218,11 +220,16 @@ int main(int argc, char *argv[])
 /// At this point, X has been input and arrays have been set up.
 /// Perform a sweep of R values
 
+    FILE *imgfp;
+    if (verbose) {
+        imgfp = fopen("image.csv", "w+");       // save image to file
+    }
+
     printf("N=%d, H_X=%d, k=%f, zeta=%f\n", N, H_X0, k, zeta);
 
 	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
-	for (int step=0; step<=Rsteps; step++) {
-        float R = MinR + (float)step * (MaxR-MinR) / (float)Rsteps;
+	for (int step=0; step<Rsteps; step++) {
+        float R = MinR + (float)step * (MaxR-MinR) / (float)(Rsteps-1);
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
 		float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
 		// rate constant for downsampling exponential sweep
@@ -257,7 +264,7 @@ int main(int argc, char *argv[])
         } else {
             printf(".");
         }
-
+        int ivoffset = 0;
         while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
 			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
@@ -271,6 +278,7 @@ int main(int argc, char *argv[])
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
 			float nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
+			voffset = nextVoffset;
 			int Widxlast = N/2 - vWidth;
 			compress(mag2, W, Widxlast, 1, -zeta, 0, 1);
 			// Correlate Ws in V using an offset
@@ -278,19 +286,19 @@ int main(int argc, char *argv[])
 			if (R<0) { Rsign = -1; }
 			for (int i=0; i<Widxlast; i++) {    // correlate
 				if (Rsign) {                    // R < 0
-					V[vmask & ((int)voffset + i)] += W[(Widxlast-1) - i];
+					V[vmask & (ivoffset + i)] += W[(Widxlast-1) - i];
 				} else {                        // R > 0
-					V[vmask & ((int)voffset + i)] += W[i];
+					V[vmask & (ivoffset + i)] += W[i];
 				}
 			}
         // Note: The first N/2 output points are weaker than the rest
-			for (int i=-vWidth; i<0; i++) {     // output finished points
-                float dB = 10 * log10( V[vmask & ((int)voffset + i)] );
-                /* clear after use */  V[vmask & ((int)voffset + i)] = 1;
+			for (int i=0; i<vWidth; i++) {     // output finished points
+                float dB = 10 * log10( V[vmask & (i + ivoffset)] );
+                /* clear after use */  V[vmask & (i + ivoffset)] = 1;
                 Vout[VoutSize++] = dB;
 			}
 			xoffset += H_X;
-			voffset = nextVoffset;
+			ivoffset += vWidth;
         }
         int MinVpoints = (H_V*(N/2))/H_X;
         #ifdef RADIAL
@@ -303,12 +311,25 @@ int main(int argc, char *argv[])
         }
         #else
         if (MinVpoints < MaxVpoints) {
-        for (int i=MinVpoints; i<MaxVpoints; i++) {     // X sweep
-            XYpixel(Vout[i], i, step);          // rectangular format
-        }
+            for (int i=MinVpoints; i<MaxVpoints; i++) { // column sweep
+                XYpixel(Vout[i], i, step);      // rectangular format
+            }
         }
         #endif
+        if (verbose) {
+            for (int i=0; i<MaxVpoints; i++) {
+                fprintf(imgfp, "%g", Vout[i]);
+                if (i==MaxVpoints-1) {
+                    fprintf(imgfp, "\n");
+                } else {
+                    fprintf(imgfp, ",");
+                }
+            }
+        }
 	}
+    if (verbose) {
+        fclose(imgfp);
+    }
     printf("\n");
 //	TestPattern();
 

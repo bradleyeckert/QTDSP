@@ -88,9 +88,8 @@ int HannLength;
 void CreateHann(int length) {
     win = malloc(sizeof(float) * (size_t)length);
     HannLength = length;
-    int i;
     if (win) {                  // Hann window function
-        for (i=0; i<length; i++) {
+        for (int i=0; i<length; i++) {
             win[i] = 1 - cos(2.0*PI*i/(length-1));
         }
     }
@@ -101,10 +100,8 @@ void FreeHann(void) {
 
 void HannWindow(kiss_fft_cpx *data)
 {
-    int i;
-    float w;
-    for (i=0; i<HannLength; i++) {
-        w = win[i];
+    for (int i=0; i<HannLength; i++) {
+        float w = win[i];
         data[i].r *= w;
         data[i].i *= w;
     }
@@ -114,9 +111,9 @@ void HannWindow(kiss_fft_cpx *data)
 
 void dumpComplex (kiss_fft_cpx *data, int length, char* filename)
 {
-    FILE *fp;  int i;
+    FILE *fp;
     fp = fopen(filename, "w+");
-    for (i=0; i<length; i++) {
+    for (int i=0; i<length; i++) {
         fprintf(fp, "%g,%g\n", data[i].r, data[i].i);
     }
     fclose(fp);
@@ -124,9 +121,9 @@ void dumpComplex (kiss_fft_cpx *data, int length, char* filename)
 
 void dumpReal (float *data, int length, char* filename)
 {
-    FILE *fp;  int i;
+    FILE *fp;
     fp = fopen(filename, "w+");
-    for (i=0; i<length; i++) {
+    for (int i=0; i<length; i++) {
         fprintf(fp, "%g\n", data[i]);
     }
     fclose(fp);

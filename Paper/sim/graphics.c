@@ -26,11 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
-#define NUM_COLORS 20
+#define NUM_COLORS 20                   // color palette size
+#define GRAY 127                        // shade of gray
 
 // extern global variables for heatmap thresholds are initialized here
-float floorColor = 90;
-float ceilColor = 110;
+float floorColor = 0;
+float ceilColor = 200;
 int IMG_H = 400;
 
 float *image;
@@ -223,9 +224,9 @@ void SaveImage(char *filename) {
 		{
 		    int z = image[(IMG_H-i-1)*IMG_W+j];
 		    if (z==0) {
-		        line[j*3]   = 0x80;
-		        line[j*3+1] = 0x80;
-		        line[j*3+2] = 0x80;
+		        line[j*3]   = GRAY;
+		        line[j*3+1] = GRAY;
+		        line[j*3+2] = GRAY;
 		    } else {
                 getHeatMapColor(z, &line[j*3]);
 		    }
