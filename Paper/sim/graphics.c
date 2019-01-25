@@ -33,6 +33,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 float floorColor = 0;
 float ceilColor = 200;
 int IMG_H = 400;
+int IMG_W = 800;
 
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing

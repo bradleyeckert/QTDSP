@@ -14,6 +14,7 @@ void compress(
 	float pitch,		        // exponential input sample pitch
 	float Prate,		        // growth/decay rate of pitch
 	float Arate,		        // growth/decay rate of amplitude
+	float Ascale,		        // amplitude compensation
 	int post);                  // step pitch upon output
 
 void dumpComplex (kiss_fft_cpx *data, int length, char* filename);

@@ -146,7 +146,7 @@ int main()
 		double mark = now();
 		#endif
 
-		compress(&X[offset], XW, N, pitch, lambda, -lambda/2, 0);
+		compress(&X[offset], XW, N, pitch, lambda, -lambda/2, 1, 0);
 		#ifdef VERBOSE
 		printf("Downsampled X to Y in %.3f usec\n", now() - mark);
 		dumpReal(XW,N,"Y.txt");             // dump the time-warped input
@@ -168,7 +168,7 @@ int main()
 		#endif
 
 		memset(W[p],0,sizeof(W[0]));        // clear W
-		compress(mag2, W[p], N/2 - H_V, 1, -zeta, 0, 1);
+		compress(mag2, W[p], N/2 - H_V, 1, -zeta, 0, 1, 1);
 		#ifdef VERBOSE
 		printf("Upsampled U to W in %.3f usec\n", now() - mark);
 		dumpReal(W[p],N/2,"W.txt");// dump the time-warped output

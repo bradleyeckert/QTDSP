@@ -21,6 +21,7 @@ void compress(
 	float pitch,		        // exponential input sample pitch
 	float Prate,		        // growth/decay rate of pitch
 	float Arate,		        // growth/decay rate of amplitude
+	float Ascale,		        // amplitude compensation
 	int post)                   // step pitch upon output
 {
     pitch *= (float)0x1000000L; // indices use UQ8.24 format
@@ -31,7 +32,6 @@ void compress(
 	float X0 = 0;
 	float X1 = *in++;
 	float Y;
-	float Ascale = 1.0;         // amplitude compensation
 	while (length) {
         if (pending) {
             pending = 0;

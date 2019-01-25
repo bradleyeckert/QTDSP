@@ -31,6 +31,7 @@ Revision History
 #include "tools.h"
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
+#define COLORHEIGHT 16
 //#define RADIAL
 
 char header[128];
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
     int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
     char autoFloor = 1;
+    char autoWidth = 0;
     char verbose = 0;
 
 	float * X;              // raw input
@@ -76,12 +78,14 @@ int main(int argc, char *argv[])
 	float * W;              // warped mag^2
 	float * V;              // correlation buffer
 	float * Vout;           // output
+	float * Row;            // fit-to-row output
 
 /// Overwrite defaults using command line arguments
 	int Arg = 1;
 	while (argc>Arg) {		// parse single-character arguments
 		if (strlen(argv[Arg]) == 1) {
-			switch(argv[Arg++][0]) {
+            char cmdchar = argv[Arg++][0];
+			switch(cmdchar) {
 				case 'b':	// set bmp filename
 					strcpy(outfilename, argv[Arg++]); break;
 				case 'i':	// set input filename
@@ -133,8 +137,11 @@ int main(int argc, char *argv[])
                     autoCeil = 0;	break;
                 case 'h':   // set BMP height to multiple of 4
                     IMG_H = (3 + (int)Number(argv[Arg++])) & 0xFFFC;  break;
+                case 'w':   // set BMP width
+                    IMG_W = (int)Number(argv[Arg++]);  autoWidth = 0;  break;
                 case 'v':   verbose = 1;  break;
-				default: break;
+                case 'a':   autoWidth = 1;  break;
+				default: printf("Unknown command %c\n", cmdchar);  break;
 			}
 		}
 	}
@@ -146,13 +153,14 @@ int main(int argc, char *argv[])
     if (fabs(MinR) > fabs(MaxR)) {  // if the R range is backward, fix it
         float temp = MinR;  MinR = MaxR;  MaxR = temp;
     }
-    #ifndef RADIAL
-        Rsteps = IMG_H; // override number of steps if rectangular format
+    #ifdef RADIAL
+        IMG_W = 2 * IMG_H;
+    #else
+        Rsteps = IMG_H;     // override number of steps if rectangular format
     #endif // RADIAL
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
-	if (BMPalloc() || (X==0)) { return 1; }     // memory error
 
 /// Input a text file consisting of a header line and one number per line
 	printf("Loading X from %s, ", infilename);
@@ -199,6 +207,30 @@ int main(int argc, char *argv[])
         }
     }
 
+    #ifdef RADIAL
+    IMG_W = 2 * IMG_H;
+    #else
+    if (autoWidth) {
+    IMG_W = (3 + (Xlength / 6)) & 0xFFFFFFFCL;  // fit BMP width to data
+    }
+    #endif // RADIAL
+
+/// If a colors file exists, open it now and leave space in the BMP for it.
+/// It will be processed at the end.
+
+    memmove(infilename+7, infilename, 248);
+    memmove(infilename, "colors_", 7);          // prepend colors name
+	FILE *colfp;
+    colfp = fopen(infilename, "r");
+    if (colfp != NULL) {
+        printf("%s found\n",infilename);
+        IMG_H += COLORHEIGHT;                   // leave space for the colors
+    }
+
+	if (BMPalloc() || (X==0)) { return 1; }     // memory error
+
+/// So far, memory allocation has gone okay. The following bunch is not checked.
+
     int nbytes = N * sizeof(kiss_fft_cpx);
     XW=(float *)malloc(N * sizeof(float));
     Y=(kiss_fft_cpx*)KISS_FFT_MALLOC(nbytes);
@@ -207,6 +239,7 @@ int main(int argc, char *argv[])
     W=(float *)malloc(N/2 * sizeof(float));
     V=(float *)malloc(N/2 * sizeof(float));
     Vout=(float *)malloc(MAXPOINTS * sizeof(float));
+    Row=(float *)malloc(IMG_W * sizeof(float));
 
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
     CreateHann(N);                              // set up the FFT window
@@ -216,6 +249,8 @@ int main(int argc, char *argv[])
     float k = N * log(((float)N-2)/((float)N-4));                   // eq. 15
     float zeta = exp(k/N) - 1;                  // upsampling rate  // eq. 16
     int H_X = H_X0;
+    float pixScale = 6.22 / 1.943625;           // scale to Fs/5 output rate
+    float outputRate = samplerate * pixScale / (H_X*m); // pixels per second
 
 /// At this point, X has been input and arrays have been set up.
 /// Perform a sweep of R values
@@ -225,9 +260,9 @@ int main(int argc, char *argv[])
         imgfp = fopen("image.csv", "w+");       // save image to file
     }
 
-    printf("N=%d, H_X=%d, k=%f, zeta=%f\n", N, H_X0, k, zeta);
+    printf("N=%d, H_X=%d, k=%f, zeta=%f, Out=%.2f pels/sec\n", N, H_X0, k, zeta, outputRate);
 
-	printf("Processing %d R values into %dx%d image\n", Rsteps, 2*IMG_H, IMG_H);
+	printf("Processing %d R values into %d x %d image\n", Rsteps, IMG_W, IMG_H);
 	for (int step=0; step<Rsteps; step++) {
         float R = MinR + (float)step * (MaxR-MinR) / (float)(Rsteps-1);
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
@@ -236,6 +271,7 @@ int main(int argc, char *argv[])
 		float lambda = exp(-R/N) - 1;                               // eq. 9
 		// real H_V, ideal offset in V samples
 		float H_V = (float)H_X0 * fabs(R) / k;
+        float RowScale = H_V / pixScale;
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
@@ -252,7 +288,7 @@ int main(int argc, char *argv[])
         #ifdef RADIAL
         int MaxVpoints = (int)(R * IMG_H * 2.0 * PI / 0.8);
         #else
-        int MaxVpoints = 2*IMG_H;
+        int MaxVpoints = IMG_W * RowScale;
         #endif // RADIAL
 
         uint32_t xoffset = 0;
@@ -266,7 +302,7 @@ int main(int argc, char *argv[])
         }
         int ivoffset = 0;
         while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
-			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 0);
+			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 1, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
 				Y[i].r = XW[i];  Y[i].i = 0;
 			}
@@ -280,7 +316,7 @@ int main(int argc, char *argv[])
 			int vWidth = (int)nextVoffset - (int)voffset;
 			voffset = nextVoffset;
 			int Widxlast = N/2 - vWidth;
-			compress(mag2, W, Widxlast, 1, -zeta, 0, 1);
+			compress(mag2, W, Widxlast, 1, -zeta, 0, 1, 1);
 			// Correlate Ws in V using an offset
 			int Rsign = 0;
 			if (R<0) { Rsign = -1; }
@@ -300,25 +336,22 @@ int main(int argc, char *argv[])
 			xoffset += H_X;
 			ivoffset += vWidth;
         }
-        int MinVpoints = (H_V*(N/2))/H_X;
         #ifdef RADIAL
         int radius = (int)(R * 65536.0 / 0.8);  // scale radius to 16-bit
         float anglescale = 32768.0 / MaxVpoints;
-        if (MinVpoints < MaxVpoints) {
-            for (int i=MinVpoints; i<=MaxVpoints; i++) {
-                PlotPixel(Vout[i], radius, anglescale*(float)i);
-            }
+        for (int i=0; i<=MaxVpoints; i++) {
+            PlotPixel(Vout[i], radius, anglescale*(float)i);
         }
         #else
-        if (MinVpoints < MaxVpoints) {
-            for (int i=MinVpoints; i<MaxVpoints; i++) { // column sweep
-                XYpixel(Vout[i], i, step);      // rectangular format
-            }
+        compress(Vout, Row, IMG_W, RowScale, 0, 0, 1/RowScale, 1);
+
+        for (int i=0; i<IMG_W; i++) {           // column sweep
+            XYpixel(Row[i], i, step);           // rectangular format
         }
         #endif
-        if (verbose) {
-            for (int i=0; i<MaxVpoints; i++) {
-                fprintf(imgfp, "%g", Vout[i]);
+        if (verbose) {                          // v saves CSV file
+            for (int i=0; i<IMG_W; i++) {
+                fprintf(imgfp, "%g", Row[i]);
                 if (i==MaxVpoints-1) {
                     fprintf(imgfp, "\n");
                 } else {
@@ -329,6 +362,9 @@ int main(int argc, char *argv[])
 	}
     if (verbose) {
         fclose(imgfp);
+    }
+    if (colfp != NULL) {                        // fill in the colors
+        fclose(colfp);
     }
     printf("\n");
 //	TestPattern();
@@ -348,6 +384,8 @@ int main(int argc, char *argv[])
     BMPfree();
     kiss_fft_free(cfg);
     FreeHann();
+/// Free memory. Freeing in reverse order is not required, I just like it.
+    free(Row);
     free(Vout);
     free(V);
     free(W);

@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #define PI 3.1415926538
-#define IMG_W (2*IMG_H)	// must be a multiple of 8
 
 int BMPalloc(void);     // call before using
 void BMPfree(void);     // call after finished
@@ -17,6 +16,7 @@ void ImageStats(float* stats);
 
 extern float floorColor;
 extern float ceilColor;
+extern int IMG_W;
 extern int IMG_H;
 
 #endif
