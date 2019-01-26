@@ -28,6 +28,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "graphics.h"
 #define NUM_COLORS 20                   // color palette size
 #define GRAY 127                        // shade of gray
+#define COLORHEIGHT 16
+#define MAXCOLORS 0x10000
 
 // extern global variables for heatmap thresholds are initialized here
 float floorColor = 0;
@@ -38,6 +40,7 @@ int IMG_W = 800;
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing
 float *sintable;                        // 1st quadrant of sine
+int *scaleColors;                       // colors for 5-second scale bar
 
 static float sin16(int angle) {         // sine from 16-bit angle
     int ang = angle & 0xFFFF;
@@ -55,12 +58,14 @@ static float cos16(int angle) {         // cosine from 16-bit angle
 }
 
 /// Initialize BMP
-int BMPalloc(void) {
+int BMPalloc(char *filename) {
     int imageBytes = sizeof(float) * IMG_W * IMG_H;
 	image = malloc(imageBytes);         // numeric image
 	sintable = malloc(sizeof(float) * 0x4002);
+	scaleColors = malloc(sizeof(int) * MAXCOLORS);
 	if (!image) return 1;               // memory error
 	if (!sintable) return 1;
+	if (!scaleColors) return 1;
 	memset(image,0,imageBytes);
 	for(int i=0; i<32; i++) {           // set up weight table
 	for(int j=0; j<32; j++) {
@@ -74,6 +79,7 @@ int BMPalloc(void) {
 
 /// Free BMP
 void BMPfree(void) {
+    free(scaleColors);
     free(sintable);
     free(image);
 }
@@ -196,9 +202,12 @@ static void getHeatMapColor(float z, uint8_t *bgr)
 }
 
 /// Save the bitmap to a file. Gray out no-data region.
-void SaveImage(char *filename) {
+/// The offset is for the time scale displayed along the bottom.
+/// 5-second periods form a scale along the bottom using a 6-bit color
+void SaveImage(char *filename, int offset, int outputRate) {
 	FILE *f;
-	int filesize = 54 + 3*IMG_W*IMG_H;  // BMP boilerplate plus image
+	int h = IMG_H + COLORHEIGHT;
+	int filesize = 54 + 3*IMG_W*h;  // BMP boilerplate plus image
 	uint8_t bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
 	uint8_t bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,24,0};
 
@@ -210,24 +219,31 @@ void SaveImage(char *filename) {
 	bmpinfoheader[ 5] = (uint8_t)(IMG_W>> 8);
 	bmpinfoheader[ 6] = (uint8_t)(IMG_W>>16);
 	bmpinfoheader[ 7] = (uint8_t)(IMG_W>>24);
-	bmpinfoheader[ 8] = (uint8_t)(IMG_H    );
-	bmpinfoheader[ 9] = (uint8_t)(IMG_H>> 8);
-	bmpinfoheader[10] = (uint8_t)(IMG_H>>16);
-	bmpinfoheader[11] = (uint8_t)(IMG_H>>24);
+	bmpinfoheader[ 8] = (uint8_t)(h    );
+	bmpinfoheader[ 9] = (uint8_t)(h>> 8);
+	bmpinfoheader[10] = (uint8_t)(h>>16);
+	bmpinfoheader[11] = (uint8_t)(h>>24);
 
 	f = fopen(filename,"wb");
 	fwrite(bmpfileheader,1,14,f);
 	fwrite(bmpinfoheader,1,40,f);
-	uint8_t *line = (uint8_t *)malloc(IMG_W*3);
-	for(int i=0; i<IMG_H; i++)
-	{
-		for(int j=0; j<IMG_W; j++)
-		{
+	uint8_t *line = (uint8_t *)malloc(IMG_W*3); // pixel buffer for line
+    for(int i=0; i<COLORHEIGHT; i++) {
+        for(int j=0; j<IMG_W; j++) {
+            int index = (j / (outputRate*5)) % 12; // 5-second spans
+            line[j*3]   = ( index    &1)*255;   // b
+            line[j*3+1] = ((index>>1)&3)*85;    // gg
+            line[j*3+2] = ((index>>3)&1)*255;   // r
+        }
+        fwrite(line,3,IMG_W,f);
+	}
+	for(int i=0; i<IMG_H; i++) {
+		for(int j=0; j<IMG_W; j++) {
 		    int z = image[(IMG_H-i-1)*IMG_W+j];
 		    if (z==0) {
-		        line[j*3]   = GRAY;
-		        line[j*3+1] = GRAY;
-		        line[j*3+2] = GRAY;
+		        line[j*3]   = GRAY;     // B
+		        line[j*3+1] = GRAY;     // G
+		        line[j*3+2] = GRAY;     // R
 		    } else {
                 getHeatMapColor(z, &line[j*3]);
 		    }

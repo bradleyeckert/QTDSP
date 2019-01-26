@@ -6,12 +6,12 @@
 #include <stdint.h>
 #define PI 3.1415926538
 
-int BMPalloc(void);     // call before using
-void BMPfree(void);     // call after finished
+int BMPalloc(char *filename);   // call before using
+void BMPfree(void);             // call after finished
 
 void PlotPixel(float z, uint16_t rho, uint16_t theta);
 void XYpixel(float z, int x, int y);
-void SaveImage(char *filename);
+void SaveImage(char *filename, int offset, int outputRate);
 void ImageStats(float* stats);
 
 extern float floorColor;

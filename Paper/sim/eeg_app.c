@@ -31,7 +31,6 @@ Revision History
 #include "tools.h"
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
-#define COLORHEIGHT 16
 //#define RADIAL
 
 char header[128];
@@ -161,6 +160,7 @@ int main(int argc, char *argv[])
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
+    memset(X, 0, sizeof(float) * MAXPOINTS);
 
 /// Input a text file consisting of a header line and one number per line
 	printf("Loading X from %s, ", infilename);
@@ -215,19 +215,7 @@ int main(int argc, char *argv[])
     }
     #endif // RADIAL
 
-/// If a colors file exists, open it now and leave space in the BMP for it.
-/// It will be processed at the end.
-
-    memmove(infilename+7, infilename, 248);
-    memmove(infilename, "colors_", 7);          // prepend colors name
-	FILE *colfp;
-    colfp = fopen(infilename, "r");
-    if (colfp != NULL) {
-        printf("%s found\n",infilename);
-        IMG_H += COLORHEIGHT;                   // leave space for the colors
-    }
-
-	if (BMPalloc() || (X==0)) { return 1; }     // memory error
+	if (BMPalloc("colors.txt") || (X==0)) { return 1; }  // memory error
 
 /// So far, memory allocation has gone okay. The following bunch is not checked.
 
@@ -251,6 +239,8 @@ int main(int argc, char *argv[])
     int H_X = H_X0;
     float pixScale = 6.22 / 1.943625;           // scale to Fs/5 output rate
     float outputRate = samplerate * pixScale / (H_X*m); // pixels per second
+
+    int firstOutput = offset / (m * 5);         // output points discarded before left edge
 
 /// At this point, X has been input and arrays have been set up.
 /// Perform a sweep of R values
@@ -302,7 +292,7 @@ int main(int argc, char *argv[])
         }
         int ivoffset = 0;
         while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
-			compress(&X[xoffset], XW, N, pitch, lambda, -lambda/2, 1, 0);
+			compress(&X[xoffset], XW, N, pitch, lambda, lambda, pitch, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
 				Y[i].r = XW[i];  Y[i].i = 0;
 			}
@@ -363,9 +353,7 @@ int main(int argc, char *argv[])
     if (verbose) {
         fclose(imgfp);
     }
-    if (colfp != NULL) {                        // fill in the colors
-        fclose(colfp);
-    }
+
     printf("\n");
 //	TestPattern();
 
@@ -378,7 +366,7 @@ int main(int argc, char *argv[])
 	printf("Saving BMP to %s\n", outfilename);
 	printf("Average=%g, Max=%g; Heatmap: Ceiling=%g, Floor=%g\n",
         stats[0], stats[1], ceilColor, floorColor);
-	SaveImage(outfilename);
+	SaveImage(outfilename, firstOutput, outputRate);
 
 /// Finished
     BMPfree();
