@@ -234,11 +234,11 @@ int main(int argc, char *argv[])
 	int vmask = (N/2) - 1;			// one less than an exact power of 2
 
     // k is an upsampling constant, about 2
-    float k = N * log(((float)N-2)/((float)N-4));                   // eq. 15
-    float zeta = exp(k/N) - 1;                  // upsampling rate  // eq. 16
+    double k = N * log(((double)N-2)/((double)N-4));                // eq. 15
+    double zeta = exp(k/N) - 1;                 // upsampling rate  // eq. 16
     int H_X = H_X0;
-    float pixScale = 6.22 / 1.943625;           // scale to Fs/5 output rate
-    float outputRate = samplerate * pixScale / (H_X*m); // pixels per second
+    double pixScale = 6.22 / 1.943625;          // scale to Fs/5 output rate
+    double outputRate = samplerate * pixScale / (H_X*m); // pixels per second
 
     int firstOutput = offset / (m * 5);         // output points discarded before left edge
 
@@ -254,14 +254,14 @@ int main(int argc, char *argv[])
 
 	printf("Processing %d R values into %d x %d image\n", Rsteps, IMG_W, IMG_H);
 	for (int step=0; step<Rsteps; step++) {
-        float R = MinR + (float)step * (MaxR-MinR) / (float)(Rsteps-1);
+        double R = MinR + (double)step * (MaxR-MinR) / (double)(Rsteps-1);
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
-		float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
+		double M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R); // eq. 7
 		// rate constant for downsampling exponential sweep
-		float lambda = exp(-R/N) - 1;                               // eq. 9
+		double lambda = exp(-R/N) - 1;                              // eq. 9
 		// real H_V, ideal offset in V samples
-		float H_V = (float)H_X0 * fabs(R) / k;
-        float RowScale = H_V / pixScale;
+		double H_V = (double)H_X0 * fabs(R) / k;
+        double RowScale = H_V / pixScale;
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
         #endif // RADIAL
 
         uint32_t xoffset = 0;
-        float voffset = 0;
+        double voffset = 0;
         uint32_t VoutSize = 0;                  // points in the output
 
         if (verbose) {
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
-			float nextVoffset = voffset + H_V;
+			double nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
 			voffset = nextVoffset;
 			int Widxlast = N/2 - vWidth;

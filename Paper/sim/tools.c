@@ -3,7 +3,76 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "tools.h"
+#include "biquad.h"
 #include "FFT/kiss_fft.h"
+
+#define TableSize 65536
+//#define FILTER
+
+/** LPF coefficients
+The compressed data is decimated by between 1 and 3.51.
+Create a table of filter coefficients.
+*/
+
+biquad LowPass;
+smp_type * coeffs;        // large coefficient lookup table
+
+void compressInit(void) {
+    coeffs = malloc(sizeof(smp_type)*TableSize*5);
+    for (int i = 0; i<TableSize; i++) {
+        float m = 1 + (float)i * 4 / (float)TableSize;
+        BiQuad_new(LPF, 0, 0.45, m, 1.5, &LowPass);  // set up LPF
+        biquad* b = &LowPass;                 // copy to the table
+        smp_type *ptr = &coeffs[i*5];
+        *ptr++ = b->a0;
+        *ptr++ = b->a1;
+        *ptr++ = b->a2;
+        *ptr++ = b->a3;
+        *ptr++ = b->a4;
+    }
+}
+void compressFree(void){
+    free(coeffs);
+}
+
+smp_type x1 = 0;
+smp_type x2 = 0;
+smp_type y1 = 0;
+smp_type y2 = 0;
+
+void clearfilter(void) {
+    x1 = x2 = y1 = y2 = 0;
+}
+
+/* Computes a BiQuad filter on a sample given a decimation value */
+smp_type filter(const smp_type sample, float m)
+{
+    smp_type result;
+
+    int i = (m - 1) * (float)TableSize / 4;
+    if (i<0) {i=0;}
+//    i = i & (TableSize - 1); // mask off overflow
+
+    smp_type *ptr = &coeffs[i*5];
+
+  /* compute result */
+    result =  *ptr++ * sample;
+    result += *ptr++ * x1;
+    result += *ptr++ * x2;
+    result -= *ptr++ * y1;
+    result -= *ptr++ * y2;
+
+  /* shift x1 to x2, sample to x1 */
+    x2 = x1;
+    x1 = sample;
+
+  /* shift y1 to y2, result to y1 */
+    y2 = y1;
+    y1 = result;
+
+    return result;
+}
+
 
 /** Compress
 Interpolate LENGTH output samples from a sequence of input samples.
@@ -24,6 +93,7 @@ void compress(
 	float Ascale,		        // amplitude compensation
 	int post)                   // step pitch upon output
 {
+    clearfilter();
     pitch *= (float)0x1000000L; // indices use UQ8.24 format
     float fs = 1/(float)0x1000000L;
 	uint32_t idx0 = 0;	        // input index
@@ -36,7 +106,11 @@ void compress(
         if (pending) {
             pending = 0;
             X0 = X1;
+            #ifdef FILTER
+            X1 = filter(*in++, pitch*fs);
+            #else
             X1 = *in++;
+            #endif // FILTER
             if (post==0) {      // sweep with the input
                 pitch += pitch * Prate;
             }
@@ -60,7 +134,11 @@ void compress(
             Y = X0 * (1 - frac0) + X1;
             while (k>1) {
                 X0 = X1;
-                X1 = *in++;
+            #ifdef FILTER
+            X1 = filter(*in++, pitch*fs);
+            #else
+            X1 = *in++;
+            #endif // FILTER
                 if (post==0) {  // sweep with the input
                     pitch += pitch * Prate;
                 }
@@ -93,8 +171,10 @@ void CreateHann(int length) {
             win[i] = 1 - cos(2.0*PI*i/(length-1));
         }
     }
+    compressInit();
 }
 void FreeHann(void) {
+    compressFree();
     free(win);
 }
 

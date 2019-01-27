@@ -29,7 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define NUM_COLORS 20                   // color palette size
 #define GRAY 127                        // shade of gray
 #define COLORHEIGHT 16
-#define MAXCOLORS 0x10000
+#define MAXCOLORS 12000                 // 10 hours
 
 // extern global variables for heatmap thresholds are initialized here
 float floorColor = 0;
@@ -66,7 +66,8 @@ int BMPalloc(char *filename) {
 	if (!image) return 1;               // memory error
 	if (!sintable) return 1;
 	if (!scaleColors) return 1;
-	memset(image,0,imageBytes);
+	memset(image,0,imageBytes);         // clear image
+	memset(scaleColors,-1,sizeof(int) * MAXCOLORS);
 	for(int i=0; i<32; i++) {           // set up weight table
 	for(int j=0; j<32; j++) {
         weight[i][j] = sqrt(i*i + j*j)/32;
@@ -74,6 +75,15 @@ int BMPalloc(char *filename) {
 	for(int i=0; i<0x4002; i++) {       // set up sine table
         sintable[i] = sin((float)i*PI/0x8000);
 	}
+    FILE *ifp;
+    ifp = fopen(filename, "r");
+    if (ifp == NULL) { return 0; }
+    for (int i=0; i<MAXCOLORS; i++) {
+        int x;
+        if (1!=fscanf(ifp, "%d", &x)) break;    // color numbers
+        scaleColors[i] = x;
+    }
+    fclose(ifp);
 	return 0;
 }
 
@@ -230,10 +240,10 @@ void SaveImage(char *filename, int offset, int outputRate) {
 	uint8_t *line = (uint8_t *)malloc(IMG_W*3); // pixel buffer for line
     for(int i=0; i<COLORHEIGHT; i++) {
         for(int j=0; j<IMG_W; j++) {
-            int index = (j / (outputRate*5)) % 12; // 5-second spans
-            line[j*3]   = ( index    &1)*255;   // b
-            line[j*3+1] = ((index>>1)&3)*85;    // gg
-            line[j*3+2] = ((index>>3)&1)*255;   // r
+            int c = ~scaleColors[j / (outputRate*5)];
+            line[j*3]   = ( c    &1)*255;   // b
+            line[j*3+1] = ((c>>1)&1)*255;   // g
+            line[j*3+2] = ((c>>2)&1)*255;   // r
         }
         fwrite(line,3,IMG_W,f);
 	}
