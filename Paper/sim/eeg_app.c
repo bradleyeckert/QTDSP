@@ -35,14 +35,6 @@ Revision History
 
 char header[128];
 
-void TestPattern(void) {
-	// fill image with a test pattern
-    for(int i=200; i<1000; i++) {
-    for(int j=0; j<(2*i); j++) {
-        PlotPixel(200, i<<6, (float)j*16380.0/(float)i);
-    }}
-}
-
 float Number(char* str) {	// convert string to floating point number
 	float d;
 	sscanf(str, "%f", &d);
@@ -107,8 +99,8 @@ int main(int argc, char *argv[])
                         fprintf(stderr, "N value must be a power of 2\n");
                         return 4;
 					}
-					if (N>8192 || N<128) {
-                        fprintf(stderr, "N range is 128 to 8192\n");
+					if (N>16384 || N<128) {
+                        fprintf(stderr, "N range is 128 to 16384\n");
                         return 4;
 					}
 					break;
@@ -237,7 +229,7 @@ int main(int argc, char *argv[])
     double k = N * log(((double)N-2)/((double)N-4));                // eq. 15
     double zeta = exp(k/N) - 1;                 // upsampling rate  // eq. 16
     int H_X = H_X0;
-    double pixScale = 6.22 / 1.943625;          // scale to Fs/5 output rate
+    double pixScale = H_X / 5;                  // scale to Fs/5 output rate
     double outputRate = samplerate * pixScale / (H_X*m); // pixels per second
 
     int firstOutput = offset / (m * 5);         // output points discarded before left edge
@@ -355,7 +347,6 @@ int main(int argc, char *argv[])
     }
 
     printf("\n");
-//	TestPattern();
 
 /// Convert image to BMP
 	float stats[3];
