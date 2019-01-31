@@ -11,18 +11,11 @@ is 80K SPS of output.
 \subsection{EEG data}
 
 An ideal test for the algorithm is EEG data taken from public data sets.
-https://www.physionet.org/pn6/chbmit/ has EEG datasets with epileptic seizures
-in edf format.
-
-The DREAMS Sleep Spindles Database at Facult\'e Polytechnique de Mons (Belgium)
-TCTS Lab \cite{Devuyst} provides EEG data in text format. 
-The ``excerpt2'' data set consists of 30 minutes of 200 SPS data as well as the
-stage of sleep for each 5-second interval.
-Sleep is useful to look at due to the presence of alpha, delta and theta waves. 
-The session has all stages of sleep from awake to REM to stage 4.
-If exponential chirp spectra are present and forming informational pulse trains,
-that's an indication that the brain is a receiver where consciousness is
-experienced. The origin of consciousness is in a timeless, eternal realm.
+https://www.physionet.org/pn6/chbmit/ has EEG datasets with epileptic seizures.
+Two channels of data (1 and 13) were extracted from file chb03_01.edf (40MB).
+These correspond to the left and right sides of the forehead.
+3600 seconds of 256 Hz data provides 921600 samples per channel.
+A seizure starts at 362 seconds and ends at 414 seconds.
 
 The demodulation algorithm looks at the signal bandwidth between about
 $F_S/5$ and $F_S/2$.
@@ -30,12 +23,10 @@ Many data sets have a region of interest far below the sample rate.
 
 Decimation is typically used to lower the sample rate to bring it to the
 desired region of interest. 
-Decimation by a factor of M usually involves low-pass filtering the signal
-and taking every Mth data point as output.
-A more sloppy method is to simply sum each set of M input points and ignore
-the aliasing effects since those will be smeared across the noise floor.
-The spectrogram of ``excerpt2'' data shows little information above 30 Hz.
-The 200 Hz data is downsampled to 50 or 67 Hz.
+Decimation by a factor of $m$ involves low-pass filtering the signal
+and taking every $m$th data point as output.
+The spectrogram of the test data shows little information above 30 Hz.
+The 256 Hz data is downsampled to 64 Hz ($m=4$).
 
 The demodulation app processes up to a minute or so of data starting at a 
 beginning time and saves it as a BMP (using colored amplitude) with time on the
@@ -45,8 +36,4 @@ avoiding GUI work altogether.
 The BMP is the scientific output, viewable in many media as well as on the web.
 For an R range of 0.25 to 0.75, there are between 3 and 8 input points per 
 output point. 
-
-The spectrum is presented in polar format to account for the amount of data in
-each row (or arc) being proportional to the R value.
-Radius represents R and angle represents time.
 

@@ -212,18 +212,18 @@ where $\Delta$ is the time interval of the blocks.
 After X is time warped into Y, Y is processed by a Fast Fourier Transform and
 converted to data set U containing N/2 frequency bins. Y and U may share the
 same physical memory if the FFT is performed in place.
+The output of the FFT is converted to the square of the magnitude,
+so square root is not needed.
 
-Polar format is preferred for the output of the FFT,
-for the benefit of the upsampler.
+A pipelined FFT can be used so that the FFT isn't the bottleneck.
+Throughput is then limited by downsampling, which when done in hardware
+processes one $X$ sample per clock cycle.
+This strategy offers the best performance in an ASIC implementation.
+
 A Hann window $w(n)$ is applied to Y before performing the FFT.
 \begin{equation}
 w(n) = \frac{1}{2}\left(1 - cos\left( \frac{2\pi n}{N-1} \right)\right)
 \end{equation}
-
-
-The reference VHDL implementation uses a pipelined CORDIC to perform the FFT.
-It also applies a Hann window to Y, converts to polar output, and is shared with
-the correlator to perform polar to rectangular conversions.
 
 A DIT FFT is the usual choice for RFFT since bit reversal is easier at the input.
 With an RFFT, you get twice the outputs given real-only input.
@@ -233,9 +233,6 @@ After a CFFT is performed, a separation step doubles the output size.
 Our experience is that the precision of the separation step degrades with small N
 (maybe we did it wrong), so a simple CFFT (with zeroed imaginary part)
 may be preferable in cases of small N.
-
-An FFT can be converted to IFFT somewhat trivially, so the same hardware can
-support either modulation or demodulation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Upsampling}
