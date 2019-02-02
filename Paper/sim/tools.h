@@ -25,5 +25,7 @@ void CreateHann(int length);    // create a window vector
 void FreeHann(void);            // free it
 void HannWindow(kiss_fft_cpx *data); // apply the window
 
+extern int comp_filtered;
+
 #endif
 

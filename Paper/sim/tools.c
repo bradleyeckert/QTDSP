@@ -8,6 +8,7 @@
 
 #define TableSize 65536
 //#define FILTER
+/* extern */ int comp_filtered = 0;
 
 /** LPF coefficients
 The compressed data is decimated by between 1 and 3.51.
@@ -48,6 +49,7 @@ void clearfilter(void) {
 smp_type filter(const smp_type sample, float m)
 {
     smp_type result;
+    if (!comp_filtered) {return sample;}
 
     int i = (m - 1) * (float)TableSize / 4;
     if (i<0) {i=0;}
@@ -106,11 +108,7 @@ void compress(
         if (pending) {
             pending = 0;
             X0 = X1;
-            #ifdef FILTER
             X1 = filter(*in++, pitch*fs);
-            #else
-            X1 = *in++;
-            #endif // FILTER
             if (post==0) {      // sweep with the input
                 pitch += pitch * Prate;
             }
@@ -134,11 +132,7 @@ void compress(
             Y = X0 * (1 - frac0) + X1;
             while (k>1) {
                 X0 = X1;
-            #ifdef FILTER
-            X1 = filter(*in++, pitch*fs);
-            #else
-            X1 = *in++;
-            #endif // FILTER
+                X1 = filter(*in++, pitch*fs);
                 if (post==0) {  // sweep with the input
                     pitch += pitch * Prate;
                 }
