@@ -32,6 +32,9 @@ Revision History
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
 //#define RADIAL
+#define MINR (Rsign*exp(MinR))
+#define MAXR (Rsign*exp(MaxR))
+
 
 char header[128];
 
@@ -136,6 +139,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	int Rsign = 1;
     if (fabs(MinR) > 0.78 || fabs(MaxR) > 0.78) {
         fprintf(stderr, "Max |R| is 0.78\n");  return 4; }
     if ((MinR*MaxR)<0) {
@@ -144,6 +148,11 @@ int main(int argc, char *argv[])
     if (fabs(MinR) > fabs(MaxR)) {  // if the R range is backward, fix it
         float temp = MinR;  MinR = MaxR;  MaxR = temp;
     }
+    if (MaxR < 0) {
+        Rsign = -1;
+    }
+    MinR = log(fabs(MinR));
+    MaxR = log(fabs(MaxR));
     #ifdef RADIAL
         IMG_W = 2 * IMG_H;
     #else
@@ -188,7 +197,7 @@ int main(int argc, char *argv[])
     fclose(ifp);
 	printf("%d points of %s data, Fs=%dHz\n", Xlength*m, header, samplerate);
 	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
-        m, Xlength, MinR, MaxR);
+        m, Xlength, MINR, MAXR);
 
 /// Output decimated X to "decimated.txt" for sanity checking
 	FILE *ofp;
@@ -246,7 +255,7 @@ int main(int argc, char *argv[])
 
 	printf("Processing %d R values into %d x %d image\n", Rsteps, IMG_W, IMG_H);
 	for (int step=0; step<Rsteps; step++) {
-        double R = MinR + (double)step * (MaxR-MinR) / (double)(Rsteps-1);
+        double R = exp(MinR + (double)step * (MaxR-MinR) / (double)(Rsteps-1)) * Rsign;
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
 		double M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R); // eq. 7
 		// rate constant for downsampling exponential sweep
@@ -283,7 +292,7 @@ int main(int argc, char *argv[])
             printf(".");
         }
         int ivoffset = 0;
-        while ((xoffset < (Xlength-(int)H_X0)) && (VoutSize < MaxVpoints)) {
+        while (VoutSize < MaxVpoints) {
 			compress(&X[xoffset], XW, N, pitch, lambda, lambda, pitch, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
 				Y[i].r = XW[i];  Y[i].i = 0;
