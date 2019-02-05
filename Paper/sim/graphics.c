@@ -169,9 +169,14 @@ A 7-color heat map is used to create 6 color gradients between floor and ceil.
 
 // see http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
 // modified to paint 24-bit pixels in a BMP and compile as vanilla C.
+uint8_t interpol8 (uint8_t N2, uint8_t N1, uint8_t frac) {
+    int diff = N2 - N1;
+    return (diff*frac + (N1<<8)) >> 8;
+}
+
 static void getHeatMapColor(float z, uint8_t *bgr)
 {
-    static float color[NUM_COLORS][3] = { // viridis RGB color palette
+    static uint8_t color[NUM_COLORS][3] = { // viridis RGB color palette
 	{0x44, 0x01, 0x54},
 	{0x48, 0x15, 0x67},
 	{0x48, 0x26, 0x77},
@@ -193,23 +198,27 @@ static void getHeatMapColor(float z, uint8_t *bgr)
 	{0xDC, 0xE3, 0x19},
 	{0xFD, 0xE7, 0x25}
     };
-    float value = (z - floorColor) / (ceilColor - floorColor); // scale to 0-1
-    int idx1;        // |-- Our desired color will be between these two indexes in "color".
-    int idx2;        // |
-    float span = 0;  // Fraction between "idx1" and "idx2" where our value is.
+    // convert to UQ8.8 format
+    int val = (z - floorColor) * (float)(NUM_COLORS-1) * 256.0
+            / (ceilColor - floorColor);
+    uint8_t idx1, idx2;
+    uint8_t frac = 0;  // Fraction between "idx1" and "idx2" where our value is.
 
-    if(value <= 0)        { idx1 = idx2 = 0;                // accounts for an input <=0
-    } else if(value >= 1) { idx1 = idx2 = NUM_COLORS-1;     // accounts for an input >=0
+    if(val <= 0) {
+        idx1 = idx2 = 0;                // below the floor
+    } else if(val >= (NUM_COLORS-1)*256) {
+        idx1 = idx2 = NUM_COLORS-1;     // above the ceiling
     } else {
-        value = value * (NUM_COLORS-1); // Will multiply value by 3.
-        idx1  = floor(value);           // Our desired color will be after this index.
-        idx2  = idx1+1;                 // ... and before this index (inclusive).
-        span = value - (float)idx1;     // Distance between the two indexes (0-1).
+        frac = val & 0xFF;
+        idx1 = val >> 8;
+        idx2 = idx1 + 1;
     }
-    bgr[2] = (uint8_t)((color[idx2][0] - color[idx1][0])*span + color[idx1][0]);
-    bgr[1] = (uint8_t)((color[idx2][1] - color[idx1][1])*span + color[idx1][1]);
-    bgr[0] = (uint8_t)((color[idx2][2] - color[idx1][2])*span + color[idx1][2]);
+    bgr[2] = interpol8(color[idx2][0], color[idx1][0], frac);
+    bgr[1] = interpol8(color[idx2][1], color[idx1][1], frac);
+    bgr[0] = interpol8(color[idx2][2], color[idx1][2], frac);
 }
+
+uint8_t * scale; // pixel buffer for ruler
 
 /// Save the bitmap to a file. Gray out no-data region.
 /// The offset is for the time scale displayed along the bottom.
@@ -238,18 +247,16 @@ void SaveImage(char *filename, int offset, int outputRate) {
 	fwrite(bmpfileheader,1,14,f);
 	fwrite(bmpinfoheader,1,40,f);
 	uint8_t *line = (uint8_t *)malloc(IMG_W*3); // pixel buffer for line
+	scale = (uint8_t *)malloc(IMG_W*3*COLORHEIGHT);
+	memset(scale, 100, IMG_W*3*COLORHEIGHT);
+// We want to draw number bitmaps in this region to show time along the X axis.
     for(int i=0; i<COLORHEIGHT; i++) {
-        for(int j=0; j<IMG_W; j++) {
-            int c = ~scaleColors[j / (outputRate*5)];
-            line[j*3]   = ( c    &1)*255;   // b
-            line[j*3+1] = ((c>>1)&1)*255;   // g
-            line[j*3+2] = ((c>>2)&1)*255;   // r
-        }
+        memcpy(line, &scale[i*IMG_W*3], IMG_W*3);
         fwrite(line,3,IMG_W,f);
 	}
 	for(int i=0; i<IMG_H; i++) {
 		for(int j=0; j<IMG_W; j++) {
-		    int z = image[(IMG_H-i-1)*IMG_W+j];
+		    float z = image[(IMG_H-i-1)*IMG_W+j];
 		    if (z==0) {
 		        line[j*3]   = GRAY;     // B
 		        line[j*3+1] = GRAY;     // G
@@ -261,6 +268,7 @@ void SaveImage(char *filename, int offset, int outputRate) {
         fwrite(line,3,IMG_W,f);
 	}
 	fclose(f);
+	free(scale);
 	free(line);
 }
 
@@ -284,3 +292,208 @@ void ImageStats(float* stats) {
 	}
 	stats[0] = sum / (float)n;
 }
+
+static uint8_t font[16*11] = { // just enough font for numbers
+	/* 48 0x30 '0' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x38, /* 00111000 */
+	0x6c, /* 01101100 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xd6, /* 11010110 */
+	0xd6, /* 11010110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0x6c, /* 01101100 */
+	0x38, /* 00111000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 49 0x31 '1' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x18, /* 00011000 */
+	0x38, /* 00111000 */
+	0x78, /* 01111000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x7e, /* 01111110 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 50 0x32 '2' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x7c, /* 01111100 */
+	0xc6, /* 11000110 */
+	0x06, /* 00000110 */
+	0x0c, /* 00001100 */
+	0x18, /* 00011000 */
+	0x30, /* 00110000 */
+	0x60, /* 01100000 */
+	0xc0, /* 11000000 */
+	0xc6, /* 11000110 */
+	0xfe, /* 11111110 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 51 0x33 '3' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x7c, /* 01111100 */
+	0xc6, /* 11000110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x3c, /* 00111100 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0xc6, /* 11000110 */
+	0x7c, /* 01111100 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 52 0x34 '4' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x0c, /* 00001100 */
+	0x1c, /* 00011100 */
+	0x3c, /* 00111100 */
+	0x6c, /* 01101100 */
+	0xcc, /* 11001100 */
+	0xfe, /* 11111110 */
+	0x0c, /* 00001100 */
+	0x0c, /* 00001100 */
+	0x0c, /* 00001100 */
+	0x1e, /* 00011110 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 53 0x35 '5' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0xfe, /* 11111110 */
+	0xc0, /* 11000000 */
+	0xc0, /* 11000000 */
+	0xc0, /* 11000000 */
+	0xfc, /* 11111100 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0xc6, /* 11000110 */
+	0x7c, /* 01111100 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 54 0x36 '6' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x38, /* 00111000 */
+	0x60, /* 01100000 */
+	0xc0, /* 11000000 */
+	0xc0, /* 11000000 */
+	0xfc, /* 11111100 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0x7c, /* 01111100 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 55 0x37 '7' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0xfe, /* 11111110 */
+	0xc6, /* 11000110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x0c, /* 00001100 */
+	0x18, /* 00011000 */
+	0x30, /* 00110000 */
+	0x30, /* 00110000 */
+	0x30, /* 00110000 */
+	0x30, /* 00110000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 56 0x38 '8' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x7c, /* 01111100 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0x7c, /* 01111100 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0x7c, /* 01111100 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 57 0x39 '9' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x7c, /* 01111100 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0xc6, /* 11000110 */
+	0x7e, /* 01111110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x06, /* 00000110 */
+	0x0c, /* 00001100 */
+	0x78, /* 01111000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+
+	/* 58 0x3a ':' */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x18, /* 00011000 */
+	0x18, /* 00011000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00, /* 00000000 */
+	0x00  /* 00000000 */
+};
+
+// Paint bitmap c at offset x
+void PutChar(int c, int x) {
+}
+

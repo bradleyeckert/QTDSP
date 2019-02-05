@@ -34,7 +34,7 @@ Revision History
 //#define RADIAL
 #define MINR (Rsign*exp(MinR))
 #define MAXR (Rsign*exp(MaxR))
-
+void testcolors (void);
 
 char header[128];
 
@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
     int samplerate = 250;
     int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
-    char autoFloor = 1;
     char autoWidth = 0;
     char verbose = 0;
+    int floorSpan = 20;     // dB below ceiling to set floor, if nonzero
 
 	float * X;              // raw input
 	float * XW;             // warped input
@@ -124,8 +124,7 @@ int main(int argc, char *argv[])
                         return 4;
 					}
 				case 'f':	// set floor of heatmap
-					floorColor = Number(argv[Arg++]);
-                    autoFloor = 0;	break;
+					floorColor = Number(argv[Arg++]);	break;
 				case 'c':	// set ceiling of heatmap
 					ceilColor = Number(argv[Arg++]);
                     autoCeil = 0;	break;
@@ -135,6 +134,8 @@ int main(int argc, char *argv[])
                     IMG_W = (int)Number(argv[Arg++]);  autoWidth = 0;  break;
                 case 'v':   verbose = 1;  break;
                 case 'a':   autoWidth = 1;  break;
+                case 'F':   // set floor depth relative to ceiling in dB
+                    floorSpan = (int)Number(argv[Arg++]);  break;
 				default: printf("Unknown command %c\n", cmdchar);  break;
 			}
 		}
@@ -196,17 +197,20 @@ int main(int argc, char *argv[])
     }
     fclose(ifp);
 	printf("%d points of %s data, Fs=%dHz\n", Xlength*m, header, samplerate);
-	printf("Decimation = %d, X = %d points, R = %.3f to %.3f\n",
-        m, Xlength, MINR, MAXR);
+	printf("Decimation = %d, X = %d points, R = %.3f to %.3f, Fs=%f\n",
+        m, Xlength, MINR, MAXR, (float)samplerate/m);
 
 /// Output decimated X to "decimated.txt" for sanity checking
 	FILE *ofp;
-	ofp = fopen("decimated.txt", "w");
-    if (ofp != NULL) {
-        for(uint32_t i=0; i<Xlength; i++) {
-            fprintf(ofp, "%g\n", X[i]);
+	if (verbose) {
+        ofp = fopen("decimated.txt", "w");
+        if (ofp != NULL) {
+            for(uint32_t i=0; i<Xlength; i++) {
+                fprintf(ofp, "%g\n", X[i]);
+            }
         }
-    }
+        fclose(ofp);
+	}
 
     #ifdef RADIAL
     IMG_W = 2 * IMG_H;
@@ -308,7 +312,7 @@ int main(int argc, char *argv[])
 			voffset = nextVoffset;
 			int Widxlast = N/2 - vWidth;
 			compress(mag2, W, Widxlast, 1, -zeta, 0, 1, 1);
-			// Correlate Ws in V using an offset
+        // Correlate Ws in V using an offset
 			int Rsign = 0;
 			if (R<0) { Rsign = -1; }
 			for (int i=0; i<Widxlast; i++) {    // correlate
@@ -343,7 +347,7 @@ int main(int argc, char *argv[])
         if (verbose) {                          // v saves CSV file
             for (int i=0; i<IMG_W; i++) {
                 fprintf(imgfp, "%g", Row[i]);
-                if (i==MaxVpoints-1) {
+                if (i==IMG_W-1) {
                     fprintf(imgfp, "\n");
                 } else {
                     fprintf(imgfp, ",");
@@ -360,8 +364,14 @@ int main(int argc, char *argv[])
 /// Convert image to BMP
 	float stats[3];
     ImageStats(stats);
-    if (autoCeil)  {ceilColor  = stats[1] - 4;}
-    if (autoFloor) {floorColor = stats[0] - 4;}
+    if (autoCeil) {     // automatic ceiling level
+        ceilColor  = stats[1] - 1;
+    }
+    if (floorSpan) {    // fixed span
+        floorColor = ceilColor - floorSpan;
+    } else {            // automatic span
+        floorColor = stats[0] - 1;
+    }
 
 	printf("Saving BMP to %s\n", outfilename);
 	printf("Average=%g, Max=%g; Heatmap: Ceiling=%g, Floor=%g\n",
