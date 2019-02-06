@@ -26,9 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
-#define NUM_COLORS 20                   // color palette size
 #define GRAY 127                        // shade of gray
-#define COLORHEIGHT 16
+#define COLORHEIGHT 0//16
 #define MAXCOLORS 12000                 // 10 hours
 
 // extern global variables for heatmap thresholds are initialized here
@@ -36,6 +35,35 @@ float floorColor = 0;
 float ceilColor = 200;
 int IMG_H = 400;
 int IMG_W = 800;
+
+static uint8_t viridis_color[20*3+1] = { // viridis RGB color palette
+    20, // numcolors R G B R G B ...
+	0x44, 0x01, 0x54,
+	0x48, 0x15, 0x67,
+	0x48, 0x26, 0x77,
+	0x45, 0x37, 0x81,
+	0x40, 0x47, 0x88,
+	0x39, 0x56, 0x8C,
+	0x33, 0x63, 0x8D,
+	0x2D, 0x70, 0x8E,
+	0x28, 0x7D, 0x8E,
+	0x23, 0x8A, 0x8D,
+	0x1F, 0x96, 0x8B,
+	0x20, 0xA3, 0x87,
+	0x29, 0xAF, 0x7F,
+	0x3C, 0xBB, 0x75,
+	0x55, 0xC6, 0x67,
+	0x73, 0xD0, 0x55,
+	0x95, 0xD8, 0x40,
+	0xB8, 0xDE, 0x29,
+	0xDC, 0xE3, 0x19,
+	0xFD, 0xE7, 0x25};
+
+uint8_t * color = viridis_color;        // default color scheme is viridis
+
+void SetHeatMapScheme (uint8_t* map) {  // choose new color scheme
+    color = map;
+}
 
 float *image;
 float weight[32][32];                   // weight table for pixel smoothing
@@ -164,7 +192,7 @@ void PlotPixel(float z, uint16_t rho, uint16_t theta) {
 }
 
 /** Save the 2D floating point image in BMP format with (0,0) at upper left.
-A 7-color heat map is used to create 6 color gradients between floor and ceil.
+A heat map is used to create color gradients between floor and ceil.
 */
 
 // see http://www.andrewnoske.com/wiki/Code_-_heatmaps_and_color_gradients
@@ -176,46 +204,25 @@ uint8_t interpol8 (uint8_t N2, uint8_t N1, uint8_t frac) {
 
 static void getHeatMapColor(float z, uint8_t *bgr)
 {
-    static uint8_t color[NUM_COLORS][3] = { // viridis RGB color palette
-	{0x44, 0x01, 0x54},
-	{0x48, 0x15, 0x67},
-	{0x48, 0x26, 0x77},
-	{0x45, 0x37, 0x81},
-	{0x40, 0x47, 0x88},
-	{0x39, 0x56, 0x8C},
-	{0x33, 0x63, 0x8D},
-	{0x2D, 0x70, 0x8E},
-	{0x28, 0x7D, 0x8E},
-	{0x23, 0x8A, 0x8D},
-	{0x1F, 0x96, 0x8B},
-	{0x20, 0xA3, 0x87},
-	{0x29, 0xAF, 0x7F},
-	{0x3C, 0xBB, 0x75},
-	{0x55, 0xC6, 0x67},
-	{0x73, 0xD0, 0x55},
-	{0x95, 0xD8, 0x40},
-	{0xB8, 0xDE, 0x29},
-	{0xDC, 0xE3, 0x19},
-	{0xFD, 0xE7, 0x25}
-    };
+    uint8_t numcolors = color[0];
     // convert to UQ8.8 format
-    int val = (z - floorColor) * (float)(NUM_COLORS-1) * 256.0
+    int val = (z - floorColor) * (float)(numcolors-1) * 256.0
             / (ceilColor - floorColor);
     uint8_t idx1, idx2;
-    uint8_t frac = 0;  // Fraction between "idx1" and "idx2" where our value is.
+    uint8_t frac = 0;  // Fraction between "idx1" and "idx2" where val is.
 
     if(val <= 0) {
-        idx1 = idx2 = 0;                // below the floor
-    } else if(val >= (NUM_COLORS-1)*256) {
-        idx1 = idx2 = NUM_COLORS-1;     // above the ceiling
+        idx1 = idx2 = 1;                    // below the floor
+    } else if(val >= (numcolors-1)*256) {
+        idx1 = idx2 = (numcolors-1)*3+1;    // above the ceiling
     } else {
-        frac = val & 0xFF;
-        idx1 = val >> 8;
-        idx2 = idx1 + 1;
+        frac = val & 0xFF;                  // fractional part
+        idx1 = (val >> 8)*3 + 1;            // integer part
+        idx2 = idx1 + 3;
     }
-    bgr[2] = interpol8(color[idx2][0], color[idx1][0], frac);
-    bgr[1] = interpol8(color[idx2][1], color[idx1][1], frac);
-    bgr[0] = interpol8(color[idx2][2], color[idx1][2], frac);
+    bgr[2] = interpol8(color[idx2++], color[idx1++], frac);
+    bgr[1] = interpol8(color[idx2++], color[idx1++], frac);
+    bgr[0] = interpol8(color[idx2++], color[idx1++], frac);
 }
 
 uint8_t * scale; // pixel buffer for ruler

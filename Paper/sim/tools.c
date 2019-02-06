@@ -36,13 +36,13 @@ void compressFree(void){
     free(coeffs);
 }
 
-smp_type x1 = 0;
-smp_type x2 = 0;
-smp_type y1 = 0;
-smp_type y2 = 0;
+smp_type fx1 = 0;
+smp_type fx2 = 0;
+smp_type fy1 = 0;
+smp_type fy2 = 0;
 
 void clearfilter(void) {
-    x1 = x2 = y1 = y2 = 0;
+    fx1 = fx2 = fy1 = fy2 = 0;
 }
 
 /* Computes a BiQuad filter on a sample given a decimation value */
@@ -59,18 +59,18 @@ smp_type filter(const smp_type sample, float m)
 
   /* compute result */
     result =  *ptr++ * sample;
-    result += *ptr++ * x1;
-    result += *ptr++ * x2;
-    result -= *ptr++ * y1;
-    result -= *ptr++ * y2;
+    result += *ptr++ * fx1;
+    result += *ptr++ * fx2;
+    result -= *ptr++ * fy1;
+    result -= *ptr++ * fy2;
 
-  /* shift x1 to x2, sample to x1 */
-    x2 = x1;
-    x1 = sample;
+  /* shift fx1 to fx2, sample to fx1 */
+    fx2 = fx1;
+    fx1 = sample;
 
-  /* shift y1 to y2, result to y1 */
-    y2 = y1;
-    y1 = result;
+  /* shift fy1 to fy2, result to fy1 */
+    fy2 = fy1;
+    fy1 = result;
 
     return result;
 }
@@ -99,49 +99,49 @@ void compress(
     pitch *= (float)0x1000000L; // indices use UQ8.24 format
     float fs = 1/(float)0x1000000L;
 	uint32_t idx0 = 0;	        // input index
-	uint32_t idx1 = 0;
+	uint32_t idfx1 = 0;
 	int pending = 1;	        // input read is pending
 	float X0 = 0;
-	float X1 = *in++;
+	float fx1 = *in++;
 	float Y;
 	while (length) {
         if (pending) {
             pending = 0;
-            X0 = X1;
-            X1 = filter(*in++, pitch*fs);
+            X0 = fx1;
+            fx1 = filter(*in++, pitch*fs);
             if (post==0) {      // sweep with the input
                 pitch += pitch * Prate;
             }
         }
-		idx0 = idx1;            // next input span
-		idx1 += round(pitch);
+		idx0 = idfx1;            // next input span
+		idfx1 += round(pitch);
 		// scale the fractional parts of indices to between 0 and 1
         float frac0 = fs * (float)(0xFFFFFF & idx0);
-        float frac1 = fs * (float)(0xFFFFFF & idx1);
+        float frac1 = fs * (float)(0xFFFFFF & idfx1);
         // input span crosses k boundaries, difference between integer parts
-		uint32_t k = 0xFF & ((idx1>>24) - (idx0>>24));
+		uint32_t k = 0xFF & ((idfx1>>24) - (idx0>>24));
 		switch (k) {
         case 0:
             Y = X0 * (frac1 - frac0);
             break;
         case 1:
-            Y = X0 * (1 - frac0) + X1 * frac1;
+            Y = X0 * (1 - frac0) + fx1 * frac1;
             pending = 1;
             break;
         default: // k>1
-            Y = X0 * (1 - frac0) + X1;
+            Y = X0 * (1 - frac0) + fx1;
             while (k>1) {
-                X0 = X1;
-                X1 = filter(*in++, pitch*fs);
+                X0 = fx1;
+                fx1 = filter(*in++, pitch*fs);
                 if (post==0) {  // sweep with the input
                     pitch += pitch * Prate;
                 }
                 k--;
                 if (k>1) {
-                    Y += X1;
+                    Y += fx1;
                 }
             }
-            Y += X1 * frac1;
+            Y += fx1 * frac1;
             pending = 1;
             break;
 		}

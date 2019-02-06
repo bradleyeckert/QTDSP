@@ -13,6 +13,7 @@ void PlotPixel(float z, uint16_t rho, uint16_t theta);
 void XYpixel(float z, int x, int y);
 void SaveImage(char *filename, int offset, int outputRate);
 void ImageStats(float* stats);
+void SetHeatMapScheme (uint8_t* map);
 
 extern float floorColor;
 extern float ceilColor;

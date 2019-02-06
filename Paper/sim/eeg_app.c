@@ -49,6 +49,11 @@ float Number(char* str) {	// convert string to floating point number
 char outfilename[256] = "img.bmp";
 char infilename[256] = "eeg.txt";
 
+static uint8_t mono_color[2*3+1] = {    // monochrome (light) RGB color palette
+    2, // numcolors R G B R G B ...
+	0xFF, 0xFF, 0xFF,
+	0x00, 0x00, 0x00};
+
 int main(int argc, char *argv[])
 {
     int m = 3;              // decimation factor
@@ -136,6 +141,8 @@ int main(int argc, char *argv[])
                 case 'a':   autoWidth = 1;  break;
                 case 'F':   // set floor depth relative to ceiling in dB
                     floorSpan = (int)Number(argv[Arg++]);  break;
+                case 'M':   SetHeatMapScheme(mono_color);  break;
+                case 'g':   comp_filtered = 1;  break;
 				default: printf("Unknown command %c\n", cmdchar);  break;
 			}
 		}
