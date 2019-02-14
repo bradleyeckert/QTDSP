@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
 	float * V;              // correlation buffer
 	float * Vout;           // output
 	float * Row;            // fit-to-row output
+	float * Rpeaks;         // peak and total power for a given R
 
 /// Overwrite defaults using command line arguments
 	int Arg = 1;

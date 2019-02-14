@@ -3,37 +3,31 @@
 The demodulation algorithm was tested by coding the algorithm in C (as a console
 application) and instrumenting it to display variables,
 save arrays to files, and benchmark the various stages.
-KissFFT is used as the 1K complex FFT.
-On a fast Core-i7 PC, the algorithm correlates a frame in about 100 usec.
-Allowing 100 usec per 32 points amounts to 320K SPS of input which, when $R=-0.5$,
-is 80K SPS of output.
+KissFFT is used as the FFT. A GPU would be much faster and will be used in further studies.
 
-\subsection{EEG data}
-
-An ideal test for the algorithm is EEG data taken from public data sets.
-https://www.physionet.org/pn6/chbmit/ has EEG datasets with epileptic seizures.
-Two channels of data (1 and 13) were extracted from file chb03_01.edf (40MB).
-These correspond to the left and right sides of the forehead.
-3600 seconds of 256 Hz data provides 921600 samples per channel.
-A seizure starts at 362 seconds and ends at 414 seconds.
+\subsection{Demodulation}
 
 The demodulation algorithm looks at the signal bandwidth between about
 $F_S/5$ and $F_S/2$.
 Many data sets have a region of interest far below the sample rate.
 
-Decimation is typically used to lower the sample rate to bring it to the
+Decimation may be used to lower the sample rate to bring it to the
 desired region of interest. 
 Decimation by a factor of $m$ involves low-pass filtering the signal
 and taking every $m$th data point as output.
-The spectrogram of the test data shows little information above 30 Hz.
-The 256 Hz data is downsampled to 64 Hz ($m=4$).
 
-The demodulation app processes up to a minute or so of data starting at a 
-beginning time and saves it as a BMP (using colored amplitude) with time on the
-horizontal axis and R on the vertical.
-It's feasible to implement just a console application,
-avoiding GUI work altogether.
-The BMP is the scientific output, viewable in many media as well as on the web.
-For an R range of 0.25 to 0.75, there are between 3 and 8 input points per 
-output point. 
+Figure \ref{fig:chirpTest1} shows a spectrogram image of a noisy test signal with R on the vertical axis.
+$R=-0.2$ is at the top and $R=-0.78$ is at the bottom.
+The output rates for each R are normalized (stretched at the low end) to fit the image.
+This gives the top of the image a fuzzy appearance.
+A test signal was used to demonstrate detection of a chirp at $R=-0.5$ and $N=4096$.
+The chirp amplitude is 1/10 of the noise amplitude.
 
+\begin{figure}
+  \includegraphics[width=\linewidth]{../source/chirp42m.jpg}
+  \caption{Chirp power 20dB below noise.}
+  \label{fig:chirpTest1}
+\end{figure}
+
+Noise has a cobweb-like look. A chirp shows up as a peak among the cobwebs.
+To pick the chirp out of this mess, the peak and RMS values are stored for each R value.
