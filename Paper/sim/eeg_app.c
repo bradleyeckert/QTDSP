@@ -47,7 +47,7 @@ float Number(char* str) {	// convert string to floating point number
 /**
 **/
 char outfilename[256] = "img.bmp";
-char infilename[256] = "eeg.txt";
+char infilename[256] = "chirp.txt";
 
 static uint8_t mono_color[2*3+1] = {    // monochrome (light) RGB color palette
     2, // numcolors R G B R G B ...
@@ -241,6 +241,8 @@ int main(int argc, char *argv[])
     V=(float *)malloc(N/2 * sizeof(float));
     Vout=(float *)malloc(MAXPOINTS * sizeof(float));
     Row=(float *)malloc(IMG_W * sizeof(float));
+    Rpeaks=(float *)malloc(3*IMG_H * sizeof(float));
+    memset(Rpeaks, 0, 3*IMG_H*sizeof(float));
 
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
     CreateHann(N);                              // set up the FFT window
@@ -331,10 +333,14 @@ int main(int argc, char *argv[])
 				}
 			}
         // Note: The first N/2 output points are weaker than the rest
-			for (int i=0; i<vWidth; i++) {     // output finished points
+			for (int i=0; i<vWidth; i++) {      // output finished points
                 float dB = 10 * log10( V[vmask & (i + ivoffset)] );
                 /* clear after use */  V[vmask & (i + ivoffset)] = 1;
                 Vout[VoutSize++] = dB;
+                if (dB > Rpeaks[step*3]) {      // track the peaks
+                    Rpeaks[step*3] = dB;
+                }
+                Rpeaks[step*3+1] += exp(dB/10); // accumulate power for RMS
 			}
 			xoffset += H_X;
 			ivoffset += vWidth;
@@ -362,6 +368,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        Rpeaks[step*3+2] = R;
 	}
     if (verbose) {
         fclose(imgfp);
@@ -386,11 +393,25 @@ int main(int argc, char *argv[])
         stats[0], stats[1], ceilColor, floorColor);
 	SaveImage(outfilename, firstOutput, outputRate);
 
+/// Save the R peaks to a file by changing the extension of the BMP filename
+    int len = strlen(outfilename);
+    memcpy(&outfilename[len-3], "csv", 3);
+    FILE *rfp;
+    rfp = fopen(outfilename, "w");
+    if (rfp) {
+        printf("Writing peaks to %s\n", outfilename);
+        for (int i=0; i<IMG_H; i++) {
+            fprintf(rfp, "%g,%g,%g\n", Rpeaks[i*3+2], Rpeaks[i*3], Rpeaks[i*3+1]);
+        }
+        fclose(rfp);
+    }
+
 /// Finished
     BMPfree();
     kiss_fft_free(cfg);
     FreeHann();
 /// Free memory. Freeing in reverse order is not required, I just like it.
+    free(Rpeaks);
     free(Row);
     free(Vout);
     free(V);
