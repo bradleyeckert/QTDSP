@@ -31,10 +31,8 @@ Revision History
 #include "tools.h"
 #include "biquad.h"
 #define MAXPOINTS 0x100000L
-//#define RADIAL
 #define MINR (Rsign*exp(MinR))
 #define MAXR (Rsign*exp(MaxR))
-void testcolors (void);
 
 char header[128];
 
@@ -61,6 +59,7 @@ int main(int argc, char *argv[])
     int H_X0 = 16;
     float MaxR = -0.20;
     float MinR = -0.78;
+    float gamma = 1.0;
     int Rsteps = 800;
     int samplerate = 250;
     int offset = 0;         // offset of starting point in file
@@ -117,18 +116,24 @@ int main(int argc, char *argv[])
 					MinR = Number(argv[Arg++]); break;
 				case 'R':	// set new Rmax
 					MaxR = Number(argv[Arg++]); break;
+				case 'g':	// set new gamma
+					gamma = Number(argv[Arg++]);
+					if (gamma<0.1 || gamma>1.0) {
+                        fprintf(stderr, "g: Allowed gamma 0.1 to 1.0\n");
+                        return 4;
+					} break;
 				case 's':	// set new R steps
-					Rsteps = (int)Number(argv[Arg++]); break;
+					Rsteps = (int)Number(argv[Arg++]);
 					if (Rsteps<1 || Rsteps>4096) {
                         fprintf(stderr, "s: R must have 1 to 4096 steps\n");
                         return 4;
-					}
+					} break;
 				case 'x':	// set new X step size
-					H_X0 = (int)Number(argv[Arg++]); break;
+					H_X0 = (int)Number(argv[Arg++]);
 					if (H_X0<4 || H_X0>100) {
                         fprintf(stderr, "v: H_X range is 4 to 100\n");
                         return 4;
-					}
+					} break;
 				case 'f':	// set floor of heatmap
 					floorColor = Number(argv[Arg++]);	break;
 				case 'c':	// set ceiling of heatmap
@@ -143,7 +148,7 @@ int main(int argc, char *argv[])
                 case 'F':   // set floor depth relative to ceiling in dB
                     floorSpan = (int)Number(argv[Arg++]);  break;
                 case 'M':   SetHeatMapScheme(mono_color);  break;
-                case 'g':   comp_filtered = 1;  break;
+                case 'z':   comp_filtered = 1;  break;
 				default: printf("Unknown command %c\n", cmdchar);  break;
 			}
 		}
@@ -162,11 +167,7 @@ int main(int argc, char *argv[])
     }
     MinR = log(fabs(MinR));
     MaxR = log(fabs(MaxR));
-    #ifdef RADIAL
-        IMG_W = 2 * IMG_H;
-    #else
-        Rsteps = IMG_H;     // override number of steps if rectangular format
-    #endif // RADIAL
+    Rsteps = IMG_H;
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
@@ -220,13 +221,9 @@ int main(int argc, char *argv[])
         fclose(ofp);
 	}
 
-    #ifdef RADIAL
-    IMG_W = 2 * IMG_H;
-    #else
     if (autoWidth) {
     IMG_W = (3 + (Xlength / 6)) & 0xFFFFFFFCL;  // fit BMP width to data
     }
-    #endif // RADIAL
 
 	if (BMPalloc("colors.txt") || (X==0)) { return 1; }  // memory error
 
@@ -249,7 +246,7 @@ int main(int argc, char *argv[])
 	int vmask = (N/2) - 1;			// one less than an exact power of 2
 
     // k is an upsampling constant, about 2
-    double k = N * log(((double)N-2)/((double)N-4));                // eq. 15
+    double k = N * log(((double)N-2)/((double)N-(2+2/gamma)));      // eq. 15
     double zeta = exp(k/N) - 1;                 // upsampling rate  // eq. 16
     int H_X = H_X0;
     double pixScale = H_X / 5;                  // scale to Fs/5 output rate
@@ -287,15 +284,7 @@ int main(int argc, char *argv[])
             V[i] = 1;
         }
 
-// The number of Vout points painted to the arc should be limited to twice the
-// arc length in pixels. When R=0.8, the limit is IMG_H*pi.
-
-        #ifdef RADIAL
-        int MaxVpoints = (int)(R * IMG_H * 2.0 * PI / 0.8);
-        #else
         int MaxVpoints = IMG_W * RowScale;
-        #endif // RADIAL
-
         uint32_t xoffset = 0;
         double voffset = 0;
         uint32_t VoutSize = 0;                  // points in the output
@@ -307,15 +296,18 @@ int main(int argc, char *argv[])
         }
         int ivoffset = 0;
         while (VoutSize < MaxVpoints) {
+        // downsample
 			compress(&X[xoffset], XW, N, pitch, lambda, lambda, pitch, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
 				Y[i].r = XW[i];  Y[i].i = 0;
 			}
+        // FFT
 			HannWindow(Y);
 			kiss_fft(cfg, Y, U);
 			for (int i=0; i<(N/2); i++) {
 				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
+        // upsample
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
 			double nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
@@ -334,7 +326,7 @@ int main(int argc, char *argv[])
 			}
         // Note: The first N/2 output points are weaker than the rest
 			for (int i=0; i<vWidth; i++) {      // output finished points
-                float dB = 10 * log10( V[vmask & (i + ivoffset)] );
+                float dB = 10 * log10( V[vmask & (i + ivoffset)] / fabs(R));
                 /* clear after use */  V[vmask & (i + ivoffset)] = 1;
                 Vout[VoutSize++] = dB;
                 if (dB > Rpeaks[step*3]) {      // track the peaks
@@ -345,19 +337,12 @@ int main(int argc, char *argv[])
 			xoffset += H_X;
 			ivoffset += vWidth;
         }
-        #ifdef RADIAL
-        int radius = (int)(R * 65536.0 / 0.8);  // scale radius to 16-bit
-        float anglescale = 32768.0 / MaxVpoints;
-        for (int i=0; i<=MaxVpoints; i++) {
-            PlotPixel(Vout[i], radius, anglescale*(float)i);
-        }
-        #else
+// stretch the row of pixels to fit the normalized width
         compress(Vout, Row, IMG_W, RowScale, 0, 0, 1/RowScale, 1);
 
         for (int i=0; i<IMG_W; i++) {           // column sweep
             XYpixel(Row[i], i, step);           // rectangular format
         }
-        #endif
         if (verbose) {                          // v saves CSV file
             for (int i=0; i<IMG_W; i++) {
                 fprintf(imgfp, "%g", Row[i]);
@@ -369,6 +354,7 @@ int main(int argc, char *argv[])
             }
         }
         Rpeaks[step*3+2] = R;
+        Rpeaks[step*3+1] /= fabs(R);
 	}
     if (verbose) {
         fclose(imgfp);

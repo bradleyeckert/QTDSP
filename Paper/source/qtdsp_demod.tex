@@ -150,7 +150,7 @@ The $F_0=0.4F_S/2$ trace is upconverted to $0.8F_S/2$ at about
 	\label{fig:UupSpec}
 \end{figure}
 
-\subsubsection{Interpolation}
+\subsubsection{Downsampling}
 
 The i index is stepped from 0 to N-1, where N is a power of 2 (although it
 doesn't have to be) for the convenience of the FFT. $\delta(i)$ sweeps
@@ -240,7 +240,7 @@ may be preferable in cases of small N.
 U is upsampled to form time-domain signal V.
 Let $\epsilon$ and j be the respective indices of U and V.
 For every index $\epsilon$ of U, the corresponding frequency can be normalized
-to Fs/2.
+to a fraction $(\gamma)$ of $Fs/2$.
 
 It's much easier to work in terms of exponents than logs,
 so the preferred re-mapping (another exponential time-warping operation)
@@ -259,23 +259,24 @@ Up-sampling $U[\epsilon]$ to $V[j]$ can't use the popular interpolation scheme
 partial contributions to $V[j]$ are extracted from one or two U points by
 interpolation.
 
-$j$ sweeps downward from $N/2-1$. Index $\epsilon(j)$ is independent of R.
+$j$ sweeps downward from $\gamma(N/2-1)$.
+Index $\epsilon(j)$ is independent of R.
 
 \begin{equation}  \label{eq:eps_j}
-\epsilon(j) = \left(\frac{N}{2}-1\right) e^{-kj/N}
+\epsilon(j) = \gamma \left(\frac{N}{2}-1\right) e^{-kj/N}
 \end{equation}
 
 The desired difference between $\epsilon(0)$ and $\epsilon(1)$ in
-Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = N/2 - 1$.
+Eq. \ref{eq:eps_j} is $1$. $\epsilon(0) = \gamma(N/2 - 1)$.
 
 \begin{equation}
-\epsilon(1) = \frac{N}{2} - 2 = \left( \frac{N}{2} - 1 \right) e^{-k/N}
+\epsilon(1) = \gamma(N/2 - 1) - 1 = \gamma(N/2 - 1) e^{-k/N}
 \end{equation}
 
 This gives a $k$ of approximately $2$. The exact value is:
 
 \begin{equation}
-k = N \cdot ln \left( \frac{N-2}{N-4} \right)
+k = N \cdot ln \left( \frac{N-2}{N-2-(2/\gamma)} \right)
 \end{equation}
 
 As a sanity check of Eq. \ref{eq:eps_j}, $\epsilon(j)$ starts at (N/2-1) which
@@ -298,21 +299,11 @@ Setting $e^{-k} = (1 + \zeta)^{N}$,
 
 Let $H_X$ be the integer number of new X samples ($\gamma$) per conversion.
 
-Let $H_V$ be the integer number of output samples per conversion.
+Let $H_V$ be the real number of output samples per conversion.
 
 \begin{equation}  \label{eq:hv}
-\gamma = H_V \cdot \frac{k}{|R|}
-%H_V = H_X \cdot \frac{|R|}{k}
+H_V = H_X \cdot \frac{|R|}{k}
 \end{equation}
-
-\begin{equation}
-H_X = round(\gamma)
-\end{equation}
-
-$k$ is tweaked to allow an integer value for $H_X$.
-For a desired $|R|$, pick an integer value for $H_V$ and
-calculate the closest integer $H_X$.
-Adjust $k$ to compensate for the difference between $H_X$ and $\gamma$.
 
 \begin{figure}
 	\centering
