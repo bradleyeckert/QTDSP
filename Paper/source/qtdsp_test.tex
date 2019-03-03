@@ -3,18 +3,22 @@
 The demodulation algorithm was tested by coding the algorithm in C (as a console
 application) and instrumenting it to display variables,
 save arrays to files, and benchmark the various stages.
-KissFFT is used as the FFT. A GPU would be much faster and will be used in further studies.
+KissFFT is used as the FFT.
+A GPU would be much faster and will be used in further studies.
 
-\subsection{Demodulation}
+\subsection{Demodulation to Image}
 
 The demodulation algorithm looks at the signal bandwidth between about
 $\gamma F_S/5$ and $\gamma F_S/2$ where $\gamma$ is between 0.25 and 1.
 
-Figure \ref{fig:chirpTest1} shows a spectrogram image of a noisy test signal with R on the vertical axis.
+Figure \ref{fig:chirpTest1} shows a spectrogram image of a noisy test signal
+with R on the vertical axis.
 $R=-0.2$ is at the top and $R=-0.78$ is at the bottom.
-The output rates for each R are normalized (stretched at the low end) to fit the image.
+The output rates for each R are normalized (stretched at the low end)
+to fit the image.
 This gives the top of the image a fuzzy appearance.
-A test signal was used to demonstrate detection of a chirp at $R=-0.5$ and $N=4096$.
+A test signal was used to demonstrate detection of a chirp at
+$R=-0.5$ and $N=4096$.
 The chirp amplitude is 1/10 of the noise amplitude.
 \begin{figure}
   \includegraphics[width=\linewidth]{../source/chirp42m.jpg}
@@ -31,4 +35,22 @@ power level 20, 25 and 30 dB below random noise.
   \caption{Peak power versus R}
   \label{fig:chirpRvalues1}
 \end{figure}
+
+\subsection{Test on Stock Trades}
+
+An intriguing possibility is that
+group consciousness produces visible artifacts in stock market data.
+If such signals exist (yeah right), great. Let's get rich.
+If not, this test will save you some work because you know you've got to try it.
+
+Seconds-resolution sample data, SPY_SECOND_TRADE.csv downloaded from QuantQuote, 
+shows the price history of a stock over a trading day from 4:00 AM to 7:59 PM.
+A simple C utility (stock.c) converts the CSV file to a usable format.
+The interval between data points is much longer than a second at the beginning
+and end of the day and about a second during active trading. 
+To handle intervals longer than one second,
+data is linearly interpolated to produce one point per second.
+Anomalous spikes are filtered out to reduce the noise level.
+16 hours is 57600 seconds, enough for a 14K-wide bitmap.
+Data at the beginning of the day is rather sparse, but it's not really visible.
 
