@@ -102,7 +102,7 @@ void compress(
 	uint32_t idfx1 = 0;
 	int pending = 1;	        // input read is pending
 	float X0 = 0;
-	float fx1 = *in++;
+	float fx1 = filter(*in++, pitch*fs);
 	float Y;
 	while (length) {
         if (pending) {

@@ -45,7 +45,7 @@ float Number(char* str) {	// convert string to floating point number
 /**
 **/
 char outfilename[256] = "img.bmp";
-char infilename[256] = "chirp.txt";
+char infilename[256] = "eeg.txt";
 
 static uint8_t mono_color[2*3+1] = {    // monochrome (light) RGB color palette
     2, // numcolors R G B R G B ...
@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
     float MaxR = -0.20;
     float MinR = -0.78;
     float gamma = 1.0;
-    int Rsteps = 800;
     int samplerate = 250;
     int offset = 0;         // offset of starting point in file
     char autoCeil = 1;
@@ -122,12 +121,6 @@ int main(int argc, char *argv[])
                         fprintf(stderr, "g: Allowed gamma 0.1 to 1.0\n");
                         return 4;
 					} break;
-				case 's':	// set new R steps
-					Rsteps = (int)Number(argv[Arg++]);
-					if (Rsteps<1 || Rsteps>4096) {
-                        fprintf(stderr, "s: R must have 1 to 4096 steps\n");
-                        return 4;
-					} break;
 				case 'x':	// set new X step size
 					H_X0 = (int)Number(argv[Arg++]);
 					if (H_X0<4 || H_X0>100) {
@@ -167,7 +160,6 @@ int main(int argc, char *argv[])
     }
     MinR = log(fabs(MinR));
     MaxR = log(fabs(MaxR));
-    Rsteps = IMG_H;
 
     double startTime = now();
 	X = malloc(sizeof(float) * MAXPOINTS);
@@ -247,7 +239,8 @@ int main(int argc, char *argv[])
 
     // k is an upsampling constant, about 2
     double k = N * log(((double)N-2)/((double)N-(2+2/gamma)));      // eq. 15
-    double zeta = exp(k/N) - 1;                 // upsampling rate  // eq. 16
+    int maxIdx = (N/2)*gamma;
+    double zeta = exp(k/(N*gamma)) - 1;         // upsampling rate  // eq. 16
     int H_X = H_X0;
     double pixScale = H_X / 5;                  // scale to Fs/5 output rate
     double outputRate = samplerate * pixScale / (H_X*m); // pixels per second
@@ -263,16 +256,17 @@ int main(int argc, char *argv[])
     }
 
     printf("N=%d, H_X=%d, k=%f, zeta=%f, Out=%.2f pels/sec\n", N, H_X0, k, zeta, outputRate);
+    printf("maxIdx=%d\n", maxIdx);
 
-	printf("Processing %d R values into %d x %d image\n", Rsteps, IMG_W, IMG_H);
-	for (int step=0; step<Rsteps; step++) {
-        double R = exp(MinR + (double)step * (MaxR-MinR) / (double)(Rsteps-1)) * Rsign;
+	printf("Processing %d R values into %d x %d image\n", IMG_H, IMG_W, IMG_H);
+	for (int step=0; step<IMG_H; step++) {
+        double R = exp(MinR + (double)step * (MaxR-MinR) / (double)(IMG_H-1)) * Rsign;
 		// M is the number of X input samples to warp to Y. Usually N to 4N.
 		double M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R); // eq. 7
 		// rate constant for downsampling exponential sweep
 		double lambda = exp(-R/N) - 1;                              // eq. 9
 		// real H_V, ideal offset in V samples
-		double H_V = (double)H_X0 * fabs(R) / k;
+		double H_V = (double)H_X * fabs(R) / k;
         double RowScale = H_V / pixScale;
 
 		float pitch = 1.0;                                          // eq. 10
@@ -305,14 +299,14 @@ int main(int argc, char *argv[])
 			HannWindow(Y);
 			kiss_fft(cfg, Y, U);
 			for (int i=0; i<(N/2); i++) {
-				mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
+				mag2[(maxIdx-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
         // upsample
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
 			double nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
 			voffset = nextVoffset;
-			int Widxlast = N/2 - vWidth;
+			int Widxlast = maxIdx - vWidth;
 			compress(mag2, W, Widxlast, 1, -zeta, 0, 1, 1);
         // Correlate Ws in V using an offset
 			int Rsign = 0;

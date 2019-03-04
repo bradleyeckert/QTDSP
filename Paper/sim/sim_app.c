@@ -113,13 +113,13 @@ int main()
     // M is the number of X input samples to warp to Y. Usually N to 4N.
     float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
     // rate constant for downsampling exponential sweep
-    float lambda = exp(-R/N) - 1;                               // eq. 9
+    double lambda = exp(-R/N) - 1;                              // eq. 9
     // k is an upsampling constant, about 2
-    float k = N * log(((float)N-2)/((float)N-4));               // eq. 15
+    double k = N * log( ((float)N-2) / ((float)N-4) );          // eq. 15
 	// real H_X, ideal offset in X samples
 	float H_V = H_X0 * fabs(R) / k;                             // eq. 17
 	int H_X = H_X0;
-	float zeta = exp(k/N) - 1;  // upsampling rate              // eq. 16
+	double zeta = exp(k/N) - 1;  // upsampling rate             // eq. 16
 
     float pitch = 1.0;                                          // eq. 10
     if (R>0) {
