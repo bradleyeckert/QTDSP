@@ -33,6 +33,7 @@ Revision History
 #define MAXPOINTS 0x100000L
 #define MINR (Rsign*exp(MinR))
 #define MAXR (Rsign*exp(MaxR))
+#define PosSlope 10
 
 char header[128];
 
@@ -235,12 +236,12 @@ int main(int argc, char *argv[])
 
     kiss_fft_cfg cfg = kiss_fft_alloc(N,0,0,0 );
     CreateHann(N);                              // set up the FFT window
-	int vmask = (N/2) - 1;			// one less than an exact power of 2
+	int vmask = N/2 - 1;						// one less than an exact power of 2
 
     // k is an upsampling constant, about 2
     double k = N * log(((double)N-2)/((double)N-(2+2/gamma)));      // eq. 15
     int maxIdx = (N/2)*gamma;
-    double zeta = exp(k/(N*gamma)) - 1;         // upsampling rate  // eq. 16
+    double zeta = exp(k/N) - 1;         		// upsampling rate  // eq. 16
     int H_X = H_X0;
     double pixScale = H_X / 5;                  // scale to Fs/5 output rate
     double outputRate = samplerate * pixScale / (H_X*m); // pixels per second
@@ -274,7 +275,7 @@ int main(int argc, char *argv[])
 			pitch = exp(M*R/N);
 		}
 
-        for (int i=0; i<(N/2); i++) {           // clear V, use 1.0 so log is 0
+        for (int i=0; i<(N/2); i++) {          // clear V, use 1.0 so log is 0
             V[i] = 1;
         }
 
@@ -298,7 +299,7 @@ int main(int argc, char *argv[])
         // FFT
 			HannWindow(Y);
 			kiss_fft(cfg, Y, U);
-			for (int i=0; i<(N/2); i++) {
+			for (int i=0; i<maxIdx; i++) {
 				mag2[(maxIdx-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
         // upsample
@@ -306,19 +307,18 @@ int main(int argc, char *argv[])
 			double nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
 			voffset = nextVoffset;
-			int Widxlast = maxIdx - vWidth;
+			int Widxlast = maxIdx-1;
 			compress(mag2, W, Widxlast, 1, -zeta, 0, 1, 1);
         // Correlate Ws in V using an offset
-			int Rsign = 0;
-			if (R<0) { Rsign = -1; }
 			for (int i=0; i<Widxlast; i++) {    // correlate
-				if (Rsign) {                    // R < 0
+				if (R<0) {                      // R < 0
 					V[vmask & (ivoffset + i)] += W[(Widxlast-1) - i];
 				} else {                        // R > 0
+//				    int SlopeFix = PosSlope * k / R;
 					V[vmask & (ivoffset + i)] += W[i];
 				}
 			}
-        // Note: The first N/2 output points are weaker than the rest
+        // Note: The first maxIdx output points are weaker than the rest
 			for (int i=0; i<vWidth; i++) {      // output finished points
                 float dB = 10 * log10( V[vmask & (i + ivoffset)] / fabs(R));
                 /* clear after use */  V[vmask & (i + ivoffset)] = 1;

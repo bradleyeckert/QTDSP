@@ -45,9 +45,10 @@ Revision History
 #define PASSES       25
 #define PI 3.1415926538
 
-float R = 0.5;
+float R = -0.5;
 float frequency = 0.4;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
+float gamma = 1.0/2;
 
 float maxscale(void) {          // maximum amplitude scale
     if (R<0.0) {
@@ -114,22 +115,21 @@ int main()
     float M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R);  // eq. 7
     // rate constant for downsampling exponential sweep
     double lambda = exp(-R/N) - 1;                              // eq. 9
+	// downsample pitch
+    float pitch = 1.0;                                          // eq. 10
+    if (R>0) {
+        pitch = exp(M*R/N);
+    }
     // k is an upsampling constant, about 2
-    double k = N * log( ((float)N-2) / ((float)N-4) );          // eq. 15
+    double k = N * log(((float)N-2) / ((float)N-(2+2/gamma)));  // eq. 15
 	// real H_X, ideal offset in X samples
 	float H_V = H_X0 * fabs(R) / k;                             // eq. 17
 	int H_X = H_X0;
 	double zeta = exp(k/N) - 1;  // upsampling rate             // eq. 16
 
-    float pitch = 1.0;                                          // eq. 10
-    if (R>0) {
-        pitch = exp(M*R/N);
-    }
-
-    printf("N=%d, M=%g, R=%g, k=%g\n",N,M,R,k);
-    printf("pitch=%g, lambda=%g\n",pitch,lambda);
-    printf("H_X=%d, H_V=%f, zeta=%g\n",
-			H_X, H_V, zeta);
+    printf("N=%d, M=%g, R=%g, gamma=%g, k=%g\n",N,M,R,gamma,k);
+    printf("pitch=%g, lambda=%g\n", pitch, lambda);
+    printf("H_X=%d, H_V=%f, zeta=%g\n",	H_X, H_V, zeta);
     double begintime = now();
     int offset = 0;
 
@@ -140,6 +140,7 @@ int main()
 	int vmask = N/2 - 1;	                // one less than an exact power of 2
 	int deadtime = N/2;
     float voffset = 0;
+    int maxIdx = (N/2)*gamma;
 
     for (int p=0; p<PASSES; p++) {
 		#ifdef VERBOSE
@@ -158,8 +159,8 @@ int main()
 		}
 		HannWindow(Y);
 		kiss_fft(cfg, Y, U);
-		for (int i=0; i<(N/2); i++) {
-			mag2[(N/2-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
+		for (int i=0; i<maxIdx; i++) {
+			mag2[(maxIdx-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 		}
 		#ifdef VERBOSE
 		printf("Executed N-pt FFT in %.3f usec\n", now() - mark);
@@ -168,7 +169,7 @@ int main()
 		#endif
 
 		memset(W[p],0,sizeof(W[0]));        // clear W
-		compress(mag2, W[p], N/2 - H_V, 1, -zeta, 0, 1, 1);
+		compress(mag2, W[p], maxIdx, 1, -zeta, 0, 1, 1);
 		#ifdef VERBOSE
 		printf("Upsampled U to W in %.3f usec\n", now() - mark);
 		dumpReal(W[p],N/2,"W.txt");// dump the time-warped output
@@ -178,7 +179,7 @@ int main()
 		// Correlate Ws in V using an offset
 		int Rsign = 0;
 		if (R<0) { Rsign = -1; }
-		int Widxlast = N/2 - H_V - 1;
+		int Widxlast = maxIdx - 1;
         for (int i=0; i<=Widxlast; i++) {   // correlate
             if (Rsign) {                    // R < 0
                 V[vmask & ((int)voffset + i)] += W[p][Widxlast - i];
@@ -204,7 +205,7 @@ int main()
 		offset += H_X;
 		voffset += H_V;
     }
-    for (int i=0; i<(N/2-(int)H_V); i++) {  // flush partial correlations
+    for (int i=0; i<maxIdx; i++) {  // flush partial correlations
         float dB = 10*log10( V[vmask & ((int)H_V*PASSES + i)] );
         if (deadtime) {
             if (dB) {deadtime=0;}
@@ -215,7 +216,7 @@ int main()
 
     double endtime = now();
 
-    dumpReal(V,N/2,"V.txt");                // correlated mag^2s
+    dumpReal(V,maxIdx,"V.txt");                // correlated mag^2s
     dumpReal(Vout,VoutSize,"Vout.txt");     // output buffer in dB
 
 /*******************************************************************************
@@ -226,7 +227,7 @@ Dump the RMS W from all of the passes to a CSV file for plotting.
 
     FILE *fp;
     fp = fopen("AllW.csv", "w+");
-    for (int i=0; i<N/2; i++) {
+    for (int i=0; i<maxIdx; i++) {
         for (int j=0; j<PASSES; j++) {
             fprintf(fp, "%g", sqrt(W[j][i]));
             if (j<(PASSES-1)) {
