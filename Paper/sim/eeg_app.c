@@ -262,13 +262,15 @@ int main(int argc, char *argv[])
 	printf("Processing %d R values into %d x %d image\n", IMG_H, IMG_W, IMG_H);
 	for (int step=0; step<IMG_H; step++) {
         double R = exp(MinR + (double)step * (MaxR-MinR) / (double)(IMG_H-1)) * Rsign;
-		// M is the number of X input samples to warp to Y. Usually N to 4N.
+/// M is the number of X input samples to warp to Y. Usually N to 4N.
 		double M = -N * log(1 - N*(1 - exp(-fabs(R)/N))) / fabs(R); // eq. 7
-		// rate constant for downsampling exponential sweep
+/// rate constant for downsampling exponential sweep
 		double lambda = exp(-R/N) - 1;                              // eq. 9
-		// real H_V, ideal offset in V samples
+/// real H_V, ideal offset in V samples
 		double H_V = (double)H_X * fabs(R) / k;
         double RowScale = H_V / pixScale;
+/// slope correction for R>0
+	    int SlopeFix = M * fabs(R) * gamma / exp(fabs(R));
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
@@ -291,34 +293,34 @@ int main(int argc, char *argv[])
         }
         int ivoffset = 0;
         while (VoutSize < MaxVpoints) {
-        // downsample
+/// downsample
 			compress(&X[xoffset], XW, N, pitch, lambda, lambda, pitch, 0);
 			for (int i=0; i<N; i++) {           // copy real to complex
 				Y[i].r = XW[i];  Y[i].i = 0;
 			}
-        // FFT
+/// FFT
 			HannWindow(Y);
 			kiss_fft(cfg, Y, U);
 			for (int i=0; i<maxIdx; i++) {
 				mag2[(maxIdx-1)-i] = U[i].r * U[i].r + U[i].i * U[i].i;
 			}
-        // upsample
+/// upsample
 			memset(W, 0, (N/2)*sizeof(float));  // clear W
 			double nextVoffset = voffset + H_V;
 			int vWidth = (int)nextVoffset - (int)voffset;
 			voffset = nextVoffset;
 			int Widxlast = maxIdx-1;
 			compress(mag2, W, Widxlast, 1, -zeta, 0, 1, 1);
-        // Correlate Ws in V using an offset
+/// Correlate Ws in V using an offset
 			for (int i=0; i<Widxlast; i++) {    // correlate
 				if (R<0) {                      // R < 0
 					V[vmask & (ivoffset + i)] += W[(Widxlast-1) - i];
 				} else {                        // R > 0
-//				    int SlopeFix = PosSlope * k / R;
 					V[vmask & (ivoffset + i)] += W[i];
 				}
 			}
-        // Note: The first maxIdx output points are weaker than the rest
+/// Note: The first maxIdx output points are weaker than the rest
+/// Process the outputs
 			for (int i=0; i<vWidth; i++) {      // output finished points
                 float dB = 10 * log10( V[vmask & (i + ivoffset)] / fabs(R));
                 /* clear after use */  V[vmask & (i + ivoffset)] = 1;
@@ -331,11 +333,11 @@ int main(int argc, char *argv[])
 			xoffset += H_X;
 			ivoffset += vWidth;
         }
-// stretch the row of pixels to fit the normalized width
+/// stretch the row of pixels to fit the normalized width
         compress(Vout, Row, IMG_W, RowScale, 0, 0, 1/RowScale, 1);
 
         for (int i=0; i<IMG_W; i++) {           // column sweep
-            XYpixel(Row[i], i, step);           // rectangular format
+            XYpixel(Row[i], i+SlopeFix, step);  // rectangular format
         }
         if (verbose) {                          // v saves CSV file
             for (int i=0; i<IMG_W; i++) {

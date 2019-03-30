@@ -45,8 +45,8 @@ Revision History
 #define PASSES       25
 #define PI 3.1415926538
 
-float R = -0.5;
-float frequency = 0.4;       	// initial frequency for test chirp, near Fs/2(1.0)
+float R = 0.5;
+float frequency = 0.2;       	// initial frequency for test chirp, near Fs/2(1.0)
 int pink = 0;                   // the chirp spectrum is white or pink
 float gamma = 1.0/2;
 
@@ -177,11 +177,9 @@ int main()
 		#endif
 
 		// Correlate Ws in V using an offset
-		int Rsign = 0;
-		if (R<0) { Rsign = -1; }
 		int Widxlast = maxIdx - 1;
         for (int i=0; i<=Widxlast; i++) {   // correlate
-            if (Rsign) {                    // R < 0
+            if (R<0) {                      // R < 0
                 V[vmask & ((int)voffset + i)] += W[p][Widxlast - i];
             } else {                        // R > 0
                 V[vmask & ((int)voffset + i)] += W[p][i];
