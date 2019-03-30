@@ -11,8 +11,8 @@ A GPU would be much faster and will be used in further studies.
 The demodulation algorithm looks at the signal bandwidth between about
 $\gamma F_S/5$ and $\gamma F_S/2$ where $\gamma$ is between 0.25 and 1.
 
-Figure \ref{fig:chirpTest1} shows a spectrogram image of a noisy test signal
-with R on the vertical axis.
+Figure \ref{fig:chirpTest1} shows a spectrogram image of a noisy
+negative-chirp test signal with R on the vertical axis.
 $R=-0.2$ is at the top and $R=-0.78$ is at the bottom.
 The output rates for each R are normalized (stretched at the low end)
 to fit the image.
@@ -22,7 +22,7 @@ $R=-0.5$ and $N=4096$.
 The chirp amplitude is 1/10 of the noise amplitude.
 \begin{figure}
   \includegraphics[width=\linewidth]{../source/chirp42m.jpg}
-  \caption{Chirp power 20dB below noise.}
+  \caption{Chirp power $(R<0)$ 20dB below noise.}
   \label{fig:chirpTest1}
 \end{figure}
 
@@ -30,9 +30,21 @@ Noise has a cobweb-like look. A chirp shows up as a peak among the cobwebs.
 To pick the chirp out of this mess, the peak is stored for each R value.
 Figure \ref{fig:chirpRvalues1} shows the peak R values for a test chirp with a
 power level 20, 25 and 30 dB below random noise.
+
 \begin{figure}
   \includegraphics[width=\linewidth]{../source/Rpeaks.png}
   \caption{Peak power versus R}
   \label{fig:chirpRvalues1}
 \end{figure}
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{../source/chirp42p.jpg}
+  \caption{Chirp power $(R>0)$ 25dB below noise.}
+  \label{fig:chirpTest2}
+\end{figure}
+
+When the image uses positive chirp, the horizontal image follows $f_1$ rather 
+than $f_0$. An R-dependent X offset is needed to make it reasonably viewable.
+Figure \ref{fig:chirpTest2} shows a spectrogram image of a noisy positive-chirp
+test signal.  
 

@@ -270,7 +270,8 @@ int main(int argc, char *argv[])
 		double H_V = (double)H_X * fabs(R) / k;
         double RowScale = H_V / pixScale;
 /// slope correction for R>0
-	    int SlopeFix = M * fabs(R) * gamma / exp(fabs(R));
+	    int SlopeFix = 0;
+	    if (R>0) SlopeFix = M * R / exp(R);
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {

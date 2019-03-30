@@ -128,7 +128,11 @@ static void SetXYpixel(uint16_t fx, uint16_t fy, float z, int x, int y) {
 }
 
 void XYpixel(float z, int x, int y) {
-    image[ (y%IMG_H)*IMG_W + (x%IMG_W) ] = z;
+    if (x<0) return;
+    if (y<0) return;
+    if (x>IMG_W) return;
+    if (y>IMG_H) return;
+    image[ y*IMG_W + x ] = z;
 }
 
 // x and y coordinates are 2^16 * pixel position
