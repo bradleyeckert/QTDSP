@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 {
     int m = 3;              // decimation factor
     int N = 1024;
-    int H_X0 = 16;
+    int H_X0 = 64;
     float MaxR = -0.20;
     float MinR = -0.78;
     float gamma = 1.0;
@@ -118,14 +118,14 @@ int main(int argc, char *argv[])
 					MaxR = Number(argv[Arg++]); break;
 				case 'g':	// set new gamma
 					gamma = Number(argv[Arg++]);
-					if (gamma<0.1 || gamma>1.0) {
-                        fprintf(stderr, "g: Allowed gamma 0.1 to 1.0\n");
+					if (gamma<0.001 || gamma>1.0) {
+                        fprintf(stderr, "g: Allowed gamma 0.001 to 1.0\n");
                         return 4;
 					} break;
 				case 'x':	// set new X step size
 					H_X0 = (int)Number(argv[Arg++]);
-					if (H_X0<4 || H_X0>100) {
-                        fprintf(stderr, "v: H_X range is 4 to 100\n");
+					if (H_X0<4 || H_X0>N) {
+                        fprintf(stderr, "v: H_X range is 4 to %d\n", N);
                         return 4;
 					} break;
 				case 'f':	// set floor of heatmap
@@ -147,6 +147,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
+	int leftEdge = 0;       // when R>0, clip off the left edge
+	if (MinR>0) leftEdge = N/3;
 	int Rsign = 1;
     if (fabs(MinR) > 0.78 || fabs(MaxR) > 0.78) {
         fprintf(stderr, "Max |R| is 0.78\n");  return 4; }
@@ -271,7 +273,7 @@ int main(int argc, char *argv[])
         double RowScale = H_V / pixScale;
 /// slope correction for R>0
 	    int SlopeFix = 0;
-	    if (R>0) SlopeFix = M * R / exp(R);
+	    if (R>0) SlopeFix = (M * R / exp(R)) - (N * (R-0.5) * (R-0.5));
 
 		float pitch = 1.0;                                          // eq. 10
 		if (R>0) {
@@ -338,7 +340,10 @@ int main(int argc, char *argv[])
         compress(Vout, Row, IMG_W, RowScale, 0, 0, 1/RowScale, 1);
 
         for (int i=0; i<IMG_W; i++) {           // column sweep
-            XYpixel(Row[i], i+SlopeFix, step);  // rectangular format
+            int x = i + SlopeFix - leftEdge;
+            if (x >= 0) {
+                XYpixel(Row[i], x, step);       // rectangular format
+            }
         }
         if (verbose) {                          // v saves CSV file
             for (int i=0; i<IMG_W; i++) {
