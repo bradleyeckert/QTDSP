@@ -30,7 +30,7 @@ Due to the low I/O bandwidth, the algorithm lends itself to parallelism without
 the complexity of high-speed signaling or memory management.
 A low-cost ASIC would be feasible for consumer applications.
 
-The mathematics of signal conversion, besides FFT, is College Algebra.
+The mathematics of signal conversion, besides FFT, is mainly College Algebra.
 The algorithm can be coded by a typical programmer or engineer with some help
 from the following derivations.
 
@@ -157,8 +157,8 @@ doesn't have to be) for the convenience of the FFT. $\delta(i)$ sweeps
 non-linearly from 0 to M. For each X, its index $\delta$ is the running sum
 of $\lambda$. For each Y point, the downsampler averages one or more X points.
 
-The most common downsampling method is a low pass filter whose output is
-sampled less often than its input rate.
+The typical downsampling method in DSP practice is a low pass filter
+whose output is sampled less often than its input rate.
 This method attenuates alias frequencies before they make it to the output.
 Alias peaks don't correlate, but they do produce noise artifacts.
 A biquad LPF is a good choice of filter because it uses coefficients that
@@ -217,8 +217,10 @@ so square root is not needed.
 
 A pipelined FFT can be used so that the FFT isn't the bottleneck.
 Throughput is then limited by downsampling, which when done in hardware
-processes one $X$ sample per clock cycle.
-This strategy offers the best performance in an ASIC implementation.
+processes one $X$ sample per clock cycle. 
+This would give the best performance in an ASIC implementation,
+although one sample per two clocks is more in line with the throughput
+of the warp functions.
 
 A Hann window $w(n)$ is applied to Y before performing the FFT.
 \begin{equation}
