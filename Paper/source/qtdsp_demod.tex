@@ -162,14 +162,14 @@ whose output is sampled less often than its input rate.
 This method attenuates alias frequencies before they make it to the output.
 Alias peaks don't correlate, but they do produce noise artifacts.
 A biquad LPF is a good choice of filter because it uses coefficients that
-can be stored in a table or computed in hardware.
+can be stored in a table or computed as needed in hardware.
 The loss of endpoints due to the filter delay is not a problem.
 The endpoints of the filtered X are allowed some slop,
 as the Hann window will lop them off anyway.
 
-Fractional interpolation sums $\lambda$ input samples of X.
-This works without a filter so it's fast but noisy.
-Some fractional arithmetic is required to handle partial contributions.
+An alternative to the downsampling filter is fractional interpolation,
+which sums $\lambda$ input samples of X.
+It works without a filter so it's fast but noisy.
 Fig.~\ref{fig:xint} illustrates a simple interpolation that adds two fractional
 endpoints to 0 or more midpoints for downsampling.
 $k$ is the integer part of $\delta$.
@@ -244,7 +244,7 @@ Let $\epsilon$ and j be the respective indices of U and V.
 For every index $\epsilon$ of U, the corresponding frequency can be normalized
 to a fraction $(\gamma)$ of $Fs/2$.
 
-It's much easier to work in terms of exponents than logs,
+Hardware-wise, it's much easier to work in terms of exponents than logarithms,
 so the preferred re-mapping (another exponential time-warping operation)
 extracts $U[\epsilon]$ from a linear progression of $V[j]$.
 Warp indexing uses the relation:
@@ -252,14 +252,14 @@ Warp indexing uses the relation:
 \epsilon = \left(\frac{N}{2}-1\right) e^{\omega(t - \tau)}
 \end{equation}
 
-Time t (scaled to match the output stream's sample rate) sweeps from $\tau$
+Time $t$ (scaled to match the output stream's sample rate) sweeps from $\tau$
 in the opposite direction of R's sign,
 causing the exponent to start at 1 and decay downward.
 
 Up-sampling $U[\epsilon]$ to $V[j]$ can't use the popular interpolation scheme
 (zero stuffing) because the interpolation factor must be irrational. Instead,
 partial contributions to $V[j]$ are extracted from one or two U points by
-interpolation.
+linear interpolation.
 
 $j$ sweeps downward from $\gamma(N/2-1)$.
 Index $\epsilon(j)$ is independent of R.
@@ -287,7 +287,7 @@ It decays toward 0 but will never get there.
 The number of elements in W memory is slightly less than N/2 to allow some I/O
 headroom. Due to the limited size of W memory,
 the lowest frequency is about $(1/e)$ of the highest frequency,
-leaving the lower $\approx37$\% of the spectrum unused.
+leaving the lower $\approx37$\% of the spectrum unused when $\gamma=1$.
 
 The exponential decay of $\epsilon$ can be handled by repeated multiplication,
 one per $U[\epsilon]$ fetch.
