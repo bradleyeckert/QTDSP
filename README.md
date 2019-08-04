@@ -1,7 +1,6 @@
 # Quantum Time Domain Signal Processing
 
 Hi, I'm Brad Eckert. I code and I mess with electronics.
-Call it a bad 40-year-old habit.
 I also think a lot about the nature of "reality".
 
 I have developed a theory for signal-processing artifacts of quantum time.
