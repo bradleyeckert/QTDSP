@@ -1,7 +1,7 @@
 # Quantum Time Domain Signal Processing
 
-Hi, I'm Brad Eckert. I code and I mess with electronics.
-Call it a bad 40-year-old habit.
+Greetings fellow Earthlings, I'm Brad Eckert. I code and I mess with electronics.
+Maybe someday I'll be good at it. It's only been 40 years.
 I also think a lot about the nature of "reality".
 
 I have developed a theory for signal-processing artifacts of quantum time.
@@ -14,6 +14,8 @@ The signal artifacts look just like random noise, but they aren't necessarily.
 With the appropriate DSP, they are mappable onto (potentially) detectable signals.
 Such an algorithm could provide the long-sought *way in* that skips all of the esoterica.
 The digital "Philosopher's Stone" of alchemy.
+Given an appropriate sensor, humans could be wearing their mentality on their sleeve
+the same way an octopus wears its skin. You make that a phone app and you have something.
 
 ## The paper
 
@@ -41,6 +43,7 @@ It's caused by the display position being dependent on F1 instead of F0.
 F1's horizontal position in the image moves with R.
 The current correction function isn't perfect but it's close enough.
 I don't seem to understand the math correctly.
+Rather than find the analytical solution, I fiddled with an approximation.
 
 The implementation could be much faster because it's amenable to GPU implementation.
 The multiple-R warp transforms and FFTs are both parallelizable in CUDA or OpenCL.
