@@ -1,16 +1,16 @@
 # Quantum Time Domain Signal Processing
 
-Greetings fellow Earthlings, I'm Brad Eckert. I code and I mess with electronics.
+Greetings fellow humans, I'm Brad Eckert. I code and I mess with electronics.
 Maybe someday I'll be good at it. It's only been 40 years.
 I also think a lot about the nature of "reality".
 
-I have developed a theory for signal-processing artifacts of quantum time.
-Quantum time is a property of consciousness spiraling into relative time using
-a 2D time model.
+I have developed a method for signal-processing artifacts of quantum time.
+I hypothesize that quantum time is a property of consciousness spiraling into
+relative time using a 2D time model.
 This is a consequence of the eternal (outside of time) divine nature of life
 and its quantum entanglement with the material world.
 
-The signal artifacts look just like random noise, but they aren't necessarily.
+The signal artifacts would look just like random noise, but they aren't necessarily.
 With the appropriate DSP, they are mappable onto (potentially) detectable signals.
 Such an algorithm could provide the long-sought *way in* that skips all of the esoterica.
 The digital "Philosopher's Stone" of alchemy.
@@ -54,4 +54,6 @@ a few data points that mean something.
 For example, if peaks keep occuring at a particular R value, that R value should stand out.
 An image analog of an audio VU meter (peak detect) should help.
 
-A GUI version of the app should be created and built in a dedicated repository.
+A GUI version of the app should be created in a new repository.
+Preferably cross-platform.
+There's a LibreOffice-format wish list in `/sim`.
