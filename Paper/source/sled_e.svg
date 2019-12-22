@@ -14,7 +14,7 @@
    viewBox="0 0 210 297"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="sled_e.svg">
   <defs
      id="defs2">
@@ -96,16 +96,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="310.21125"
-     inkscape:cy="688.18173"
+     inkscape:zoom="1.979899"
+     inkscape:cx="359.85688"
+     inkscape:cy="787.61488"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1018"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="2560"
+     inkscape:window-height="1017"
+     inkscape:window-x="3832"
+     inkscape:window-y="1061"
      inkscape:window-maximized="1">
     <inkscape:grid
        type="xygrid"
@@ -138,7 +138,7 @@
        y="67"
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <flowRoot
-       transform="matrix(0.26458333,0,0,0.26458333,-19.795223,10.754055)"
+       transform="matrix(0.26458333,0,0,0.26458333,-18.191606,10.62042)"
        xml:space="preserve"
        id="flowRoot3701-7"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
@@ -149,7 +149,7 @@
            x="191.42857"
            y="206.8054" /></flowRegion><flowPara
          id="flowPara3707-8"
-         style="font-size:26.66666701px">FFT / IFFT</flowPara></flowRoot>    <rect
+         style="font-size:26.66666794px">FFT / IFFT</flowPara></flowRoot>    <rect
        id="rect3699-7"
        width="200.00893"
        height="10"
@@ -158,11 +158,6 @@
        style="fill:none;stroke:#000000;stroke-width:0.49338803;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 80,67 90,56.999999 H 9.999998 L 19.999999,67"
-       id="path4555"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.49755582;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 80.00818,77.123826 10.00074,9.90173 H 10.002922 l 10.000751,-9.90173"
        id="path4555-3"
        inkscape:connector-curvature="0" />
@@ -174,7 +169,7 @@
        y="87.974442"
        style="fill:none;stroke:#000000;stroke-width:0.493388;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <flowRoot
-       transform="matrix(0.26458333,0,0,0.26458333,-24.967843,0.06357983)"
+       transform="matrix(0.26458333,0,0,0.26458333,-20.023357,0.06357983)"
        xml:space="preserve"
        id="flowRoot3701-7-2"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
@@ -185,8 +180,8 @@
            x="191.42857"
            y="206.8054" /></flowRegion><flowPara
          id="flowPara3707-8-7"
-         style="font-size:26.66666701px">downsample</flowPara></flowRoot>    <flowRoot
-       transform="matrix(0.26458333,0,0,0.26458333,-20.070522,20.014473)"
+         style="font-size:26.66666794px">Input Warp</flowPara></flowRoot>    <flowRoot
+       transform="matrix(0.26458333,0,0,0.26458333,-22.475948,20.148108)"
        xml:space="preserve"
        id="flowRoot3701-7-2-7"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
@@ -197,7 +192,7 @@
            x="191.42857"
            y="206.8054" /></flowRegion><flowPara
          id="flowPara3707-8-7-3"
-         style="font-size:26.66666701px">upsample</flowPara></flowRoot>    <flowRoot
+         style="font-size:26.66666794px">Output Warp</flowPara></flowRoot>    <flowRoot
        transform="matrix(0.26458333,0,0,0.26458333,24.681664,-10.893265)"
        xml:space="preserve"
        id="flowRoot3701-7-2-3"
@@ -231,7 +226,7 @@
          id="tspan4699"
          x="105.83534"
          y="63.649765"
-         style="font-size:7.05555534px;stroke-width:0.26458332">Emergent / Causal Domain</tspan></text>
+         style="font-size:7.05555534px;stroke-width:0.26458332">Quantum / Relative Domain</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
@@ -242,7 +237,7 @@
          id="tspan4699-0"
          x="106.03314"
          y="84.672997"
-         style="font-size:7.05555534px;stroke-width:0.26458332">Causal / Emergent Domain</tspan></text>
+         style="font-size:7.05555534px;stroke-width:0.26458332">Relative / Quantum Domain</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker5115)"
        d="m 80.008918,72.025554 h 10.000001 v 0 0"
@@ -253,5 +248,19 @@
        d="m 100.00892,58.025556 v 27"
        id="path4727"
        inkscape:connector-curvature="0" />
+    <g
+       id="g903"
+       transform="translate(-12.49999,-55)">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4555-3-0"
+         d="m 85,112 7.499992,9.90173 h -60 l 7.5,-9.90173"
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path899"
+         d="m 39.999999,112 c 44.999999,0 44.999999,0 44.999999,0"
+         style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>
