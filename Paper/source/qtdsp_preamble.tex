@@ -1,3 +1,20 @@
 \usepackage{graphicx}% Include figure files
 %\usepackage{bm}% bold math
 %\usepackage{gensymb}
+\usepackage{amsmath}
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\usepackage{listings}
+\usepackage{float}
+
+\lstset{frame=tb,
+  language=C,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\scriptsize\ttfamily},
+  numbers=none,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
