@@ -40,7 +40,7 @@ structure of space-time and its metrics, and a causal time, indicating the flow
 from the past to the future \cite{Brunet}. The time domains relate the
 two models of Physics: QM and GR. 
 Note that since quantum mechanical effects can happen in either time direction,
-emergent time can just as well flow from the future to the past.
+emergent time could just as well flow from the future to the past.
 
 In the interest of having a nomenclature for this paper, one dimension of time
 is the ``quantum time'' domain and the other is the ``relative time'' domain.
@@ -75,18 +75,6 @@ This provides a possible signaling mechanism for consciousness in beings such
 as paramecia or slime molds, which exhibit conscious behavior but are too small
 for consciousness to arise from the network effects of neurons or ganglia.
 
-One way to relate the two time dimensions is with a scale-invariant geometry
-that exploits self-similarity.
-For it to be scale-invariant,
-we use an exponential growth model for quantum time.
-
-\begin{equation} \label{eq:pink}
-\tau \propto e^{\epsilon t}
-\end{equation}
-
-This exponential relationship between $\tau$ and $t$
-is a key enabler of signal transformations.
-
 The mechanics of signal generation can be considered in the context of
 quantum time.
 This arrangement lends itself to information flow, utilized by nature,
@@ -105,7 +93,7 @@ that biological systems would use field resonances in the physical vacuum
 (the exact nature of the field doesn't need to be understood)
 to transmit consciousness information efficiently.
 
-In other words, there is a basis for the notion that ``It's all vibrations''
+In other words, there is a basis for the belief that ``It's all vibrations''
 if the vibrations occur in quantum time such that their signal artifacts
 produce what looks like a noise spectrum.
 This is almost certainly an overly simplified view,
@@ -120,85 +108,107 @@ By digitizing and processing this noise in warped time domains,
 consciousness information could conceivably be extracted from the
 resulting signals using traditional detection technologies.
 
-\section{Exponential Flicker Noise}
+\subsection{Relating Time Domains by Exponential}
 
-Flicker noise (or 1/f noise), has a power spectrum proportional to
-$1/f^{\alpha}$, where $\alpha$ is between 0.7 and 1.4.
-It's a type of noise prevalent in many natural systems.
-Flicker noise \cite{Milotti} is seen in music, seismic data, EEG and ECG data,
-and electronic devices.
-Some of the more popular explanations for the 1/f spectrum are:
-\begin{itemize}
-    \item A superposition of relaxation processes.
-    \item Carrier mobility fluctuations through Coulomb scattering.
-    \item Self-organized criticality in systems with extended spatial degrees of freedom. 
-\end{itemize}
-There are a good number of hypotheses for 1/f noise, to which we add one more:
-\begin{itemize}
-    \item The superposition of exponential chirps.
-\end{itemize}
-An exponential swept-sine signal with constant amplitude has a power spectrum
-\cite{Novak} that is constant-slope (on a log-log plot) at roughly -6dB
-per octave, similar to a flicker noise power spectrum.
-This is independent of ``warp factor'' $\omega$.
-\begin{equation} \label{eq:w}
+One way to relate the two time dimensions is with a scale-invariant geometry
+that exploits self-similarity.
+For it to be scale-invariant,
+we use an exponential growth model for quantum time.
+
+\begin{equation} \label{eq:pink}
+\tau \propto e^{\epsilon t}
+\end{equation}
+
+This power law relationship between $\tau$ and $t$
+is a key enabler of signal transformations.
+A sample test signal with ``warp factor'' $\omega$ for Eq. \ref{eq:pink} is:
+\begin{equation} \label{eq:wp}
 Signal \propto sin(k \cdot e^{\omega t})
 \end{equation}
+The superposition of exponential chirps is also pink.
+Since it's self-similar,
+overlapped versions can be correlated for more processing gain.
+Reversing $\tau$ and $t$ in Eq. \ref{eq:pink} gives:
 
-
-\subsection{Exponential White Noise}
-
-White noise has a flat power spectrum.
-In a white noise model of quantum time,
-chirps start at (or pass through) 0 and asymptotically approach
-a final frequency as quantum time merges into relative time.
-
-\begin{equation} \label{eq:white}
-\frac{1}{\tau} \propto (1-e^{-\epsilon t})
+\begin{equation} \label{eq:brown}
+t \propto e^{\epsilon \tau}
 \end{equation}
 
-In other words, the consciousness signal emerges from a domain of infinite time.
-The power drops off at the same rate frequency increases,
-resulting in a flat spectrum from DC to $f_0$.
+Which seems like a good idea,
+but the time domain chirp is then no longer a power function.
+Overlapping transforms in time doesn't work, limiting its utility.
+It's logarithmic, which is not self-similar.
+A test chirp for Eq. \ref{eq:brown} is:
 
-\begin{equation}
-f = f_0 \cdot (1-e^{-\epsilon t})
-\end{equation}
-\begin{equation}
-p = p_0 \cdot e^{-\epsilon t}
-\end{equation}
-
-Suppose there is a pilot frequency $f_0$.
-The chirp would mix with carrier $f_0$ to produce a downward chirp
-(assuming the signal is moving forward in time)
-with power dropping with frequency,
-which flattens out the spectrum so it's still white.
-The resulting chirp signal is more practical to detect due to the shortness of the
-time that the chirp itself spends in a bandwidth that lends itself to detection.
-
-The amplitude droop may be compensated for in the input warping stage.
-White noise follows the same rules as pink noise except for some spectral bias.
-
-\subsection{Chaotic Noise}
-
-As noted in Robert May's widely cited paper \cite{May},
-complex dynamics can arise from simple first-order difference equations.
-For example, Eq. \ref{eq:may} has chaotic behavior when $a$ is between
-3.57 and 4.00.
-
-\begin{equation} \label{eq:may}
-X_{n + 1} = aX_n(1 - X_n)
+\begin{equation} \label{eq:wb}
+Signal \propto sin(k \cdot log^{\omega t + 1})
 \end{equation}
 
-The power spectrum of Eq. \ref{eq:may} is whitish when in chaos.
-Since computer-generated pseudorandom numbers use this principle, their spectra
-could have similar dynamics that come into play when generating signals to test
-demodulation algorithms.
+Returning to Eq. \ref{eq:pink}, the implication seems to be that relative time
+emerges from quantum time. It could be likened to a lake being filled by rain.
 
-There are many other chaos generators.
-The same chaotic attractors at work in the relative time domain could have
-analogs in the quantum time domain. Perhaps the chaos when transformed could offer
-identifiable patterns.
+\subsection{Relating Time Domains by Conic Section}
+
+Consider the case where $\omega$ in Eq. \ref{eq:wp} is imaginary.
+The chirp frequency follows a cosine function (see Euler's Formula).
+Supposing the existence of a high frequency pilot tone $f_0 \gg F_S/2$ mixing
+with the chirp, the resulting frequency would follow approximate a
+parabolic path down to 0 and back up again.
+
+The parabolic model allows independence from the arrow of time since $x^2$ is
+symmetric in $x$. You would expect such independence in quantum time.
+A $\tau/t$ singularity occurs at ``the now'' in Eq. \ref{eq:parabolic},
+which I call ``the dharma point'' because it merges with eternity.
+With an amplitude that goes as $\sqrt{|t - t_{now}|}$, the spectrum is white.
+
+Alternative models could have the singularity flipped,
+so at the dharma point the frequency could be infinite instead of
+0 as shown in Fig. \ref{fig:parabolic}.
+
+\begin{figure} \label{fig:parabolic}
+    \centering
+    \includegraphics[width=0.95\linewidth]{../source/parabola_e}
+    \caption[Hypothetical Parabolic Frequency Chirp]{Parabolic Chirp}
+\end{figure}
+
+\begin{equation} \label{eq:parabolic}
+f(t, t_{now}) = k \cdot (t - t_{now})^2
+\end{equation}
+
+The singularity could have zero time instead of zero frequency:
+
+\begin{equation} \label{eq:parabolictime}
+f(t, t_{now}) = k / (t - t_{now})^2
+\end{equation}
+
+A problem with this model is that the cosine is periodic.
+If signals were present, one would expect periodic artifacts that would have
+been detected by now. Frequency analysis of electronic noise
+from $10^{-6}$ Hz to over 1 THz can be found in the literature.
+However, it's only a problem if the chirp is repeating in the same timeline.
+The chirps could be on uncorrelated timelines in the multiverse.
+
+A chirp would only be detectable if its timeline enters the realm of phenomena
+that actually occur.
+Considering outcomes as arising from probabilistic fields,
+the most likely probabilities should produce the strongest signals.
+Each chirp could be imagined as a conic section intersecting the light cone of
+a Minkowski Space Time diagram. 
+Whether the conic section is parabolic, hyperbolic or elliptical, within the 
+system passband (which is assumed to be very limited) it looks parabolic.
+
+Tests found that the signal was difficult to detect when it was more than 
+10 dB below the noise.
+Although it's an interesting possibility,
+the low sensitivity of the conic section model doesn't engender much confidence
+in its ability to model nature.
+
+However, if the observer interacts through consciousness with what is being
+observed, interfering signals could be worked around.
+The system would compensate for them as a sort of forward error correction.
+If the living system can detect the signal, perhaps the algorithm can too.
+The sensor would have to interact with the living system to see what it sees.
+Otherwise, the uncorrelated noise would swamp it.
 
 \subsection{Information in the Noise}
 
@@ -210,19 +220,6 @@ The idea of consciousness as time quanta may be useful here.
 The act of being is a stream of consciousness that could have corresponding
 streams of pulse-coded information, a kind of informational counterpart to DNA.
 The impulse stream would be decoded for its information content.
-
-The existence of self-similar exponential chirp patterns could also have nothing
-to do with consciousness (as it's commonly understood) if emergent time is
-intrinsic to nature.
-Although there are empirical models and many studies surrounding noise sources,
-there is no general theory that explains the widespread occurrence of 1/f noise.
-Such a situation demands more experimental studies of noise, which 2D time modeling
-would provide. If there's something there, it will shed light on theories of noise.
-
-Or, they could have everything to do with consciousness.
-The mantras of ``Om'' and ``Ma'' are reminiscent of frequency chirps,
-with mouth resonances modeling the tonality.
-These could be the sounds of cosmic existence.
 
 To establish a notation and unit of measurement for quantum frequency,
 let the ``warp factor'' $\omega$ be in units of $e$, the
@@ -244,8 +241,8 @@ in nature.
 \end{figure}
 
 Resonant signals in the quantum time domain could be re-mapped to relative time
-and demodulated by correlating a series of fast exponential chirp transforms. 
-The spiral model needs $\omega$ to be real for Eq. \ref{eq:w} to be self-similar.
+and demodulated by correlating a series of fast Exponential Chirp Transforms (ECT). 
+The spiral model needs $\omega$ to be real for Eq. \ref{eq:wp} to be self-similar.
 
 The correlation effect can be visualized as a spinning logarithmic spiral
 illuminated by a strobe light. When the strobe frequency matches the rate
@@ -295,7 +292,7 @@ Note that ``exponential time warping'' is different from ``dynamic time
 warping'', a popular means of pattern-matching mostly linear signals.
 
 A convenient side effect of time warping is to transform interference
-(periodic signals) into wideband noise.
+(periodic signals) into wide-band noise.
 The usual frequency peaks of EEG and HRV are thus reduced.
 Periodic signals could be notched out as needed by appropriate filters
 to further reduce their interfering effect.
@@ -344,72 +341,11 @@ It's the demodulation process in reverse.
 The usual use case is demodulation, so that will be the focus of the paper.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{A Parabolic Conceptual Model}
-
-It's instructive to consider the case where $\omega$ is imaginary.
-The chirp frequency follows a cosine function (see Euler's Formula).
-Supposing the existence of a high frequency pilot tone $f_0 \gg F_S/2$ mixing
-with the chirp, the resulting frequency would follow a parabolic path
-down to 0 and back up again.
-
-The parabolic model allows independence from the arrow of time since $x^2$ is
-symmetric in $x$. You would expect such independence in quantum time.
-A $\tau/t$ singularity occurs at ``the now'' in Eq. \ref{eq:parabolic},
-which I call ``the dharma point'' because it merges with eternity.
-With an amplitude that goes as $\sqrt{|t - t_{now}|}$, the spectrum is white.
-
-\begin{equation} \label{eq:parabolic}
-f(t, t_{now}) = k \cdot (t - t_{now})^2
-\end{equation}
-
-A problem with this model is that the cosine is periodic.
-If signals were present, one would expect periodic artifacts that would have
-been detected by now. Frequency analysis of noise
-from $10^{-6}$ Hz to over 1 THz can be found in the literature.
-However, it's only a problem if the chirp is repeating in the same timeline.
-The chirps could be on uncorrelated timelines.
-A chirp would only be detectable if its timeline enters the realm of phenomena
-that actually occur.
-Considering outcomes as arising from probablistic fields,
-the most likely probabilities should produce the strongest signals.
-Each chirp could be imagined as a conic section intersecting the light cones of
-a Minkowski Space Time diagram. 
-Whether the conic section is parabolic, hyperbolic or elliptical, within the 
-system passband (which is assumed to be very limited) it looks parabolic.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth]{../source/parabola_e}
-    \caption[Chirp Frequency in Parabolic Time]{Chirp Frequency in Parabolic Time}
-    \label{fig:parabolic}
-\end{figure}
+\subsubsection{\label{sec:level1}The Parabolic Transform}
 
 A spectrum analyzer for the parabolic model is simpler than one for the spiral model.
 The frequency chirps shown in Fig. \ref{fig:parabolic} is time-warped by 
 re-sampling so as to shift the frequencies up to their respective
 $F_S/2$, $F_S/4$, and $F_S/10$. This is fed through a Fourier Transform to produce
 a new column of pixels for each new slice of raw input data.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{\label{sec:level1}The Parabolic Transform}
-
-Since parabolic resampling shifts frequencies upward, a digital low pass filter
-must be applied to the data to avoid artifacts beyond $F_S/2$.
-Decimation factor $m$ is 1 at the endpoints and 0 at the dharma point.
-
-It's not feasible to resample the entire parabola.
-Resampling the parabola segment between $x=0.5$ and $x=1$ (or $x=-1$ and $x=-0.5$)
-allows $2N$ input samples to map to $N$ time-warped samples.
-Decimation factor $m$ ranges from 0.25 to 1
-while the resample pitch ranges from 1 to 4.
-
-The dharma point is $N$ samples away from the resampled half-parabola.
-It's possible to run $m$ all the way to 0, at the dharma point.
-The output of the digital filter is frozen in time at that point.
-Plotting the sequence of dharma points may be instructive.
-
-A couple of stages of biquad low-pass filter serves to filter the input for
-up-sampling. 
-Coefficients may be stored in a table of $4N$ sets of filter coefficients.
-
 

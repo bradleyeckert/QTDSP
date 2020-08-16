@@ -12,51 +12,19 @@ The algorithm can be coded by a typical programmer or engineer with the help
 from some math tricks and perhaps working around the bugs in my thinking.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Reference Chirp}
-
-The most important part of a software ecosystem is its test code.
-The test code for QTDSP generates a reference chirp.
-That chirp is the basis for the demodulation algorithm.
-
-Let R be a scaled version of $\omega$.
-Let N be the size of the Fourier Transform, which is an exact power of two.
-Typically, it's between 256 and 16384. 
-Stepping $n$ from 0 to N-1,
-
-\begin{equation}  \label{eq:tc}
-f(n) = f_0 \cdot exp\left(\frac{nR}{N}\right)
-\end{equation}
-
-Computing many sequential points of transcendental functions tends to be slow.
-It's better to come with a fast algorithm. With some luck, it will also illuminate   
-the problem of fast signal demodulation.
-
-Stepwise exponential growth or decay can be handled by a multiply operation.
-Let $b$ be the step size for the multiplier.
-Setting $e^R = (1 + b)^N$,
-\begin{equation}
-b = e^{R/N} - 1
-\end{equation}
-
-For each iteration:
-\begin{equation}
-f_{n+1} = f_n \cdot (1 + b)
-\end{equation}
-
-Since $R/N \ll 1$, the first term or two of the Maclaurin series expansion of the
-exponent function is enough for a good approximation.
-So, $b$ is very close to $R/N$.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Input Warping}
 
 The downsampling process of Fig.~\ref{fig:demod} translates the sample pitch of
 $\vec{X}$ to the sample pitch of $\vec{Y}$ using an exponential sweep.
 In the industry, this is known as exponential time-warping.
 The input time warp re-samples input data such that a reference chirp would get
-translated to a constant-period sinusoid.
+translated to a constant-period sinusoid. 
+There are two kinds of reference chirps, exponential and logarithmic.
+The one to use depends on which time dimension emerges from which.
+Equations \ref{eq:wb} and \ref{eq:wp} will be referred to as $brown$ and $pink$
+chirps respectively because of their power spectra.
 
-An exponential chirp sweeps from $f_0$ to $f_1$ in a time $t$.
+An incoming chirp sweeps from $f_0$ to $f_1$ in a time $t$.
 M points of $\vec{X}$ get mapped onto N points of $\vec{Y}$, where $M < N$.
 Re-sampling is done on N points (of $\vec{Y}$) at a time where the respective indices of
 $\vec{X}$ and $\vec{Y}$ are $\delta$ and $i$.
@@ -64,13 +32,13 @@ $\vec{X}$ is swept from $\mathbf{X}_0$ to $\mathbf{X}_M$
 or $\mathbf{X}_M$ to $\mathbf{X}_0$.
 
 Let $\lambda$ be the sample pitch of $\vec{X}$.
-It will increase or decrease exponentially and should have a maximum value of 1.
+It will increase or decrease logarithmically and should have a maximum value of 1.
 
-This causes a chirp of matching R to be re-sampled to the upper frequency
+This causes a chirp of matching R to be re-sampled to the lower frequency
 (either $f_0$ or $f_1$ depending on the sign of R).
 Given output index i, input sample index $\delta(i)$ is the accumulated sum of
-$pitch(i)$ where $pitch$ decreases exponentially from 1.0
-or increases exponentially toward 1.0.
+$pitch(i)$ where $pitch$ decreases logarithmically from 1.0
+or increases logarithmically toward 1.0.
 In the latter case, the initial $pitch$ can either be determined from a dummy
 run of the resampling algorithm or analytically.
 It's $e^{M \cdot R/N}$. 
@@ -81,11 +49,9 @@ N = \sum_{k=1}^{M} e^{|R| \cdot (k-1)/N} = \frac{1 - e^{|R| \cdot M/N}}{1 - e^{|
 \end{equation}
 
 \begin{equation}  \label{eq:M_N}
-M = \frac{N}{|R|} \cdot\ ln\left( 1 - N(1-e^{|R|/N}) \right)
+M = \frac{-N}{|R|} \cdot\ ln\left( 1 - N(1-e^{|R|/N}) \right)
 \end{equation}
 
-An analytical expression of the re-sampling function ($i$ to $\delta$)
-was over my head, but it's easily expressed as an algorithm.
 Interpolating from a fractional $\vec{X}$ index in this example (WarpIn listing)
 is done by cubic interpolation using a Catmull-Rom spline.
 Given four points $y_0, y_1, y_2, y_3$, a cubic polynomial describes the curve
@@ -96,58 +62,56 @@ With $x$ ranging from 0 to 1 indexing the point on $[y_1, y_2]$.
 f = a_0 \cdot x^3 + a_1 \cdot x^2 + a_2 \cdot x + a_3
 \end{equation}
 
+The re-sampling function ($i$ to $\delta$) is expressed as code.
+Rather than compute a logarithm, it uses an exponential pitch change 
+(implemented with a MAC operation) such that the pitch tracks logarithmically.
+
 \begin{lstlisting}[float,floatplacement=H]
 float WarpIn(
-  float* out,        // output stream
-  float* in,         // input stream
-  int length,        // points in output stream
-  double delta,      // starting input index, 0 to 1
-  double pitch,      // exponential input sample pitch
-  double b,          // exp rate of change of pitch
-  double amplitude,  // starting amplitude
-  double fcomp)      // decay rate of amplitude
+  float* out,       // output stream
+  float* in)        // input stream
 {
-  float y0 = *in++;
-  float y1 = *in++;
-  float y2 = *in++;
+  float b = exp(-R / N) - 1; // rate of change of pitch
+  float fcomp = 1 - expf(R / N); // rate of amplitude 
+  float delta = 1.0;
+  float pitch = 1.0; // exponential input sample pitch
+  float amplitude = 1.0; // starting amplitude
+  float absR = fabs(R);
+  float m = N;
+  if (absR) {
+    m = N * log(1 - N * (1 - exp(absR / N))) / absR;
+  }
+  if (r < 0) { pitch = exp(R * m / N); }
+  float y1 = *in++;  float y2 = *in++;
   float y3 = *in++;
-  // coefficients for first y1-y2 segment of the curve
-  float a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
-  float a1 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3;
-  float a2 = -0.5 * y0 + 0.5 * y2;
-  float a3 = y1;
-  for (int i = 0; i < length; i++) {
+  float a0, a1, a2, a3, y0;
+  for (int i = 0; i < N; i++) {
+    if (delta >= 1.0) {
+      delta -= 1.0;  // stepped into the next segment
+      pitch += pitch * b;
+      amplitude += amplitude * fcomp;
+      y0 = y1;  y1 = y2;
+      y2 = y3;  y3 = *in++;
+      a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
+      a1 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3;
+      a2 = -0.5 * y0 + 0.5 * y2;
+      a3 = y1; // for Catmull-Rom spline interpolation
+    }
     float x = delta; // between 0 and 1 on y1-y2 path
     float sum = x * (x * (x * a0 + a1) + a2) + a3;
     *out++ = sum * amplitude; // deemphasize low end
     delta += pitch;
-    if (delta >= 1.0) {
-      delta -= 1.0;
-      pitch += pitch * b;
-      amplitude += amplitude * fcomp;
-      y0 = y1;       // stepped into the next segment
-      y1 = y2;
-      y2 = y3;
-      y3 = *in++;
-      a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
-      a1 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3;
-      a2 = -0.5 * y0 + 0.5 * y2;
-      a3 = y1;
-    }
   }
-  return pitch;
 }
 \end{lstlisting}
 
 Regardless of the sign of $R$, the input warp shifts the corresponding chirp
-to the lesser of $f_0$ and $f_1$. Let $\gamma$ be the highest frequency component in the
-time-warped input:
+to the lesser of $f_0$ and $f_1$. 
+Let $\gamma$ be the highest frequency component in the time-warped input:
 
 \begin{equation} \label{eq:gamma}
 \gamma = \frac{N}{2} \cdot \frac{1}{1 + |R|}
 \end{equation}
-
-Note: The effect of S on $\gamma$ hasn't been tested yet.
 
 Input interpolation produces noise artifacts, as you would expect.
 They get spread broadly across the spectrum above the region of interest.
@@ -165,7 +129,6 @@ see the distribution of noise artifacts to the right of the peak.
 
 That's a great relief because it removes any need for much more
 compute-intensive resampling algorithms. Warping may be kept simple and fast.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{FFT}
@@ -242,7 +205,6 @@ Sample C code for the output warp:
 static void WarpOut(
   float* out,               // output stream (V)
   float* in,                // input stream (mag^2)
-  int length,
   double gamma,             // max epsilon index
   double zeta,              // rate of change of gamma
   float fcomp)              // decay rate of amplitude
@@ -255,7 +217,7 @@ static void WarpOut(
   float y0 = *in--;
   float a0 = y1 - y0;
   float a1 = y0;
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < N/2; i++) {
     float idx1 = idx0;
     float x = gamma - idx0; // between 0 and 1 on y0-y1
     float sum = x * a0 + a1;
@@ -328,101 +290,4 @@ An attempt was made to accumulate vectors,
 with the idea that the phase rotations might sync up,
 but it didn't work in simulation.
 So, angle data from the FFT is discarded.
-
-\section{Parabolic Model Demodulation}
-
-The parabolic time model is simpler than the spiral model.
-There's no correlator. A spectrum analyzer is also easier to build.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Reference Chirp}
-
-The parabolic chirp has a frequency that starts at $F_0$ and ends at 0.
-Its frequency forms half of a parabola when $N$ points are plotted.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Input Warping}
-
-The downsampling process of Fig.~\ref{fig:demod} translates the sample pitch of
-$\vec{X}$ to the sample pitch of $\vec{Y}$ using a parabolic sweep.
-The input time warp re-samples input data such that a reference chirp would get
-translated to a constant-period sinusoid.
-
-M points of $\vec{X}$ get mapped onto N points of $\vec{Y}$, where $M = 0.468N$.
-The chirp's $F_0$ gets down-sampled by a factor of 3.53 to match $F_1$,
-the frequency at $X[M]$.
-As with the spiral model, such down-sampling is well-behaved.
-Upsampling $F_1$ to $F_0$ would be more difficult and need anti-aliasing filtering.
-
-Rather than showing a mathematical derivation,
-a code listing of the time warping tells all. 
-Cubic interpolation via Catmull-Rom spline is again used.
-
-\begin{lstlisting}[float,floatplacement=H]
-void ParabolicWarp(
-  float* out,       // output stream
-  float* in,        // input stream
-  int n,            // points in output stream
-  float pitch)      // exponential input sample pitch
-{
-  float y0, a0, a1, a2, a3;
-  float y1 = *in++;
-  float y2 = *in++;
-  float y3 = *in++;
-  float x = 0;      // between 0 and 1 on y1-y2 path
-  float dp = n;     // dharma point is at right edge
-  float dp0 = sqrtf(pitch) * dp;
-  pitch = 1.0;
-  for (int i = 0; i < n; i++) {
-    x += pitch;
-    if (x >= 1.0) { // stepped into the next segment
-      x -= 1.0;
-      float s = dp0 / dp;
-      pitch = s * s;
-      dp--;
-      y0 = y1;
-      y1 = y2;
-      y2 = y3;
-      y3 = *in++;
-      // coefficients for y1-y2 segment of the cubic curve
-      a0 = -0.5f * y0 + 1.5f * y1 - 1.5f * y2 + 0.5f * y3;
-      a1 = y0 - 2.5f * y1 + 2.0f * y2 - 0.5f * y3;
-      a2 = -0.5f * y0 + 0.5f * y2;
-      a3 = y1;
-    }
-    *out++ = x * (x * (x * a0 + a1) + a2) + a3;
-  }
-}
-\end{lstlisting}
-
-After $\vec{X}$ is time-warped into $\vec{Y}$, $\vec{Y}$ is processed by a
-Fast Fourier Transform and converted to magnitude data $\vec{U}$ containing N/2
-frequency bins. Not all of them are used.
-Outputs above $F_S / 7$ are ignored.
-
-Given N input points, output indices up to $F_S / 7$
-are used for further processing.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Spectral Display for Parabolic Time}
-
-The FFT output can be used to form a column of heat-mapped pixels on a display.
-Each subsequent conversion forms another column.
-$H_X$ samples are appended to $\vec{X}$ for each new conversion.
-A GPU would typically run hundreds of warps and FFTs in parallel to produce a
-2D image as a single processing block.
-
-Since there is no correlation step, the parabolic chirp is smeared across the
-output image.
-Figure \ref{fig:p4kbw3} illustrates the image produced by a test waveform.
-$F_0$ is $F_S/2$.
-At $F_0$, the smear is thinnest.
-The high frequency components of the smear are the most pronounced at $F_0$.
-A 2D FFT can be used to help pick out the location of the chirp.
-
-\begin{figure}
-  \includegraphics[width=0.8\linewidth]{../source/p4kbw3.jpg}
-  \caption{Parabolic chirp 3dB below noise.}
-  \label{fig:p4kbw3}
-\end{figure}
 
